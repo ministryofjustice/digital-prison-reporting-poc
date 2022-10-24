@@ -69,7 +69,7 @@ object GlueApp {
         
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
 
-    val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(logger.log, sparkSession, args.asJava)
+    val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(sparkSession, args.asJava)
 
     val writer = cp_job.run() // returns DataStreamWriter
                  .trigger(Trigger.ProcessingTime("100 seconds"))
