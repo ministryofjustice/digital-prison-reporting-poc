@@ -329,15 +329,6 @@
 			</plugin>
 		</plugins>
 	</reporting>
-
-	
-	<distributionManagement>
-		<repository>
-		  <id>internal.repo</id>
-		  <name>Technology Matters Internal Repository</name>
-		  <url>file:target/internal-repo/repository</url>
-		</repository>
-	</distributionManagement>
   
 	<dependencyManagement>
 		<dependencies>
@@ -1025,24 +1016,10 @@
 
 	<dependencies>
 		<!-- TEST -->
-		<!-- 
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-all</artifactId>
-			<version>${org.mockito.version}</version>
-			<scope>test</scope>
-		</dependency>
-		 -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${org.junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${org.springframework.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
