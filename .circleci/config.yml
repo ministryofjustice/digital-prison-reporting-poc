@@ -21,14 +21,14 @@ jobs:
 workflows:
   build:
     jobs:
-    - checkout:
-        filters:
-            tags:
-            ignore: /.*/
-    - maven-build:
-        requires:
-            - checkout
-        filters:
-            branches:
-            only:
-                - main         
+      - checkout:
+          filters:
+              tags:
+              ignore: /.*/
+      - maven-build:
+          requires:
+              - checkout
+          filters:
+              branches:
+              only:
+                  - main                     
