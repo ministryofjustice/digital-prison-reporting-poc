@@ -60,6 +60,30 @@ public class DeltaLakeService {
 		}
 	}
 	
+	public void append(final String prefix, final String schema, final String table, final Dataset<Row> df) {
+		df.write()
+		.format("delta")
+		.mode("append")
+		.option("path", getTablePath(prefix, schema, table))
+		.saveAsTable(table);
+	}
+	
+	public void replace(final String prefix, final String schema, final String table, final Dataset<Row> df) {
+		df.write()
+			.format("delta")
+			.mode("overwrite")
+			.option("overwriteSchema", true)
+			.option("path", getTablePath(prefix, schema, table))
+			.saveAsTable(table);
+	}
+	
+	public void vacuum(final String prefix, final String schema, final String table) {
+		final DeltaTable dt = getTable(prefix, schema, table);
+		if(dt != null) {
+			dt.vacuum();
+		}
+	}
+	
 	public void delete(final String prefix, final String schema, final String table, final String primaryKey, final Dataset<Row> df) {
 		final DeltaTable dt = getTable(prefix, schema, table);
 		if( dt != null) {

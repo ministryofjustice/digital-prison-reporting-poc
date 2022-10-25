@@ -115,6 +115,12 @@
 		    <scope>provided</scope>
 		</dependency>
 				
+		<!-- https://mvnrepository.com/artifact/com.nikvanderhoof/spark-constraints -->
+		<dependency>
+		    <groupId>com.nikvanderhoof</groupId>
+		    <artifactId>spark-constraints_2.12</artifactId>
+		    <version>0.1.0_spark2.4</version>
+		</dependency>
 		
 				
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->

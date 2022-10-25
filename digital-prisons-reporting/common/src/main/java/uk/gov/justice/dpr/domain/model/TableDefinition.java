@@ -141,6 +141,7 @@ public class TableDefinition {
 	public static class ViolationDefinition {
 		private String check;
 		private String location;
+		private String name;
 		
 		public String getCheck() {
 			return check;
@@ -154,5 +155,12 @@ public class TableDefinition {
 		public void setLocation(String location) {
 			this.location = location;
 		}
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		
 	}
 }

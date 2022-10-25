@@ -77,6 +77,31 @@ public class DeltaLakeServiceTest extends BaseSparkTest {
 		
 	}
 	
+	@Test
+	public void shouldReplaceDataInATable() throws IOException {
+		final DeltaLakeService service = new DeltaLakeService();
+		
+		final String prefix = folder.getRoot().getAbsolutePath();
+
+		Dataset<Row> inputs = getValidDataset();
+		
+		service.insert(prefix, "schema", "replace", "OFFENDER_ID", inputs);
+		Dataset<Row> outputs = service.load(prefix, "schema", "replace");
+		// coalesce so that the data is realized.
+		
+		outputs.write().parquet(prefix + "/temp.parquet");
+		
+		service.delete(prefix, "schema", "replace", "OFFENDER_ID", inputs);
+
+		// now replace the table
+		outputs = spark.read().parquet(prefix + "/temp.parquet");
+		service.replace(prefix, "schema", "replace", outputs);
+		final Dataset<Row> replacements = service.load(prefix, "schema", "replace");
+		assertEquals(inputs.count(), outputs.count());
+		assertEquals(outputs.count(), replacements.count());
+		
+	}
+	
 	private Dataset<Row> getValidDataset() throws IOException {
 		final Dataset<Row> df = this.loadParquetDataframe("/sample/events/updates.parquet", "updates.parquet");
 		return df;
