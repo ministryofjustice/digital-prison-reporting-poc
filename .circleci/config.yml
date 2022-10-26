@@ -1,34 +1,48 @@
 version: 2.1
 
 jobs:
-  validate:
+  checkout:
+    working_directory: ~/project
     docker:
       - image: cimg/openjdk:16.0
     steps:
       - checkout
+      - run:
+          name: Check Java Version
+          command: |
+            java --version
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
 
   maven-build:
     docker:
-        - image: cimg/openjdk:16.0
+      - image: cimg/openjdk:16.0
     steps:
+      - attach_workspace:
+          at: ~/project
       - run:
-          name: Run tests
-          command: mvn test        
-      - run:
-          name: Build
-          command: mvn clean install
+          name: maven tests
+          command: |
+            mvn test
+      - run: 
+          name: build
+          command: |
+            mvn clean install      
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
 
 workflows:
+  version: 2
   build:
     jobs:
       - checkout:
-          filters:
-              tags:
-              ignore: /.*/
-      - maven-build:
+          name: "checkout"
+      - build:
+          context:
+            - digital-prison-reporting-dev
           requires:
-              - checkout
-          filters:
-              branches:
-              only:
-                  - main                     
+            - checkout
