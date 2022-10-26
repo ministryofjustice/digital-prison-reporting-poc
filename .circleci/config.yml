@@ -87,10 +87,11 @@ jobs:
     steps:
       - when:
           condition:
-            equal: [ DPR-100-HW, << pipeline.git.branch >> ]        
-      - run:
-          name: notification
-          command: echo "Release Artifacts, if the branch is MAIN"
+            equal: [ release, << pipeline.git.branch >> ]
+          steps:          
+            - run:
+                name: notification
+                command: echo "Release Artifacts, if the branch is MAIN"
       - when:
           condition:
             equal: [ release, << pipeline.git.branch >> ]  
