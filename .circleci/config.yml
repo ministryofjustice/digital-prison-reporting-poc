@@ -1,4 +1,20 @@
 version: 2.1
+parameters:
+    jdk-image:
+      type: string
+      default: "cimg/openjdk"  
+    jdk-imagetag:
+      type: string
+      default: "16.0"
+    workingdir:
+      type: string
+      default: "~/project"
+    maven-build-cmd:
+      type: string
+      default: "clean install"
+    s3-artifacts-store:
+      type: string
+      default: "dpr-demo-development-20220916083016121000000001"    
 
 jobs:
   checkout:
@@ -29,7 +45,7 @@ jobs:
       - run: 
           name: build
           command: |
-            mvn clean install      
+            mvn ${maven-build-cmd}      
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -44,7 +60,7 @@ jobs:
       - run:
           name: Deploy
           command: |
-            aws s3 sync target s3://dpr-demo-development-20220916083016121000000001/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2     
+            aws s3 sync target s3://${s3-artifacts-store}/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2     
 
 workflows:
   version: 2
