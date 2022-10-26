@@ -63,13 +63,19 @@ jobs:
     machine:
       enabled: true    
     steps:
-      - run:
-          name: notification
-          command: echo "Deploy Artifacts to DEV"
+      - when:
+          condition:
+            equal: [ DPR-100-HW, << pipeline.git.branch >> ]
+          steps:          
+            - run:
+                name: notification
+                command: echo "Deploy Artifacts to DEV"
       - when:
           condition:
             equal: [ DPR-100-HW, << pipeline.git.branch >> ]  
           steps:
+            - attach_workspace:
+                at: << pipeline.parameters.workingdir >>            
             - run:
                 name: Deploy
                 command: |
