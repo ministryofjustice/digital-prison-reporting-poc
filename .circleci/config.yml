@@ -111,6 +111,8 @@ workflows:
   version: 2
   build:
     jobs:
+      - version:
+          name: "CheckVersion"  
       - checkout:
           name: "checkout"
       - tests:
