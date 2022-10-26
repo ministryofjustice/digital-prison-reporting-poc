@@ -42,9 +42,9 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run:
-          name: maven tests
+          name: list
           command: |
-            ls -lsrt; pwd     
+            ls -lsrt target/; pwd     
 
 workflows:
   version: 2
