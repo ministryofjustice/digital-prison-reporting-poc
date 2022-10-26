@@ -45,7 +45,7 @@ jobs:
       - run: 
           name: build
           command: |
-            mvn ${maven-build-cmd}      
+            mvn $maven-build-cmd    
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -60,7 +60,7 @@ jobs:
       - run:
           name: Deploy
           command: |
-            aws s3 sync target s3://${s3-artifacts-store}/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2     
+            aws s3 sync target s3://$s3-artifacts-store/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2     
 
 workflows:
   version: 2
