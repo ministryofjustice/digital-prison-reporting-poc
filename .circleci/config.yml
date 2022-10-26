@@ -1,4 +1,8 @@
 version: 2.1
+
+orbs:
+    semver-orb: tv2norge/semver-orb@0.0.1
+
 parameters:
     jdk-image:
       type: string
@@ -20,6 +24,11 @@ parameters:
       default: "eu-west-2"        
 
 jobs:
+  version:
+    executor: semver-orb/default
+    steps:
+      - print  
+    
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
     docker:
