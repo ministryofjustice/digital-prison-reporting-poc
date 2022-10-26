@@ -36,15 +36,15 @@ jobs:
             - .
 
   sync-artifacts:
-    docker:
-      - image: cimg/openjdk:16.0
+    machine:
+      enabled: true    
     steps:
       - attach_workspace:
           at: ~/project
       - run:
-          name: list
+          name: Deploy
           command: |
-            ls -lsrt target/; pwd     
+            aws s3 sync target/hello-world*.jar s3://dpr-demo-development-20220916083016121000000001/artifacts/ --region eu-west-2     
 
 workflows:
   version: 2
