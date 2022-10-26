@@ -20,19 +20,20 @@ jobs:
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
     docker:
-      - image: cimg/openjdk:16.0
+      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
       - checkout
       - run:
           name: Check Java Version
           command: |
-            java --version
+            java --version;
+            echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
             - .
 
-  build:
+  tests:
     docker:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
@@ -41,7 +42,14 @@ jobs:
       - run:
           name: maven tests
           command: |
-            mvn test
+            mvn test            
+
+  build:
+    docker:
+      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
+    steps:
+      - attach_workspace:
+          at: << pipeline.parameters.workingdir >>
       - run: 
           name: build
           command: |
@@ -55,6 +63,9 @@ jobs:
     machine:
       enabled: true    
     steps:
+      - when:
+          condition:
+            equal: [ main, << pipeline.git.branch >> ]        
       - attach_workspace:
           at: << pipeline.parameters.workingdir >>
       - run:
@@ -68,11 +79,14 @@ workflows:
     jobs:
       - checkout:
           name: "checkout"
+      - tests:
+          requires:
+            - checkout             
       - build:
           context:
             - digital-prison-reporting-dev
           requires:
-            - checkout
+            - tests
       - sync-artifacts:
           context:
             - digital-prison-reporting-dev
