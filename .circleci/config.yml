@@ -27,8 +27,11 @@ jobs:
   version:
     executor: semver-orb/default
     steps:
-      - semver-orb/print  
-    
+      - semver-orb/setup
+      - semver-orb/print
+      - semver-orb/tagnext
+      - semver-orb/print
+
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
     docker:
@@ -112,9 +115,11 @@ workflows:
   build:
     jobs:
       - version:
-          name: "CheckVersion"  
+          name: "version"  
       - checkout:
           name: "checkout"
+          requires:
+            - version          
       - tests:
           requires:
             - checkout             
