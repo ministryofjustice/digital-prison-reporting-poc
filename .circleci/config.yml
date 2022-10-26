@@ -85,22 +85,16 @@ jobs:
     machine:
       enabled: true    
     steps:
-      - when:
-          condition:
-            equal: [ release, << pipeline.git.branch >> ]
-          steps:          
-            - run:
-                name: notification
-                command: echo "Release Artifacts, if the branch is MAIN"
-      - when:
-          condition:
-            equal: [ release, << pipeline.git.branch >> ]  
-          steps:
-            - run:
-                name: Deploy
-                command: |
-                  aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2
-                
+      - persist_to_workspace:
+          root: << pipeline.parameters.workingdir >>        
+      - run: 
+          name: notification
+          command: echo "Release Artifacts, if the branch is RELEASE"
+      - run:
+          name: Release
+          command: |
+            aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2            
+
 workflows:
   version: 2
   build:
@@ -125,4 +119,8 @@ workflows:
             - digital-prison-reporting-release
           requires:
             - build
-            - deploy-dev                    
+            - deploy-dev
+          filters:
+            branches:
+              only:
+                - release                          
