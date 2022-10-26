@@ -18,7 +18,7 @@ parameters:
 
 jobs:
   checkout:
-    working_directory: ~/project
+    working_directory: << pipeline.parameters.workingdir >>
     docker:
       - image: cimg/openjdk:16.0
     steps:
@@ -28,16 +28,16 @@ jobs:
           command: |
             java --version
       - persist_to_workspace:
-          root: ~/project
+          root: << pipeline.parameters.workingdir >>
           paths:
             - .
 
   build:
     docker:
-      - image: cimg/openjdk:16.0
+      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
       - attach_workspace:
-          at: ~/project
+          at: << pipeline.parameters.workingdir >>
       - run:
           name: maven tests
           command: |
@@ -47,7 +47,7 @@ jobs:
           command: |
             mvn << pipeline.parameters.maven-build-cmd >>   
       - persist_to_workspace:
-          root: ~/project
+          root: << pipeline.parameters.workingdir >>
           paths:
             - .
 
@@ -56,7 +56,7 @@ jobs:
       enabled: true    
     steps:
       - attach_workspace:
-          at: ~/project
+          at: << pipeline.parameters.workingdir >>
       - run:
           name: Deploy
           command: |
