@@ -85,6 +85,9 @@ jobs:
     machine:
       enabled: true    
     steps:
+      - when:
+          condition:
+            equal: [ DPR-100-HW, << pipeline.git.branch >> ]        
       - run:
           name: notification
           command: echo "Release Artifacts, if the branch is MAIN"
