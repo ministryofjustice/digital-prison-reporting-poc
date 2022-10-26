@@ -2,29 +2,24 @@ package uk.gov.justice.dpr.cloudplatform.sink;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
 
 import java.io.IOException;
 import java.util.List;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.functions;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.internal.stubbing.defaultanswers.ReturnsEmptyValues;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 
-import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.PutRecordRequest;
 
@@ -34,8 +29,6 @@ import uk.gov.justice.dpr.BaseSparkTest;
 @PrepareForTest(AmazonKinesisClientBuilder.class)
 public class KinesisSinkTest extends BaseSparkTest{
 
-	@Mock AmazonKinesis stream;
-	@Mock AmazonKinesisClientBuilder akcb;
 	
 	@Before
 	public void before() {
@@ -97,7 +90,7 @@ public class KinesisSinkTest extends BaseSparkTest{
 	
 	protected KinesisSink create() {
 		final KinesisSink sink = new KinesisSink("eu-west-1", "stream");
-		sink.builder = akcb;
+		// sink.builder = akcb;
 		return sink;
 	}
 	

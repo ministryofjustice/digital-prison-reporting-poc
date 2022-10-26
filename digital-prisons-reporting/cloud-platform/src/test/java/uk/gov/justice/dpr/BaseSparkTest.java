@@ -135,8 +135,26 @@ public abstract class BaseSparkTest {
 	
 	@SuppressWarnings("deprecation")
 	protected String getResource(final String resource) throws IOException {
-		final InputStream stream = System.class.getResourceAsStream(resource);
+		final InputStream stream = getStream(resource);
 		return IOUtils.toString(stream);
+	}
+	
+	protected static InputStream getStream(final String resource) {
+		InputStream stream = System.class.getResourceAsStream(resource);
+		if(stream == null) {
+			stream = System.class.getResourceAsStream("/src/test/resources" + resource);
+			if(stream == null) {
+				stream = System.class.getResourceAsStream("/target/test-classes" + resource);
+				if(stream == null) {
+					Path root = Paths.get(".").normalize().toAbsolutePath();
+					stream = System.class.getResourceAsStream(root.toString() + "/src/test/resources" + resource);
+					if(stream == null) {
+						stream = BaseSparkTest.class.getResourceAsStream(resource);
+					}
+				}
+			}
+		}
+		return stream;
 	}
 	
 	protected boolean areEqual(final Dataset<Row> a, final Dataset<Row> b) {

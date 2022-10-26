@@ -1,34 +1,20 @@
 package uk.gov.justice.dpr.cloudplatform.configuration;
 
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.streaming.DataStreamReader;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.cloudplatform.job.Job;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CloudPlatformTest {
+public class CloudPlatformTest extends BaseSparkTest {
 
-	@Mock SparkSession spark;
-	@Mock DataStreamReader dsr;
-	
-	@Before
-	public void before() {
-		when(spark.readStream()).thenReturn(dsr);
-		when(dsr.format(any())).thenReturn(dsr);
-		when(dsr.option(any(), any())).thenReturn(dsr);
-	}
 	
 	@Test
 	public void shouldCreateAJobWithTheRightConfiguration() {
