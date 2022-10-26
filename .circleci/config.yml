@@ -44,9 +44,6 @@ jobs:
       - run:
           name: Deploy
           command: |
-            ls -lsrt;
-            pwd;
-            ls -lsrt /home/circleci/project/target/;
             aws s3 sync target s3://dpr-demo-development-20220916083016121000000001/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2     
 
 workflows:
