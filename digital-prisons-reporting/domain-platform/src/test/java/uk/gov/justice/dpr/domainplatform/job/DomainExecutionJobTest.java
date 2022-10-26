@@ -82,7 +82,7 @@ public class DomainExecutionJobTest extends BaseSparkTest {
 		final DeltaLakeService service = new DeltaLakeService();
 		final String targetPath = folder.getRoot().getAbsolutePath() + "/target";
 		
-		final DomainExecutionJob job = prepare(service, false, "/sample/domain/sample-domain-execution-bad-source-table.json", targetPath);
+		final DomainExecutionJob job = prepare(service, true, "/sample/domain/sample-domain-execution-bad-source-table.json", targetPath);
 		job.run();	
 		
 		// there shouldn't be a target table

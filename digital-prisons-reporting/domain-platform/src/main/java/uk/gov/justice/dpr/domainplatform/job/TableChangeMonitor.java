@@ -1,5 +1,90 @@
 package uk.gov.justice.dpr.domainplatform.job;
 
+import java.util.List;
+import java.util.Set;
+
+import org.apache.spark.api.java.function.VoidFunction2;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.streaming.DataStreamReader;
+import org.apache.spark.sql.streaming.DataStreamWriter;
+
+import uk.gov.justice.dpr.domain.model.DomainDefinition;
+import uk.gov.justice.dpr.domainplatform.domain.DomainExecutor;
+import uk.gov.justice.dpr.domainplatform.domain.DomainRepository;
+import uk.gov.justice.dpr.util.TableListExtractor;
+import uk.gov.justice.dpr.util.TableListExtractor.TableTuple;
+
 public class TableChangeMonitor {
 
+	protected DataStreamReader dsr;
+	protected String domainRepositoryPath;
+	protected String sourcePath;
+	protected String targetPath;
+	
+	public TableChangeMonitor(final String domainRepositoryPath, final String sourcePath, final String targetPath, final DataStreamReader dsr) {
+		this.dsr = dsr;
+		this.domainRepositoryPath = domainRepositoryPath;
+		this.sourcePath = sourcePath;
+		this.targetPath = targetPath;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public DataStreamWriter run() {
+		return run(dsr);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public DataStreamWriter run(final DataStreamReader in) {
+		return run(in.load());
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public DataStreamWriter run(final Dataset<Row> df) {
+		return df.writeStream().foreachBatch(new TableChangeMonitor.Function(df.sparkSession(), domainRepositoryPath, sourcePath, targetPath));
+	}
+	
+	public class Function implements VoidFunction2<Dataset<Row>, Long> {
+		private static final long serialVersionUID = 8028572153253155936L;
+		
+		public Function(final SparkSession spark, final String domainRepositoryPath, final String sourcePath, final String targetPath) {
+			this.sourcePath = sourcePath;
+			this.targetPath = targetPath;
+			this.repo = new DomainRepository(spark, domainRepositoryPath);
+			this.repo.touch();
+		}
+		
+		private DomainRepository repo;
+		private String sourcePath;
+		private String targetPath;
+
+		@Override
+		public void call(Dataset<Row> df_events, Long batchId) throws Exception {
+			System.out.println("Running batch " + batchId );
+			if(!df_events.isEmpty()) {
+
+				try {
+					// get a list of events
+					// get a list of tables the events relate to
+					List<TableTuple> tables = TableListExtractor.extractTableList(df_events);
+					
+					// find all domains that depend on the events
+					for(final TableTuple table : tables) {
+						Set<DomainDefinition> domains = repo.getDomainsForSource(table.asString());
+						for(final DomainDefinition domain : domains) {
+							// for each, start a new domain incremental update
+							final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
+							executor.doIncremental(df_events, table);
+						}
+					}
+					
+				} catch(Exception e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+		
+	}
+	
 }

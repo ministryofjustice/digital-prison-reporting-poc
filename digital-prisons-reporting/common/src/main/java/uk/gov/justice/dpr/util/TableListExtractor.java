@@ -45,6 +45,13 @@ public class TableListExtractor {
 			this.table = table;
 		}
 		
+		public String asString() {
+			return schema + "." + table;
+		}
+		
+		public String asString(final String sep) {
+			return schema + sep + table;
+		}
 		
 	}
 }

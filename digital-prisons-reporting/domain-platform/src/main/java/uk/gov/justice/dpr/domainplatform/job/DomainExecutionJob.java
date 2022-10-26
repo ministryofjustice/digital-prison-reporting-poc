@@ -9,8 +9,6 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.gov.justice.dpr.delta.DeltaLakeService;
@@ -20,6 +18,7 @@ import uk.gov.justice.dpr.domain.model.TableDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition.MappingDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition.TransformDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition.ViolationDefinition;
+import uk.gov.justice.dpr.domainplatform.domain.TableInfo;
 
 public class DomainExecutionJob {
 	
@@ -33,7 +32,7 @@ public class DomainExecutionJob {
 	protected String sourceTable;
 	protected String operation; // incremental or refresh
 	
-	protected DomainLoader domainValidator = new DomainLoader();
+	protected DomainLoader domainLoader = null;
 	protected DeltaLakeService deltaService = new DeltaLakeService();
 	
 	public DomainExecutionJob(final SparkSession spark, final String domainPath, final String domainName, final String sourcePath, final String sourceTable, final String targetPath, final String operation) {
@@ -44,13 +43,14 @@ public class DomainExecutionJob {
 		this.sourceTable = sourceTable;
 		this.targetPath = targetPath;
 		this.operation = operation;
+		this.domainLoader = new DomainLoader(spark, domainPath);
 	}
 
 	public void run() {
 		
 		try {
 			// (1) load the domain this relates to
-			final DomainDefinition domain = loadDomain();
+			final DomainDefinition domain = domainLoader.loadDomain();
 			
 			List<TableDefinition> tables = getTablesChangedForSourceTable(domain, sourceTable);
 			
@@ -113,7 +113,7 @@ public class DomainExecutionJob {
 		// (3) run transforms
 		// (4) run violations
 		// (5) run mappings if available
-		final Dataset<Row> df_target = apply(table, info.table, df_source);
+		final Dataset<Row> df_target = apply(table, info.getTable(), df_source);
 		
 		// (6) save materialised view
 		saveFull(table, df_target);
@@ -180,16 +180,6 @@ public class DomainExecutionJob {
 		deltaService.append(targetPath + "/" + location, "violations", name, df);
 	}
 	
-	
-	protected DomainDefinition loadDomain() throws JsonMappingException, JsonProcessingException, IllegalArgumentException {
-		final String path = domainPath;
-		final Dataset<Row> df = spark.read().option("wholetext", true).text(path);
-		final String json = df.first().getString(0);
-		final DomainDefinition def = MAPPER.readValue(json, DomainDefinition.class);
-		domainValidator.validate(def);
-		return def;
-	}
-	
 	protected void handleError(final Exception e) {
 		final StringWriter sw = new StringWriter();
 		final PrintWriter pw = new PrintWriter(sw);
@@ -197,41 +187,5 @@ public class DomainExecutionJob {
 		System.err.print(sw.getBuffer().toString());
 	}
 	
-	public static class TableInfo {
-		protected String prefix;
-		protected String schema;
-		protected String table;
-		
-		protected TableInfo(final String prefix, final String schema, final String table) {
-			this.prefix = prefix;
-			this.schema = schema;
-			this.table = table;
-		}
-		
-		public static TableInfo create(final String prefix, final String source) {
-			String[] parts = source.split("\\.");
-			if(parts == null || parts.length == 0) {
-				return new TableInfo(prefix, "","");
-			}
-			if(parts.length == 1) {
-				return new TableInfo(prefix, "", parts[0]);
-			}
-				
-			return new TableInfo(prefix, parts[0], parts[1]);
-		}
 
-		public String getPrefix() {
-			return prefix;
-		}
-
-		public String getSchema() {
-			return schema;
-		}
-
-		public String getTable() {
-			return table;
-		}
-		
-		
-	}
 }
