@@ -27,7 +27,7 @@ jobs:
   version:
     executor: semver-orb/default
     steps:
-      - print  
+      - semver-orb/print  
     
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
