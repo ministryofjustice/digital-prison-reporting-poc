@@ -82,7 +82,7 @@ jobs:
             - run:
                 name: Deploy
                 command: |
-                  aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
+                  aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
      
   release:
     machine:
