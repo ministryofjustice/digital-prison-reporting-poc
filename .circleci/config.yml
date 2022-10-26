@@ -63,16 +63,16 @@ jobs:
     machine:
       enabled: true    
     steps:
-      - when:
-          condition:
-            equal: [ main, << pipeline.git.branch >> ]   
-          steps:       
-            - attach_workspace:
-                at: << pipeline.parameters.workingdir >>
-            - run:
-                name: Deploy
-                command: |
-                    aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2     
+      when:
+        condition:
+          equal: [ main, << pipeline.git.branch >> ]   
+        steps:       
+          - attach_workspace:
+              at: << pipeline.parameters.workingdir >>
+          - run:
+              name: Deploy
+              command: |
+                aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2
 
 workflows:
   version: 2
