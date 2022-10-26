@@ -14,7 +14,10 @@ parameters:
       default: "clean install"
     s3-artifacts-store:
       type: string
-      default: "dpr-demo-development-20220916083016121000000001"    
+      default: "dpr-demo-development-20220916083016121000000001"
+    aws-region:
+      type: string
+      default: "eu-west-2"        
 
 jobs:
   checkout:
@@ -79,21 +82,21 @@ jobs:
             - run:
                 name: Deploy
                 command: |
-                  aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2
+                  aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
      
   release:
     machine:
       enabled: true    
     steps:
-      - persist_to_workspace:
-          root: << pipeline.parameters.workingdir >>        
+      - attach_workspace:
+          at: << pipeline.parameters.workingdir >>        
       - run: 
           name: notification
           command: echo "Release Artifacts, if the branch is RELEASE"
       - run:
           name: Release
           command: |
-            aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region eu-west-2            
+            aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
 
 workflows:
   version: 2
