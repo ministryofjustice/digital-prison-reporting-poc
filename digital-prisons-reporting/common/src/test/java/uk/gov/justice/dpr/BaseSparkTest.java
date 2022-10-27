@@ -134,6 +134,13 @@ public abstract class BaseSparkTest {
 		return Paths.get(f.getAbsolutePath());
 	}
 	
+	protected Path createFileFromResource(final String resource, final String filename, final String directory) throws IOException {
+		final InputStream stream = getStream(resource);
+		final File f = folder.newFile(directory + "/" + filename);
+		FileUtils.copyInputStreamToFile(stream, f);
+		return Paths.get(f.getAbsolutePath());
+	}
+	
 	@SuppressWarnings("deprecation")
 	protected String getResource(final String resource) throws IOException {
 		final InputStream stream = getStream(resource);

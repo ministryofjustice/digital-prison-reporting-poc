@@ -5,18 +5,17 @@ import static org.junit.Assert.assertNotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.spark.sql.SparkSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.runners.BlockJUnit4ClassRunner;
 
+import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.domainplatform.job.DomainExecutionJob;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DomainPlatformTest {
+@RunWith(BlockJUnit4ClassRunner.class)
+public class DomainPlatformTest extends BaseSparkTest {
 	
-	@Mock SparkSession spark;
+	
 	
 	@Test
 	public void shouldCreateAJobWithTheRightConfiguration() {

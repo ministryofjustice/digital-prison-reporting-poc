@@ -12,7 +12,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.runners.BlockJUnit4ClassRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -24,7 +24,7 @@ import uk.gov.justice.dpr.domain.model.TableDefinition.TransformDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition.ViolationDefinition;
 import uk.gov.justice.dpr.util.TableListExtractor.TableTuple;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(BlockJUnit4ClassRunner.class)
 public class DomainExecutorTest extends BaseSparkTest {
 
 	
