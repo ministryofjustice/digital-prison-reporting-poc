@@ -248,7 +248,7 @@ public class DomainExecutionJobTest extends BaseSparkTest {
 	
 	protected Path saveDomainFileToDisk(final String resource, final String filename) throws IOException {
 		final ObjectMapper mapper = new ObjectMapper();
-		final InputStream stream = System.class.getResourceAsStream(resource);
+		final InputStream stream = getStream(resource);
 		final DomainDefinition definition = mapper.readValue(stream, DomainDefinition.class);
 		definition.setLocation(folder.getRoot().getAbsolutePath() + "/target");
 		final String json = mapper.writeValueAsString(definition);
