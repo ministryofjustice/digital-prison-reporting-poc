@@ -10,6 +10,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -136,7 +137,13 @@ public abstract class BaseSparkTest {
 	
 	protected Path createFileFromResource(final String resource, final String filename, final String directory) throws IOException {
 		final InputStream stream = getStream(resource);
-		final File f = folder.newFile(directory + "/" + filename);
+		File dir = null;
+		if(Files.exists(Paths.get(folder.getRoot().getAbsolutePath(),directory))) {
+			dir = new File(folder.getRoot().getAbsolutePath() + "/" + directory);
+		} else {
+			dir = folder.newFolder(directory);
+		}
+		final File f = new File(dir, filename);
 		FileUtils.copyInputStreamToFile(stream, f);
 		return Paths.get(f.getAbsolutePath());
 	}

@@ -1,5 +1,8 @@
 package uk.gov.justice.dpr.domain;
 
+import static org.apache.spark.sql.functions.array_contains;
+import static org.apache.spark.sql.functions.col;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.ArrayType;
@@ -58,8 +62,8 @@ import uk.gov.justice.dpr.domain.model.TableDefinition;
 public class DomainRepository {
 	
 	private final static ObjectMapper MAPPER = new ObjectMapper();
-	private final static String SCHEMA = "domain-repository";
-	private final static String TABLE = "domain";
+	protected final static String SCHEMA = "domain-repository";
+	protected final static String TABLE = "domain";
 
 	protected SparkSession spark;
 	protected String domainFilesPath; // sourceDomains
@@ -77,32 +81,50 @@ public class DomainRepository {
 	}
 	
 	public Set<DomainDefinition> getDomainsForSource(final String sourceTable) {
-		return null;
+		Set<DomainDefinition> domains = new HashSet<DomainDefinition>();
+		try {
+			final Dataset<Row> df = service.load(domainRepositoryPath, SCHEMA, TABLE);
+			final List<String> results = df
+					.where(array_contains(col("sources"), sourceTable))
+					.select(col("definition")).as(Encoders.STRING())
+					.collectAsList();
+	
+			for(final String result : results) {
+				domains.add(MAPPER.readValue(result, DomainDefinition.class));
+			}
+		} catch(Exception e) {
+			handleError(e);
+		}
+		return domains;
 	}
 	
 	protected void load() {
 		// this loads all the domains that are in the repository into the architecture
-		final List<String> df_domains = spark.read()
-			.option("recursiveFileLookup", true)
-			.textFile(domainRepositoryPath).collectAsList();
-		
-		final List<DomainRepoRecord> records = new ArrayList<DomainRepoRecord>();
-		
-		for(final String json : df_domains) {
-			loadOne(json, records);
+		try {
+			final Dataset<Row> df_domains = spark.read().option("wholetext", true).option("recursiveFileLookup", true).text(domainFilesPath);
+			
+			final List<DomainRepoRecord> records = new ArrayList<DomainRepoRecord>();
+			
+			final List<Row> listDomains = df_domains.collectAsList();
+			
+			for(final Row row : listDomains) {
+				loadOne("", row.getString(0), records);
+			}
+			
+			// replace the repository 
+			List<Row> rows = new ArrayList<Row>();
+			for(final DomainRepoRecord record : records) {
+				rows.add(record.toRow());
+			}
+			
+			final Dataset<Row> df = spark.createDataFrame(rows, DomainRepoRecord.SCHEMA);
+			service.replace(domainRepositoryPath, SCHEMA, TABLE, df);
+		} catch(Exception e) {
+			handleError(e);
 		}
-		
-		// replace the repository 
-		List<Row> rows = new ArrayList<Row>();
-		for(final DomainRepoRecord record : records) {
-			rows.add(record.toRow());
-		}
-		
-		final Dataset<Row> df = spark.createDataFrame(rows, DomainRepoRecord.SCHEMA);
-		service.replace(domainRepositoryPath, SCHEMA, TABLE, df);
 	}
 	
-	protected void loadOne(final String json, List<DomainRepoRecord> records ) {
+	protected void loadOne(final String filename, final String json, List<DomainRepoRecord> records ) {
 		try {
 			final DomainDefinition domain = MAPPER.readValue(json, DomainDefinition.class);
 			
@@ -111,7 +133,7 @@ public class DomainRepository {
 			record.setActive(true);
 			record.setName(domain.getName());
 			record.setVersion(domain.getVersion());
-			record.setLocation("");
+			record.setLocation(filename);
 			record.setDefinition(json);
 			for(final TableDefinition table : domain.getTables()) {
 				for(final String source : table.getTransform().getSources()) {
@@ -141,7 +163,8 @@ public class DomainRepository {
 				.add("version", DataTypes.StringType)
 				.add("active", DataTypes.BooleanType)
 				.add("location", DataTypes.StringType)
-				.add("sources", new ArrayType(DataTypes.StringType, true));
+				.add("sources", new ArrayType(DataTypes.StringType, true))
+				.add("definition", DataTypes.StringType);
 		
 		protected String name;
 		protected String version;
@@ -149,6 +172,7 @@ public class DomainRepository {
 		protected String location;
 		protected Set<String> sources = new HashSet<String>();
 		protected String definition;
+		
 		public String getName() {
 			return name;
 		}
