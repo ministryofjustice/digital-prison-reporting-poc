@@ -47,10 +47,6 @@ public abstract class BaseSparkTest {
 	@Before
 	public void before() {
 		
-		final AWSCredentials credentials = new ProfileCredentialsProvider("moj").getCredentials();
-		accessKey = credentials.getAWSAccessKeyId();
-		secretKey = credentials.getAWSSecretKey();
-
 		spark = SparkSession.builder()
 			    .appName("test")
 			    .enableHiveSupport()
@@ -62,20 +58,26 @@ public abstract class BaseSparkTest {
 			    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
 			    .config("spark.databricks.delta.schema.autoMerge.enabled", true)
 			    // ============================
-			    .config("spark.hadoop.fs.s3.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
-			    // ============================
 			    // these are needed for test but NOT for live
 			    // the manifest needs a HiveContext and this handles a separate one for each test
 			    // otherwise we do an inmem one : jdbc:derby://localhost:1527/memory:myInMemDB;create=true
 			    .config("javax.jdo.option.ConnectionURL", "jdbc:derby:;databaseName=" + folder.getRoot().getAbsolutePath() + "/metastore_db_test;create=true")
 			    .getOrCreate();
 
-		spark.sparkContext().hadoopConfiguration().set("com.amazonaws.services.s3.enableV4", "true");
-		spark.sparkContext().hadoopConfiguration().set("fs.s3a.impl", org.apache.hadoop.fs.s3a.S3AFileSystem.class.getName());
-		spark.sparkContext().hadoopConfiguration().set("fs.s3a.access.key", accessKey);
-		spark.sparkContext().hadoopConfiguration().set("fs.s3a.secret.key", secretKey);
-		spark.sparkContext().hadoopConfiguration().set("fs.AbstractFileSystem.s3a.impl", "org.apache.hadoop.fs.s3a.S3A");
-		
+		try {
+			final AWSCredentials credentials = new ProfileCredentialsProvider("moj").getCredentials();
+			accessKey = credentials.getAWSAccessKeyId();
+			secretKey = credentials.getAWSSecretKey();
+			
+			spark.sparkContext().hadoopConfiguration().set("com.amazonaws.services.s3.enableV4", "true");
+			spark.sparkContext().hadoopConfiguration().set("fs.s3a.impl", org.apache.hadoop.fs.s3a.S3AFileSystem.class.getName());
+			spark.sparkContext().hadoopConfiguration().set("fs.s3a.access.key", accessKey);
+			spark.sparkContext().hadoopConfiguration().set("fs.s3a.secret.key", secretKey);
+			spark.sparkContext().hadoopConfiguration().set("fs.AbstractFileSystem.s3a.impl", "org.apache.hadoop.fs.s3a.S3A");
+		} catch(Exception e) {
+			// lets not do AWS
+		}
+				
 		assertNotNull(spark);
 	}
 
@@ -127,7 +129,7 @@ public abstract class BaseSparkTest {
 	}
 
 	protected Path createFileFromResource(final String resource, final String filename) throws IOException {
-		final InputStream stream = System.class.getResourceAsStream(resource);
+		final InputStream stream = getStream(resource);
 		final File f = folder.newFile(filename);
 		FileUtils.copyInputStreamToFile(stream, f);
 		return Paths.get(f.getAbsolutePath());

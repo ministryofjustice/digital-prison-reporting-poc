@@ -130,7 +130,7 @@ public abstract class BaseSparkTest {
 	}
 
 	protected Path createFileFromResource(final String resource, final String filename) throws IOException {
-		final InputStream stream = System.class.getResourceAsStream(resource);
+		final InputStream stream = getStream(resource);
 		final File f = folder.newFile(filename);
 		FileUtils.copyInputStreamToFile(stream, f);
 		return Paths.get(f.getAbsolutePath());
