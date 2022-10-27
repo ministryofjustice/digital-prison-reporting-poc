@@ -10,9 +10,9 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
+import uk.gov.justice.dpr.domain.DomainRepository;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
 import uk.gov.justice.dpr.domainplatform.domain.DomainExecutor;
-import uk.gov.justice.dpr.domainplatform.domain.DomainRepository;
 import uk.gov.justice.dpr.util.TableListExtractor;
 import uk.gov.justice.dpr.util.TableListExtractor.TableTuple;
 
@@ -51,7 +51,7 @@ public class TableChangeMonitor {
 		public Function(final SparkSession spark, final String domainRepositoryPath, final String sourcePath, final String targetPath) {
 			this.sourcePath = sourcePath;
 			this.targetPath = targetPath;
-			this.repo = new DomainRepository(spark, domainRepositoryPath);
+			this.repo = new DomainRepository(spark, domainRepositoryPath, domainRepositoryPath);
 			this.repo.touch();
 		}
 		
@@ -66,6 +66,8 @@ public class TableChangeMonitor {
 
 				try {
 					// get a list of events
+					// first get all control messages and process them
+					// PAUSE, RESUME
 					// get a list of tables the events relate to
 					List<TableTuple> tables = TableListExtractor.extractTableList(df_events);
 					
