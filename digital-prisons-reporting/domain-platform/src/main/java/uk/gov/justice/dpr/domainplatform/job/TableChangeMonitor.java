@@ -12,6 +12,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
+import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.domain.DomainRepository;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
 import uk.gov.justice.dpr.domainplatform.domain.DomainExecutor;
@@ -54,7 +55,6 @@ public class TableChangeMonitor {
 			this.sourcePath = sourcePath;
 			this.targetPath = targetPath;
 			this.repo = new DomainRepository(spark, domainRepositoryPath, domainRepositoryPath);
-			this.repo.touch();
 		}
 		
 		private DomainRepository repo;
@@ -67,11 +67,14 @@ public class TableChangeMonitor {
 			if(!df_events.isEmpty()) {
 
 				try {
+					
+
+					Dataset<Row> df = EventConverter.fromKinesis(df_events);
 					// get a list of events
 					// first get all control messages and process them
 					// PAUSE, RESUME
 					// get a list of tables the events relate to
-					List<TableTuple> tables = TableListExtractor.extractTableList(df_events);
+					List<TableTuple> tables = TableListExtractor.extractTableList(df);
 					
 					// find all domains that depend on the events
 					for(final TableTuple table : tables) {
@@ -81,11 +84,12 @@ public class TableChangeMonitor {
 							final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
 							
 							// extract events that are for this table onlt
-							Dataset<Row> changes = df_events.filter("(recordType == 'data' and schemaName == '" + table.getSchema() +"' and tableName == '" + table.getTable() + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
+							Dataset<Row> changes = df.filter("(recordType == 'data' and schemaName == '" + table.getSchema() +"' and tableName == '" + table.getTable() + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
 										.orderBy(col("timestamp"));
 			
-
-							executor.doIncremental(changes, table);
+							Dataset<Row> df_payload = EventConverter.getPayload(changes);
+							
+							executor.doIncremental(df_payload, table);
 			
 						}
 					}
