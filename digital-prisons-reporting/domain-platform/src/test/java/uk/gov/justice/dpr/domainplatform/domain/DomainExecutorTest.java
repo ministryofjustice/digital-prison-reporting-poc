@@ -10,6 +10,7 @@ import java.util.Collections;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.functions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.ResourceLoader;
+import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.delta.DeltaLakeService;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition.TransformDefinition;
@@ -41,9 +43,9 @@ public class DomainExecutorTest extends BaseSparkTest {
 		
 	}
 	
-	// shouldRunWithChangesIfTableIsInDomain
+	// shouldRunWithFullUpdateIfTableIsInDomain
 	@Test
-	public void shouldRunWithChangesIfTableIsInDomain() throws IOException {
+	public void shouldRunWithFullUpdateIfTableIsInDomain() throws IOException {
 		final String sourcePath = folder.getRoot().getAbsolutePath() + "/source";
 		final String targetPath = folder.getRoot().getAbsolutePath() + "/target";
 		
@@ -55,16 +57,64 @@ public class DomainExecutorTest extends BaseSparkTest {
 		
 		// save a source
 		TableTuple table = new TableTuple("source","table");
-		saveDataToDisk(TableInfo.create(sourcePath, "source", "table"), getOffenders());
+		final Dataset<Row> df_offenders = getOffenders();
+		saveDataToDisk(TableInfo.create(sourcePath, "source", "table"), df_offenders);
 		
 		// do Full Materialize of source to target
 		executor.doFull(table);
 		
-		// there shouldn't be a target table
+		// there should be a target table
 		assertTrue(service.exists(targetPath, "example", "prisoner"));
+		// it should have all the offenders in it
+		
+		final Dataset<Row> df_refreshed = service.load(targetPath, "example", "prisoner");
+		assertTrue(areEqual(df_offenders, df_refreshed));	
+	}
+	
+	// shouldRunWithIncrementalUpdateIfTableIsInDomain
+	@Test
+	public void shouldRunWithIncrementalUpdateIfTableIsInDomain() throws IOException {
+		final String sourcePath = folder.getRoot().getAbsolutePath() + "/source";
+		final String targetPath = folder.getRoot().getAbsolutePath() + "/target";
+		
+		DeltaLakeService service = new DeltaLakeService();
+		
+		final DomainDefinition domain = getDomain("/sample/domain/sample-domain-execution.json");
+		
+		final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
+		
+		// save a source
+		TableTuple table = new TableTuple("source","table");
+		Dataset<Row> df_offenders = getOffenders();
+		// give each a new id 
+		df_offenders = df_offenders.withColumn("OFFENDER_ID", functions.monotonically_increasing_id());
+		saveDataToDisk(TableInfo.create(sourcePath, "source", "table"), df_offenders);
+		
+		// do Full Materialize of source to target
+		// so as to populate the table with original data
+		executor.doFull(table);
+		
+		// get some events
+		final Dataset<Row> df_incremental = getValidDataset();
+		final Dataset<Row> df_data = EventConverter.getPayload(df_incremental);
+		executor.doIncremental(df_data, table);
+		
+		// there should be a target table
+		assertTrue(service.exists(targetPath, "example", "prisoner"));
+		
+		// it should have all the offenders in it		
+		final Dataset<Row> df_refreshed = service.load(targetPath, "example", "prisoner");
+		// but they should be updated
+		assertEqual(df_offenders.count(), df_refreshed.count());
+		// assertTrue(areEqual(df_offenders, df_refreshed));	
 	}
 	
 	
+	private void assertEqual(long count, long count2) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	// shouldRunWith0ChangesIfTableIsNotInDomain
 	@Test
 	public void shouldRunWith0ChangesIfTableIsNotInDomain() throws IOException {
@@ -76,12 +126,14 @@ public class DomainExecutorTest extends BaseSparkTest {
 		
 		final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
 		TableTuple table = new TableTuple("source","table");
-		saveDataToDisk(TableInfo.create(sourcePath, "source", "table"), getOffenders());
+		final Dataset<Row> df_offenders = getOffenders();
+		saveDataToDisk(TableInfo.create(sourcePath, "source", "table"), df_offenders);
 		
 		executor.doFull(table);
 		
 		// there shouldn't be a target table
 		assertFalse(service.exists(targetPath, "example", "prisoner"));
+
 	}
 	
 	// ********************
@@ -173,6 +225,7 @@ public class DomainExecutorTest extends BaseSparkTest {
 	}
 	
 	// shouldWriteViolationsIfThereAreSome
+	// shouldSubtractViolationsIfThereAreSome
 	@Test
 	public void shouldWriteViolationsIfThereAreSome() throws IOException {
 		final DeltaLakeService service = new DeltaLakeService();
@@ -189,18 +242,16 @@ public class DomainExecutorTest extends BaseSparkTest {
 		violation.setName("young");
 	
 		final Dataset<Row> outputs = executor.applyViolations(inputs, Collections.<ViolationDefinition>singletonList(violation));
-		
-		// outputs should be the same as inputs
+
+		// shouldSubtractViolationsIfThereAreSome
+		// outputs should be removed
 		assertFalse(this.areEqual(inputs, outputs));
 		assertTrue(outputs.isEmpty());
 		
-		// there should be no written violations
+		// there should be some written violations
 		assertTrue(service.exists(targetPath, "violations", "young"));
 	}
-	
-	
-	// shouldSubtractViolationsIfThereAreSome
-	
+
 	
 	protected Dataset<Row> doTransform(final DomainExecutor executor, final Dataset<Row> df, final TransformDefinition transform, final String source) {
 		try {

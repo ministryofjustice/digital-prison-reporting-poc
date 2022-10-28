@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.gov.justice.dpr.BaseSparkTest;
-import uk.gov.justice.dpr.cloudplatform.cdc.EventConverter;
+import uk.gov.justice.dpr.cdc.EventConverter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RawZoneTest extends BaseSparkTest {

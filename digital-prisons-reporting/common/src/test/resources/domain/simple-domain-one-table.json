@@ -17,6 +17,7 @@
 			"description": "Prisoner Table",
 			"version": "1.2.3.4",
 			"location": "s3://domain-bucket/safety/prisoner",
+			"primaryKey": "id",
 			"tags": {
 				"department": "HMPPS",
 				"unit": "Prisons"

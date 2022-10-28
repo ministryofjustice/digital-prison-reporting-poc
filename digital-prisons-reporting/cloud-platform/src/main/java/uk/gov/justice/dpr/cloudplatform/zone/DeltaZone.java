@@ -2,8 +2,6 @@ package uk.gov.justice.dpr.cloudplatform.zone;
 
 import static org.apache.spark.sql.functions.col;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +9,7 @@ import java.util.Map;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
+import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.delta.DeltaLakeService;
 
 public abstract class DeltaZone {
@@ -51,13 +50,16 @@ public abstract class DeltaZone {
 		    Dataset<Row> changes = batch.filter("(recordType == 'data' and schemaName == '" + schema +"' and tableName == '" + table + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
 										.orderBy(col("timestamp"));
 			
+		    // GET PAYLOAD AND RETAIN _operation and _timestamp
+		    Dataset<Row> df_payload = EventConverter.getPayload(changes);
+		    
 			// THIS IS THE POINT AT WHICH STRUCTURE IS APPLIED TO THE DATA
 			changes = transform(changes, schema, table);
 			
 			
 			final String primaryKey = primaryKeyNames.get(table);
 			
-			delta.merge(prefix, schema, table, primaryKey, changes);
+			delta.merge(prefix, schema, table, primaryKey, df_payload);
 			
 			delta.endTableUpdates(prefix, schema, table);
 		}
@@ -67,14 +69,5 @@ public abstract class DeltaZone {
 		return changes;
 	}
 	
-	protected List<Dataset<Row>> preprocess(final Dataset<Row> df, final String schema, final String table) {
-		final List<Dataset<Row>> batches = new ArrayList<Dataset<Row>>();
-		List<Row> rows = df.collectAsList();
-		// runs of one type of operation are ok to bunch together 
-		for(final Row row : rows) {
-			// row.getString(row.fieldIndex("operation"))
-			batches.add(df.sparkSession().createDataFrame(Arrays.<Row>asList(row), df.schema()));
-		}
-		return batches;
-	}
+
 }

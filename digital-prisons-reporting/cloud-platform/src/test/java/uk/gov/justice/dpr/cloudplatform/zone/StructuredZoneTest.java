@@ -17,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 import uk.gov.justice.dpr.BaseSparkTest;
-import uk.gov.justice.dpr.cloudplatform.cdc.EventConverter;
+import uk.gov.justice.dpr.cdc.EventConverter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StructuredZoneTest extends BaseSparkTest {

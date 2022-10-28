@@ -1,5 +1,7 @@
 package uk.gov.justice.dpr.domainplatform.job;
 
+import static org.apache.spark.sql.functions.col;
+
 import java.util.List;
 import java.util.Set;
 
@@ -77,7 +79,14 @@ public class TableChangeMonitor {
 						for(final DomainDefinition domain : domains) {
 							// for each, start a new domain incremental update
 							final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
-							executor.doIncremental(df_events, table);
+							
+							// extract events that are for this table onlt
+							Dataset<Row> changes = df_events.filter("(recordType == 'data' and schemaName == '" + table.getSchema() +"' and tableName == '" + table.getTable() + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
+										.orderBy(col("timestamp"));
+			
+
+							executor.doIncremental(changes, table);
+			
 						}
 					}
 					

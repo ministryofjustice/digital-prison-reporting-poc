@@ -1,4 +1,4 @@
-package uk.gov.justice.dpr.cloudplatform.cdc;
+package uk.gov.justice.dpr.cdc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.gov.justice.dpr.BaseSparkTest;
+import uk.gov.justice.dpr.cdc.EventConverter;
 
 
 @RunWith(MockitoJUnitRunner.class)

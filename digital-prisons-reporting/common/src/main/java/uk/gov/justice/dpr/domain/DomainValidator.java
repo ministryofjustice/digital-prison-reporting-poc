@@ -36,6 +36,8 @@ public class DomainValidator {
 		// must have a version and it being semantically correct
 		isRequired(table.getVersion(), "Table '" + table.getName() + "' Version is missing");
 		isFormatted(table.getVersion(), "^(\\d+\\.)?(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$", "Table '" + table.getName() + "' Version is not formatted correctly");
+		// must have a primary key (or does it - can this be optional ?)
+		isRequired(table.getPrimaryKey(), "Primary Key is missing");
 		// must have a transform
 		isRequired(table.getTransform(), "Table '" + table.getName() + "' Transform is missing");
 		// transform must map to a source table

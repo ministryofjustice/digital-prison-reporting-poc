@@ -14,6 +14,7 @@ public class TableDefinition {
 	private String description;
 	private String version;
 	private String location;
+	private String primaryKey;
 	
 	private Map<String,String> tags = new HashMap<String,String>();
 	
@@ -26,6 +27,14 @@ public class TableDefinition {
 	private MappingDefinition mapping;
 	private List<ViolationDefinition> violations = new ArrayList<ViolationDefinition>();
 	
+	public String getPrimaryKey() {
+		return primaryKey;
+	}
+
+	public void setPrimaryKey(String primaryKey) {
+		this.primaryKey = primaryKey;
+	}
+
 	public String getName() {
 		return name;
 	}

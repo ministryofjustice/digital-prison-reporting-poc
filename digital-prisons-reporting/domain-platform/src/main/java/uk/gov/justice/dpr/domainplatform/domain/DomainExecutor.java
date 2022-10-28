@@ -43,9 +43,18 @@ public class DomainExecutor {
 	// incremental
 	public void doIncremental(final Dataset<Row> df, final TableTuple sourceTable) {
 		// we don't need the source, we just need to apply the changes to the target
-		// split it into insert, update and delete groups
-		// ordered by timestamp
-		// then apply again to DeltaLakeService
+		final List<TableDefinition> tables = getTablesChangedForSourceTable(sourceTable);
+		for(final TableDefinition table : tables) {
+			
+			// (3) run transforms
+			// (4) run violations
+			// (5) run mappings if available
+			final Dataset<Row> df_target = apply(table, sourceTable.getTable(), df);
+		
+			// (6) save materialised view
+			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
+			saveIncremental(targetInfo, table.getPrimaryKey(), df_target);
+		}
 	}
 	
 	// full
@@ -131,6 +140,9 @@ public class DomainExecutor {
 		deltaService.replace(info.getPrefix(), info.getSchema(), info.getTable(), df);
 	}
 	
+	protected void saveIncremental(final TableInfo info, final String primaryKey, final Dataset<Row> df) {
+		deltaService.merge(info.getPrefix(), info.getSchema(), info.getTable(), primaryKey, df);
+	}
 	
 	protected List<TableDefinition> getTablesChangedForSourceTable(final TableTuple sourceTable) {
 		List<TableDefinition> tables = new ArrayList<TableDefinition>();

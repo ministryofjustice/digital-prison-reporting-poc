@@ -6,7 +6,7 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
-import uk.gov.justice.dpr.cloudplatform.cdc.EventConverter;
+import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.cloudplatform.sink.KinesisSink;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
