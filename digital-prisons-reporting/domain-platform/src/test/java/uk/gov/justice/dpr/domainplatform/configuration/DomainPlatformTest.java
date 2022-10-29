@@ -11,6 +11,7 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 
 import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.domainplatform.job.DomainExecutionJob;
+import uk.gov.justice.dpr.domainplatform.job.TableChangeMonitor;
 
 @RunWith(BlockJUnit4ClassRunner.class)
 public class DomainPlatformTest extends BaseSparkTest {
@@ -21,16 +22,15 @@ public class DomainPlatformTest extends BaseSparkTest {
 	public void shouldCreateAJobWithTheRightConfiguration() {
 		
 		Map<String,String> parameters = new HashMap<String, String>();
-		parameters.put("domain.path", "domain.path");
-		parameters.put("domain.name", "domain.name"); 
-		parameters.put("domain.operation", "incremental");
-		parameters.put("source.path", "source.path");
-		parameters.put("source.table", "source.table");
+		parameters.put("domain.repo.path", "domain.repo.path");
+		parameters.put("cloud.platform.path", "cloud.platform.path"); 
+		parameters.put("source.stream", "source.stream");
+		parameters.put("source.url", "source.url");
 		parameters.put("target.path", "target.path");
 		
-		final DomainExecutionJob job = DomainPlatform.initialise(spark, parameters);
+		final TableChangeMonitor tcm = DomainPlatform.initialise(spark, parameters);
 		
-		assertNotNull(job);
+		assertNotNull(tcm);
 	
 	}
 	

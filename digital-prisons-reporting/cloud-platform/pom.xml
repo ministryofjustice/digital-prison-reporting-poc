@@ -188,6 +188,7 @@
 	
 	<build>
 	    <plugins>
+	    	<!--  build the cloud platform into a single jar (shade) -->
 	        <plugin>
 	            <groupId>org.apache.maven.plugins</groupId>
 	            <artifactId>maven-shade-plugin</artifactId>
