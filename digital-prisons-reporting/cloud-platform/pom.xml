@@ -160,21 +160,39 @@
 			<scope>test</scope>
 		</dependency>		
 
-
+		<!--  combo of hadoop-aws 3.2.0 and sdk-bundle 1.11.375 X -->
+		<!--  combo of hadoop-aws 3.3.1 and sdk-bundle 1.11.901 X -->
+		<!--  combo of hadoop-aws 3.2.2 and sdk-bundle 1.11.563 X -->
+		<!--  hadoop-aws 3.2.2 without bundle X -->
+		<!--  combo of hadoop-aws 3.2.1 and sdk-bundle 1.11.375 X -->
+		<!--  combo of hadoop-aws 3.2.1 and sdk-bundle 1.12.331 X -->
+		<!--  combo of hadoop-aws 3.2.2 and sdk-bundle 1.12.331 X -->
+		<!--  combo of hadoop-aws 3.1.1 and sdk-bundle 1.11.375 X -->
+		
+		<!--  hadoop-aws-3.2.1 alone  X com.amazonaws.util.IOUtils.release -->
+		<!--  hadoop-aws-3.2.2 alone  X SemaphoredDelegatingExecutor -->
+		<!--  hadoop-aws-3.2.0 alone  X com.amazonaws.util.IOUtils.release -->
+		<!--  hadoop-aws-3.1.1 alone  X com.amazonaws.util.IOUtils.release -->
+		<!--  hadoop-aws-3.3.1 alone  X NoClassDefFoundError: org/apache/hadoop/fs/statistics/IOStatisticsSource -->
+		<!--  hadoop-aws-2.10.2 alone X com.amazonaws.util.IOUtils.release -->
+		<!--  combo of hadoop-aws 2.10.2 and sdk-bundle 1.11.375 X com.amazonaws.util.IOUtils.release -->
+		<!--  combo of hadoop-aws 2.10.2 and sdk-bundle 1.12.331 X com.amazonaws.util.IOUtils.release -->
+		
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-bundle -->
+		
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-bundle</artifactId>
-		    <version>1.11.563</version>
+		    <version>1.12.331</version>
 		    <scope>test</scope>
 		</dependency>
-				
+		
 		
 		<!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws -->
 		<dependency>
 		    <groupId>org.apache.hadoop</groupId>
 		    <artifactId>hadoop-aws</artifactId>
-		    <version>3.2.2</version>
+		    <version>2.10.2</version>
 		    <exclusions>
 		    	<exclusion>
 		    		<groupId>com.amazonaws</groupId>
@@ -182,8 +200,8 @@
 		    	</exclusion>
 		    </exclusions>
 		    <scope>test</scope>
-		</dependency>		
-		
+		</dependency>	
+					
 	</dependencies>
 	
 	<build>

@@ -19,13 +19,14 @@ import uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform;
 public class JobIntegrationTest extends BaseSparkTest {
 	
 	
-	// @Test
+	@Test
+	@Ignore
 	public void shouldRunWithRemoteS3() {
 		Map<String,String> parameters = new HashMap<String, String>();
 		// Zones
-		parameters.put("raw.path", "s3://moj-cloud-platform/raw");
-		parameters.put("structured.path", "s3://moj-cloud-platform/structured"); 
-		parameters.put("curated.path", "s3://moj-cloud-platform/curated");
+		parameters.put("raw.path", "s3a://moj-cloud-platform/raw");
+		parameters.put("structured.path", "s3a://moj-cloud-platform/structured"); 
+		parameters.put("curated.path", "s3a://moj-cloud-platform/curated");
 		
 		// Source Kinesis
 		parameters.put("source.url", "https://kinesis.eu-west-1.amazonaws.com");
@@ -43,24 +44,20 @@ public class JobIntegrationTest extends BaseSparkTest {
 
 		@SuppressWarnings("rawtypes")
 		final DataStreamWriter writer = job.run()
-				.trigger(Trigger.ProcessingTime(30L, TimeUnit.SECONDS))
+				.trigger(Trigger.Once())
 				.option("checkpointLocation", folder.getRoot().getAbsolutePath() + "/checkpoint/");
 		
-		while(true) {
-			try {
-				final StreamingQuery query = writer.start();
-				query.awaitTermination();
-			} catch(Exception e) {
-				e.printStackTrace();
-			} 
-		}
-		
-		
+		try {
+			final StreamingQuery query = writer.start();
+			query.awaitTermination();
+		} catch(Exception e) {
+			e.printStackTrace();
+		} 
 	}
 	
 	
 	@Test
-	@Ignore
+	// @Ignore
 	public void shouldRunWithLocalFiles() {
 		Map<String,String> parameters = new HashMap<String, String>();
 		// Zones
@@ -84,7 +81,7 @@ public class JobIntegrationTest extends BaseSparkTest {
 
 		@SuppressWarnings("rawtypes")
 		final DataStreamWriter writer = job.run()
-				.trigger(Trigger.ProcessingTime(30L, TimeUnit.SECONDS))
+				.trigger(Trigger.Once())
 				.option("checkpointLocation", folder.getRoot().getAbsolutePath() + "/checkpoint/");
 		
 		

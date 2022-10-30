@@ -105,6 +105,8 @@ public class DeltaLakeService {
 		payload.write().format("delta")
 			.mode("overwrite")
 			.option("delta.compatibility.symlinkFormatManifest.enabled", true)
+			.option("delta.autoOptimize.optimizeWrite", true)
+			.option("delta.autoOptimize.autoCompact", true)
 			.save(getTablePath(prefix, schema, table));
 		// create symlink
 		final DeltaTable dt = getTable(prefix, schema, table);

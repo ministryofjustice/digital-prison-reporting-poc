@@ -39,12 +39,15 @@ public class DomainPlatform {
 			      // .option("checkpointInterval", <same as trigger>)
 			      // .option("checkpointLocation", "/tmp")
 			      // shard management
-			      .option("initialPosition", "earliest")
-			      .option("maxFetchRate", "1.5")
-			      .option("minFetchPeriod", "15s")
-			      .option("maxFetchDuration", "20s")
-			      .option("shardFetchInterval", "10m")
-			      .option("fetchBufferSize", "1gb")
+			      // .option("initialPosition", "trim_horizon")
+			      .option("startingposition", "TRIM_HORIZON")
+			      //.option("maxFetchRate", "1.5")
+			      //.option("minFetchPeriod", "15s")
+			      //.option("maxFetchDuration", "20s")
+			      //.option("shardFetchInterval", "10m")
+			      //.option("fetchBufferSize", "1gb")
+		        
+			      .option("kinesis.client.avoidEmptyBatches", "true")
 		        
 			      // schema and data format
 			      .option("inferSchema", "true")

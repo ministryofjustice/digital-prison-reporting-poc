@@ -52,12 +52,12 @@ public abstract class BaseSparkTest {
 			    .enableHiveSupport()
 				.config("spark.master", "local")
 				// important delta configurations
-				// =================================
+				// ========================================
 				// these need to be in the cloud-platform
 				.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
 			    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
 			    .config("spark.databricks.delta.schema.autoMerge.enabled", true)
-			    // ============================
+			    // =========================================
 			    // these are needed for test but NOT for live
 			    // the manifest needs a HiveContext and this handles a separate one for each test
 			    // otherwise we do an inmem one : jdbc:derby://localhost:1527/memory:myInMemDB;create=true
@@ -65,6 +65,10 @@ public abstract class BaseSparkTest {
 			    .getOrCreate();
 
 		try {
+			// ========================================
+			// S3 configuration for TEST
+			// ========================================
+			
 			final AWSCredentials credentials = new ProfileCredentialsProvider("moj").getCredentials();
 			accessKey = credentials.getAWSAccessKeyId();
 			secretKey = credentials.getAWSSecretKey();

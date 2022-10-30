@@ -64,7 +64,10 @@ object GlueApp {
         "curated.path",
         
         "sink.stream", 
-        "sink.region"
+        "sink.region",
+        
+        "checkpoint.location"
+        
         ).toArray)
         
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
@@ -72,19 +75,18 @@ object GlueApp {
     val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(sparkSession, args.asJava)
 
     val writer = cp_job.run() // returns DataStreamWriter
-                 .trigger(Trigger.ProcessingTime("100 seconds"))
-                 .option("checkpointLocation", "s3://dpr-reporting-hub/checkpoint/")
+                 .trigger(Trigger.Once)
+                 .option("checkpointLocation", args("checkpoint.location"))
                  
-    while (true) {
-        val query = writer.start()             // start() returns type StreamingQuery
+    val query = writer.start()             // start() returns type StreamingQuery
 
-        try {
-            query.awaitTermination()
-        } 
-        catch {
-            case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
-        }
+    try {
+        query.awaitTermination()
+    } 
+    catch {
+        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
     }
+      
       
     Job.commit()
   }

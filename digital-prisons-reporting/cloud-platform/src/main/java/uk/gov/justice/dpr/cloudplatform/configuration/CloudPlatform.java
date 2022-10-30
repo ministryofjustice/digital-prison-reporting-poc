@@ -57,6 +57,7 @@ public class CloudPlatform {
 	
 	
 	// https://stackoverflow.com/questions/72882055/spark-structured-streaming-with-kinesis-on-localstack-error-while-fetching-shar
+	// https://github.com/qubole/kinesis-sql
 	protected static DataStreamReader getKinesisDataStreamReader(final SparkSession spark, final Map<String,String> params) {
 		final String streamName = getRequiredParameter(params, "source.stream");
 		final String endpointUrl = getRequiredParameter(params, "source.url");
@@ -70,13 +71,15 @@ public class CloudPlatform {
 			      // .option("checkpointInterval", <same as trigger>)
 			      // .option("checkpointLocation", "/tmp")
 			      // shard management
-			      .option("initialPosition", "earliest")
-			      .option("maxFetchRate", "1.5")
-			      .option("minFetchPeriod", "15s")
-			      .option("maxFetchDuration", "20s")
-			      .option("shardFetchInterval", "10m")
-			      .option("fetchBufferSize", "1gb")
+			      // .option("initialPosition", "trim_horizon")
+			      .option("startingposition", "TRIM_HORIZON")
+			      //.option("maxFetchRate", "1.5")
+			      //.option("minFetchPeriod", "15s")
+			      //.option("maxFetchDuration", "20s")
+			      //.option("shardFetchInterval", "10m")
+			      //.option("fetchBufferSize", "1gb")
 		        
+			      .option("kinesis.client.avoidEmptyBatches", "true")
 			      // schema and data format
 			      .option("inferSchema", "true")
 			      .option("classification", "json");

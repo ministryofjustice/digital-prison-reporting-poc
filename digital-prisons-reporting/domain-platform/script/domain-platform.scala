@@ -47,10 +47,7 @@ object GlueApp {
 	// source.stream       : Name of Kinesis Source Stream (dpr-domain-data-stream)
 	// source.url          : Source Endpoint url (https://kinesis.eu-west-1.amazonaws.com)
 	// 
-	// target .path        : path to domain storage (s3://dpr-reporting-hb/domains)
-	//
-	// sink.stream         : Name of Kinesis Sink Stream (domain-data-stream-events)
-	// sink.region         : Sink Region (eu-west-1)	
+	// target.path        : path to domain storage (s3://dpr-reporting-hb/domains)
 	//
 	// checkpoint.location : checkpoint tmp location
 	// ==================================================================================
@@ -65,9 +62,6 @@ object GlueApp {
 	        "source.url",
 	        
 	        "target.path",
-	        
-	        "sink.stream", 
-	        "sink.region",
 	        
 	        "checkpoint.location"
         ).toArray)

@@ -2,6 +2,7 @@ package uk.gov.justice.dpr.cloudplatform.sink;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.spark.sql.Dataset;
@@ -29,6 +30,7 @@ public class KinesisSink extends ForeachWriter<byte[]> {
 	private String region;
 	private String awsAccessKey = null;
 	private String awsSecretKey = null;
+	private String instanceId = UUID.randomUUID().toString();
 
 	public KinesisSink(final String region, final String stream) {
 		this.stream = stream;
@@ -74,6 +76,7 @@ public class KinesisSink extends ForeachWriter<byte[]> {
 	public boolean open(long partitionId, long epochId) {
 		client = createClient();
 		System.out.println("KinesisSink::open(" + partitionId + "," + epochId + ")");
+		instanceId = UUID.randomUUID().toString();
 		return client != null;
 	}
 
@@ -82,6 +85,7 @@ public class KinesisSink extends ForeachWriter<byte[]> {
 
 		final PutRecordRequest request = new PutRecordRequest()
 			.withStreamName(stream)
+			.withPartitionKey(instanceId)
 			.withData(ByteBuffer.wrap(value));
 		
 		@SuppressWarnings("unused")
