@@ -86,14 +86,12 @@ jobs:
           command: |
             export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
             mvn -N clean install;
-            cd digital-prisons-reporting; mvn -N clean install;
-            cd common; mvn -X clean install;
-            cd .. ; cd cloud-platform; mvn -X clean install
+            cd digital-prisons-reporting; mvn -N clean install
       - run: 
           name: build-common
           command: |
             export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
-            cd digital-prisons-reporting/common; mvn -X clean install
+            cd digital-prisons-reporting/common; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/common/target/surefire-reports
           destination: surefire-reports-common            
@@ -102,7 +100,7 @@ jobs:
           name: build-cloud-platform
           command: |
             export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
-            cd digital-prisons-reporting/cloud-platform; mvn -X clean install                        
+            cd digital-prisons-reporting/cloud-platform; mvn clean install                        
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
