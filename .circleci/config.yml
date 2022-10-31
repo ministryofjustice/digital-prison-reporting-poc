@@ -48,9 +48,9 @@ jobs:
     docker:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>     
     steps:
+      - checkout          
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>          
-      - checkout    
+          at: << pipeline.parameters.workingdir >>  
       - run: |
           cat bash.env > $BASH_ENV      
       - run:
