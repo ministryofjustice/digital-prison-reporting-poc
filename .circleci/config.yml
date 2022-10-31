@@ -29,7 +29,7 @@ jobs:
     steps:
       - semver-orb/setup
       - semver-orb/print
-      - semver-orb/tagnext
+    #  - semver-orb/tagnext
       - semver-orb/print
 
   checkout:
@@ -42,6 +42,8 @@ jobs:
           name: Check Java Version
           command: |
             java --version;
+            echo "Printing SEM VERSION"
+            echo $SEMVER_VERSION;
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
@@ -143,3 +145,5 @@ workflows:
             branches:
               only:
                 - release                          
+
+
