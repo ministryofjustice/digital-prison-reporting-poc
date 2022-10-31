@@ -97,6 +97,7 @@ jobs:
       - store_artifacts:
           path: digital-prisons-reporting/common/target/surefire-reports
           destination: surefire-reports-common            
+          when: always
       - run: 
           name: build-cloud-platform
           command: |
