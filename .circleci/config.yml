@@ -47,7 +47,7 @@ jobs:
           command: |
             java --version;
             echo "Printing SEM VERSION"
-            echo $SEMVER_VER;
+            echo $SEMVER_VER
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
