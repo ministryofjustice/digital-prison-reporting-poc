@@ -1,12 +1,18 @@
 package uk.gov.justice.dpr.cloudplatform.configuration;
 
+
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.kinesis.KinesisSink;
 import org.apache.spark.sql.streaming.DataStreamReader;
+import org.apache.spark.sql.streaming.OutputMode;
 
+import scala.Predef;
+import scala.Tuple2;
+import scala.collection.JavaConverters;
 import uk.gov.justice.dpr.cloudplatform.job.Job;
-import uk.gov.justice.dpr.cloudplatform.sink.KinesisSink;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
@@ -27,7 +33,7 @@ public class CloudPlatform {
 		final RawZone raw = getRawZone(params);
 		final StructuredZone structured = getStructuredZone(params);
 		final CuratedZone curated = getCuratedZone(params);
-		final KinesisSink sink = getKinesisSink(params);
+		final KinesisSink sink = getKinesisSink(spark, params);
 		final DataStreamReader dsr = getKinesisDataStreamReader(spark, params);
 		
 		// inject them 		
@@ -92,13 +98,30 @@ public class CloudPlatform {
 		return dsr;
 	}
 	
-	protected static KinesisSink getKinesisSink(final Map<String,String> params) {
-		final String sinkRegion = getRequiredParameter(params, "sink.region");
+	protected static KinesisSink getKinesisSink(final SparkSession spark, final Map<String,String> params) {
+		final String sinkUrl = getRequiredParameter(params, "sink.url");
 		final String sinkStream = getRequiredParameter(params, "sink.stream");
 		final String awsAccessKey = getOptionalParameter(params, "sink.accessKey");
 		final String awsSecretKey = getOptionalParameter(params, "sink.secretKey");
 		
-		return new KinesisSink(sinkRegion, sinkStream, awsAccessKey, awsSecretKey);
+		// create params
+		Map<String, String> kinesisParams = new HashMap<String,String>();
+		
+		kinesisParams.put("streamname", sinkStream);
+		kinesisParams.put("endpointurl", sinkUrl);
+		if(awsAccessKey != null && !awsAccessKey.isEmpty())
+			kinesisParams.put("awsaccesskeyid", awsAccessKey);
+		if(awsSecretKey != null && !awsSecretKey.isEmpty())
+			kinesisParams.put("awssecretkey", awsSecretKey);
+		
+//		kinesisParams.put("startingposition", "TRIM_HORIZON");
+//		kinesisParams.put("kinesis.client.avoidEmptyBatches", "true");
+		
+		scala.collection.immutable.Map<String, String> kp = JavaConverters.mapAsScalaMapConverter(kinesisParams).
+				asScala()
+				.toMap(Predef.<Tuple2<String, String>>conforms());
+		
+		return new KinesisSink(spark.sqlContext(), kp, OutputMode.Update());
 	}
 	
 	protected static String getRequiredParameter(final Map<String, String> params, final String name) {

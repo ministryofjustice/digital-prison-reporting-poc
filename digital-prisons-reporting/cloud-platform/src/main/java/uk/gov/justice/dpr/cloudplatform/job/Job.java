@@ -3,11 +3,11 @@ package uk.gov.justice.dpr.cloudplatform.job;
 import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.kinesis.KinesisSink;
 import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
-import uk.gov.justice.dpr.cloudplatform.sink.KinesisSink;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
@@ -87,10 +87,11 @@ public class Job {
 					// pass onto domain
 					// use org.apache.spark.sql.kinesis.KinesisSink
 					// call addBatch(batchId, internalEventDF)
+					// MUST HAVE A FIELD data and an optional PARTITIONKEY
+					Dataset<Row> out = EventConverter.toKinesis(internalEventDF);
 					
-					stream.open(batchId, batchId);
-					stream.write(internalEventDF);
-					stream.close(null);
+					stream.addBatch(batchId, out);
+					
 				} catch(Exception e) {
 					System.err.println(e.getMessage());
 				}

@@ -2,6 +2,8 @@ package uk.gov.justice.dpr.cdc;
 
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.from_json;
+import static org.apache.spark.sql.functions.concat;
+import static org.apache.spark.sql.functions.to_json;
 import static org.apache.spark.sql.functions.get_json_object;
 import static org.apache.spark.sql.functions.lit;
 import static org.apache.spark.sql.functions.schema_of_json;
@@ -38,6 +40,26 @@ public class EventConverter {
 				.withColumn("transactionId", get_json_object(col("metadata"), "$.transaction-id"))
 
 				.drop("data", "streamName");
+		
+		return out;
+	}
+	
+	public static Dataset<Row> toKinesis(final Dataset<Row> in) {
+		// assume the payload is there;
+		// assume _opertion and _timestamp are there
+		
+		// output to partitionKey & data
+		// data is all fields exception _operation & timestamp to_json
+		// plus metadata patched back in
+		//{
+		//	metadata: {...}
+		//	data : {...}
+		//}
+		Dataset<Row> out = in
+				.select(
+						col("partitionKey"), 
+						concat(lit("{ \"metadata\":"), col("metadata"),lit(" \"data\": "), col("payload"), lit("}")).as("data")
+				);
 		
 		return out;
 	}

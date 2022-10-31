@@ -34,7 +34,7 @@ public class JobIntegrationTest extends BaseSparkTest {
 		parameters.put("source.secretKey", secretKey);
 		
 		// Sink Kinesis
-		parameters.put("sink.region", "eu-west-1");
+		parameters.put("sink.url", "https://kinesis.eu-west-1.amazonaws.com");
 		parameters.put("sink.stream", "moj-domain-stream");
 		parameters.put("sink.accessKey", accessKey);
 		parameters.put("sink.secretKey", secretKey);
@@ -56,7 +56,7 @@ public class JobIntegrationTest extends BaseSparkTest {
 	
 	
 	@Test
-	// @Ignore
+	@Ignore
 	public void shouldRunWithLocalFiles() {
 		Map<String,String> parameters = new HashMap<String, String>();
 		// Zones
@@ -71,7 +71,7 @@ public class JobIntegrationTest extends BaseSparkTest {
 		parameters.put("source.secretKey", secretKey);
 		
 		// Sink Kinesis
-		parameters.put("sink.region", "eu-west-1");
+		parameters.put("sink.url", "https://kinesis.eu-west-1.amazonaws.com");
 		parameters.put("sink.stream", "moj-domain-stream");
 		parameters.put("sink.accessKey", accessKey);
 		parameters.put("sink.secretKey", secretKey);
