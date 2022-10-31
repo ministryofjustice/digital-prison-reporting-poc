@@ -35,6 +35,13 @@ jobs:
           name: Verify Release Version
           command: |
             echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER_VER="$SEMVER_VERSION" >> "${BASH_ENV}"
+      - run: |
+          cp $BASH_ENV bash.env
+      - persist_to_workspace:
+          root: << pipeline.parameters.workingdir >>
+          paths:
+            - .
+
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
