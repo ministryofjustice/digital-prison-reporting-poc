@@ -44,11 +44,7 @@ jobs:
 
 
   checkout:
-    working_directory: << pipeline.parameters.workingdir >>
-    parameters:
-        SEMVER:
-          type: string
-          default: "echo $SEMVER_VER"    
+    working_directory: << pipeline.parameters.workingdir >>  
     docker:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>     
     steps:
