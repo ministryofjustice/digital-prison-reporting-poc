@@ -23,6 +23,21 @@ parameters:
       type: string
       default: "eu-west-2"        
 
+commands:
+  artifacts-sync:
+    description: "Deploy Artifacts to S3"
+    parameters:
+      artifact-store:
+        type: string
+        default: "none"           
+    steps:
+      - run: 
+          name: sync-artifacts
+          command: |
+            echo s3://<< parameters.artifact-store >>
+            aws s3 sync target s3://<< parameters.artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
+            aws s3 sync target s3://<< parameters.artifact-store >>/artifacts/data-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/data-platform/target/data-platform*.jar" --region << pipeline.parameters.aws-region >>         
+
 jobs:
   version:
     executor: semver-orb/default
@@ -91,25 +106,29 @@ jobs:
           name: build-common
           command: |
             export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
-            cd digital-prisons-reporting/common; mvn clean install
-      - store_artifacts:
-          path: digital-prisons-reporting/common/target/surefire-reports
-          destination: surefire-reports-common            
-          when: always
-      - store_test_results:
-          path: digital-prisons-reporting/common/target/surefire-reports
-          when: always                   
+            cd digital-prisons-reporting/common; mvn clean install                 
       - run: 
           name: build-cloud-platform
           command: |
             export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
-            cd digital-prisons-reporting/cloud-platform; mvn clean install                        
+            cd digital-prisons-reporting/cloud-platform; mvn clean install
+      - store_artifacts:
+          path: digital-prisons-reporting/*/target/surefire-reports
+          destination: surefire-reports           
+          when: always
+      - store_test_results:
+          path: digital-prisons-reporting/*/target/surefire-reports
+          when: always                                      
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
             - .
 
-  deploy-dev:
+  deploy:
+    parameters:
+        artifact-store:
+          type: string
+          default: "none"      
     machine:
       enabled: true    
     steps:
@@ -125,12 +144,9 @@ jobs:
             equal: [ DPR-100-HW, << pipeline.git.branch >> ]  
           steps:
             - attach_workspace:
-                at: << pipeline.parameters.workingdir >>            
-            - run:
-                name: Deploy
-                command: |
-                  aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
-     
+                at: << pipeline.parameters.workingdir >>
+            - artifacts-sync
+
   release:
     machine:
       enabled: true    
@@ -163,9 +179,10 @@ workflows:
             - digital-prison-reporting-dev
           requires:
             - checkout
-      - deploy-dev:
+      - deploy:
           context:
             - digital-prison-reporting-dev
+          artifact-store: dpr-demo-development-20220916083016121000000001
           requires:
             - build
       - release:
@@ -173,10 +190,8 @@ workflows:
             - digital-prison-reporting-release
           requires:
             - build
-            - deploy-dev
+            - deploy
           filters:
             branches:
               only:
-                - release                          
-
-
+                - release
