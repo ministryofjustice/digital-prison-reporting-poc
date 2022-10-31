@@ -31,6 +31,10 @@ jobs:
       - semver-orb/print
     #  - semver-orb/tagnext
       - semver-orb/print
+      - run: 
+          name: Verify Release Version
+          command: |
+            echo "version checks: "; echo $SEMVER_VERSION
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
