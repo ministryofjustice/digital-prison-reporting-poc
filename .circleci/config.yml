@@ -85,7 +85,10 @@ jobs:
       - run: 
           name: build
           command: |
-            mvn << pipeline.parameters.maven-build-cmd >>   
+            mvn -N clean install;
+            cd digital-prisons-reporting; mvn -N clean install;
+            cd .. ; cd common; mvn clean install;
+            cd .. ; cd cloud-platform; mvn clean install
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
@@ -137,14 +140,14 @@ workflows:
           name: "checkout"
           requires:
             - version          
-      - tests:
-          requires:
-            - checkout             
+#      - tests:
+#          requires:
+#            - checkout             
       - build:
           context:
             - digital-prison-reporting-dev
-          requires:
-            - tests
+#          requires:
+#            - tests
       - deploy-dev:
           context:
             - digital-prison-reporting-dev

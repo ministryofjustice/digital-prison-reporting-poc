@@ -1,0 +1,28 @@
+[{
+	"data":	{
+		"OFFENDER_ID":	128,
+		"OFFENDER_NAME_SEQ":	256000,
+		"ID_SOURCE_CODE":	"DUMMY",
+		"LAST_NAME":	"Jacobs",
+		"NAME_TYPE":	"NAME",
+		"FIRST_NAME":	"Andrew",
+		"BIRTH_DATE":	"1932-02-24T00:00:00Z",
+		"SEX_CODE":	"male",
+		"LAST_NAME_SOUNDEX":	"Jacobs",
+		"CREATE_DATE":	"2003-02-19T00:00:00Z",
+		"OFFENDER_ID_DISPLAY":	"33d82c03-ffc2-4bfc-8245-3d9e9522c17b",
+		"MODIFY_DATETIME":	"2022-09-01T18:21:36.915241000Z",
+		"AGE":	90,
+		"CREATE_USER_ID":	"1639",
+		"CREATE_DATETIME":	"2022-09-01T18:21:36.915241000Z",
+		"AUDIT_TIMESTAMP":	"2022-09-01T18:21:36.915241000Z"
+	},
+	"metadata":	{
+		"timestamp":	"2022-10-04T10:44:01.408795Z",
+		"record-type":	"data",
+		"operation":	"load",
+		"partition-key-type":	"primary-key",
+		"schema-name":	"SYSTEM",
+		"table-name":	"OFFENDERS"
+	}
+}]

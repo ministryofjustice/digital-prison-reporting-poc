@@ -1,0 +1,28 @@
+{
+	"data":	{
+		"OFFENDER_ID":	1961,
+		"OFFENDER_NAME_SEQ":	3922000,
+		"ID_SOURCE_CODE":	"DUMMY",
+		"LAST_NAME":	"Scheuer",
+		"NAME_TYPE":	"NAME",
+		"FIRST_NAME":	"James",
+		"BIRTH_DATE":	"1920-02-06T00:00:00Z",
+		"SEX_CODE":	"male",
+		"LAST_NAME_SOUNDEX":	"Scheuer",
+		"CREATE_DATE":	"2019-10-17T00:00:00Z",
+		"OFFENDER_ID_DISPLAY":	"fb1851f3-f319-4dc8-bbfd-c055ca921022",
+		"MODIFY_DATETIME":	"2022-09-01T18:21:36.915241000Z",
+		"AGE":	102,
+		"CREATE_USER_ID":	"126",
+		"CREATE_DATETIME":	"2022-09-01T18:21:36.915241000Z",
+		"AUDIT_TIMESTAMP":	"2022-09-01T18:21:36.915241000Z"
+	},
+	"metadata":	{
+		"timestamp":	"2022-10-04T10:44:17.818446Z",
+		"record-type":	"data",
+		"operation":	"load",
+		"partition-key-type":	"primary-key",
+		"schema-name":	"SYSTEM",
+		"table-name":	"OFFENDERS"
+	}
+}
