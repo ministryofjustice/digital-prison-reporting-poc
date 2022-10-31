@@ -87,7 +87,7 @@ jobs:
           command: |
             mvn -N clean install;
             cd digital-prisons-reporting; mvn -N clean install;
-            cd .. ; cd common; mvn clean install;
+            cd common; mvn clean install;
             cd .. ; cd cloud-platform; mvn clean install
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
