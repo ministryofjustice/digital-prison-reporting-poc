@@ -48,9 +48,9 @@ jobs:
     docker:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>     
     steps:
-      - checkout
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>      
+          at: << pipeline.parameters.workingdir >>          
+      - checkout    
       - run: |
           cat bash.env > $BASH_ENV      
       - run:
@@ -146,8 +146,8 @@ workflows:
       - build:
           context:
             - digital-prison-reporting-dev
-#          requires:
-#            - tests
+          requires:
+            - checkout
       - deploy-dev:
           context:
             - digital-prison-reporting-dev
