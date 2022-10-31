@@ -41,7 +41,7 @@ jobs:
     docker:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     environment:
-      SEMVER: $SEMVER_VER      
+      SEMVER: 1.2.3      
     steps:
       - checkout
       - run:
