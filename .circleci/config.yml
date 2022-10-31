@@ -42,7 +42,6 @@ jobs:
           paths:
             - bash.env
 
-
   checkout:
     working_directory: << pipeline.parameters.workingdir >>  
     docker:
@@ -81,15 +80,28 @@ jobs:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>
+          at: << pipeline.parameters.workingdir >>         
       - run: 
-          name: build
+          name: pre-build
           command: |
             export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
             mvn -N clean install;
             cd digital-prisons-reporting; mvn -N clean install;
             cd common; mvn -X clean install;
             cd .. ; cd cloud-platform; mvn -X clean install
+      - run: 
+          name: build-common
+          command: |
+            export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
+            cd digital-prisons-reporting/common; mvn -X clean install
+      - store_artifacts:
+          path: digital-prisons-reporting/common/target/surefire-reports
+          destination: surefire-reports-common            
+      - run: 
+          name: build-cloud-platform
+          command: |
+            export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
+            cd digital-prisons-reporting/cloud-platform; mvn -X clean install                        
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
