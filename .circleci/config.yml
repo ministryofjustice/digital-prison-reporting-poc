@@ -38,10 +38,12 @@ jobs:
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
+    parameters:
+        SEMVER:
+          type: string
+          default: "echo $SEMVER_VER"    
     docker:
-      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
-    environment:
-      SEMVER: "echo $SEMVER_VER"      
+      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>     
     steps:
       - checkout
       - run:
@@ -49,7 +51,7 @@ jobs:
           command: |
             java --version;
             echo "Printing SEM VERSION"
-            echo $SEMVER
+            echo << parameters.SEMVER >>
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
