@@ -9,7 +9,7 @@ parameters:
       default: "cimg/openjdk"  
     jdk-imagetag:
       type: string
-      default: "16.0"
+      default: "11.0"
     workingdir:
       type: string
       default: "~/project"
