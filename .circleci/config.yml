@@ -24,22 +24,37 @@ parameters:
       default: "eu-west-2"        
 
 commands:
+  verify: 
+    description: "verify Commands"
+    parameters:
+        s3-artifact-store:
+          type: string
+          default: "none"
+    steps:
+      - run: 
+          name: sync-artifacts
+          command: |
+            echo "S3 Bucket Evaluated Correct: << parameters.s3-artifact-store >>"          
   artifacts-sync:
     description: "Deploy Artifacts to S3"
     parameters:
-      artifact-store:
+      s3-artifact-store:
         type: string
         default: "none"           
     steps:
       - run: 
           name: sync-artifacts
           command: |
-            echo s3://<< parameters.artifact-store >>
-            aws s3 sync target s3://<< parameters.artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
-            aws s3 sync target s3://<< parameters.artifact-store >>/artifacts/data-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/data-platform/target/data-platform*.jar" --region << pipeline.parameters.aws-region >>         
+            echo s3://<< parameters.s3-artifact-store >>
+            aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
+            aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/data-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/data-platform/target/data-platform*.jar" --region << pipeline.parameters.aws-region >>         
 
 jobs:
   version:
+    parameters:
+        artifact-store:
+          type: string
+          default: "none"       
     executor: semver-orb/default
     steps:
       - semver-orb/setup
@@ -56,6 +71,8 @@ jobs:
           root: << pipeline.parameters.workingdir >>
           paths:
             - bash.env
+      - verify:
+          s3-artifact-store: << parameters.artifact-store >>           
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>  
@@ -145,7 +162,8 @@ jobs:
           steps:
             - attach_workspace:
                 at: << pipeline.parameters.workingdir >>
-            - artifacts-sync
+            - artifacts-sync:
+                s3-artifact-store: << parameters.artifact-store >>
 
   release:
     machine:
@@ -166,7 +184,8 @@ workflows:
   build:
     jobs:
       - version:
-          name: "version"  
+          name: "version"
+          artifact-store: dpr-demo-development-20220916083016121000000001
       - checkout:
           name: "checkout"
           requires:
