@@ -39,7 +39,8 @@ public class DomainPlatform {
 			      // .option("checkpointInterval", <same as trigger>)
 			      // .option("checkpointLocation", "/tmp")
 			      // shard management
-			      // .option("initialPosition", "trim_horizon")
+			      .option("initialPosition", "TRIM_HORIZON")
+			      .option("startingPosition", "trim_horizon")
 			      .option("startingposition", "TRIM_HORIZON")
 			      //.option("maxFetchRate", "1.5")
 			      //.option("minFetchPeriod", "15s")

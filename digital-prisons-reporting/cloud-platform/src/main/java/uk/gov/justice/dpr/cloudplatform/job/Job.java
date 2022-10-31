@@ -85,6 +85,9 @@ public class Job {
 					}
 					
 					// pass onto domain
+					// use org.apache.spark.sql.kinesis.KinesisSink
+					// call addBatch(batchId, internalEventDF)
+					
 					stream.open(batchId, batchId);
 					stream.write(internalEventDF);
 					stream.close(null);

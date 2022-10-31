@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.BlockJUnit4ClassRunner;
 
 import uk.gov.justice.dpr.BaseSparkTest;
-import uk.gov.justice.dpr.domainplatform.job.DomainExecutionJob;
 import uk.gov.justice.dpr.domainplatform.job.TableChangeMonitor;
 
 @RunWith(BlockJUnit4ClassRunner.class)

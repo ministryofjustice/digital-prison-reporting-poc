@@ -113,15 +113,7 @@
 		    <artifactId>spark-sql-kinesis_2.12</artifactId>
 		    <version>1.2.0_spark-3.0</version>
 		    <scope>provided</scope>
-		</dependency>
-				
-		<!-- https://mvnrepository.com/artifact/com.nikvanderhoof/spark-constraints -->
-		<dependency>
-		    <groupId>com.nikvanderhoof</groupId>
-		    <artifactId>spark-constraints_2.12</artifactId>
-		    <version>0.1.0_spark2.4</version>
-		</dependency>
-		
+		</dependency>		
 				
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->
 		<dependency>

@@ -51,7 +51,7 @@ public class KinesisSink extends ForeachWriter<byte[]> {
 			
 			final List<Row> json = jsonify(batch).collectAsList();
 			for(final Row r : json) {
-				process(r.getString(0).getBytes());
+				process(r);
 			}
 		} catch(Exception e) {
 			System.err.println(e.getMessage());
@@ -79,6 +79,20 @@ public class KinesisSink extends ForeachWriter<byte[]> {
 		instanceId = UUID.randomUUID().toString();
 		return client != null;
 	}
+	
+	public void process(final Row row) {
+		
+		String data = row.getString(0);
+		
+		final PutRecordRequest request = new PutRecordRequest()
+				.withStreamName(stream)
+				.withPartitionKey(instanceId)
+				.withData(ByteBuffer.wrap(data.getBytes()));
+			
+			@SuppressWarnings("unused")
+			final PutRecordResult prr = client.putRecord(request);
+			
+	}
 
 	@Override
 	public void process(byte[] value) {
@@ -90,7 +104,8 @@ public class KinesisSink extends ForeachWriter<byte[]> {
 		
 		@SuppressWarnings("unused")
 		final PutRecordResult prr = client.putRecord(request);
-			
+		
+		// System.out.println(prr.getSequenceNumber());
 	}
 	
 	@SuppressWarnings("static-access")
