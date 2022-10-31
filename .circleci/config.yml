@@ -85,10 +85,11 @@ jobs:
       - run: 
           name: build
           command: |
+            export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
             mvn -N clean install;
             cd digital-prisons-reporting; mvn -N clean install;
-            cd common; mvn clean install;
-            cd .. ; cd cloud-platform; mvn clean install
+            cd common; mvn -X clean install;
+            cd .. ; cd cloud-platform; mvn -X clean install
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
