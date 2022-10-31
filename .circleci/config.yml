@@ -34,7 +34,7 @@ jobs:
       - run: 
           name: Verify Release Version
           command: |
-            echo "version checks: "; echo $SEMVER_VERSION
+            echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER_VER="$SEMVER_VERSION" >> "${BASH_ENV}"
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
@@ -47,7 +47,7 @@ jobs:
           command: |
             java --version;
             echo "Printing SEM VERSION"
-            echo $SEMVER_VERSION;
+            echo $SEMVER_VER;
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
