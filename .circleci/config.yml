@@ -40,7 +40,7 @@ jobs:
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
-            - .
+            - bash.env
 
 
   checkout:
@@ -53,12 +53,15 @@ jobs:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>     
     steps:
       - checkout
+      - run: |
+          cat bash.env > $BASH_ENV      
       - run:
           name: Check Java Version
           command: |
             java --version;
             echo "Printing SEM VERSION"
             echo << parameters.SEMVER >>
+            echo $SEMVER_VER
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
