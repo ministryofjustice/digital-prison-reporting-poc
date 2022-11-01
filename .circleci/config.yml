@@ -64,7 +64,7 @@ jobs:
       - run: 
           name: Verify Release Version
           command: |
-            echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER_VER="$SEMVER_VERSION" >> "${BASH_ENV}"
+            echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER="$SEMVER_VERSION" >> "${BASH_ENV}"
       - run: |
           cp $BASH_ENV bash.env
       - persist_to_workspace:
@@ -89,7 +89,7 @@ jobs:
           command: |
             java --version;
             echo "Printing SEM VERSION"
-            echo $SEMVER_VER
+            echo $SEMVER
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
@@ -112,20 +112,22 @@ jobs:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>         
+          at: << pipeline.parameters.workingdir >>
+      - run: |
+          cat bash.env > $BASH_ENV                   
       - run: 
           name: pre-build
           command: |
-            mvn -N clean install;
+            mvn -N clean -Drevision=$SEMVER install;
             cd digital-prisons-reporting; mvn -N clean install
       - run: 
           name: build-common
           command: |
-            cd digital-prisons-reporting/common; mvn clean install                 
+            cd digital-prisons-reporting/common; mvn clean -Drevision=$SEMVER install                 
       - run: 
           name: build-cloud-platform
           command: |
-            cd digital-prisons-reporting/cloud-platform; mvn clean install
+            cd digital-prisons-reporting/cloud-platform; mvn clean -Drevision=$SEMVER install
       - store_artifacts:
           path: digital-prisons-reporting/*/target/surefire-reports
           destination: surefire-reports           
