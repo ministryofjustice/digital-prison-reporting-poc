@@ -207,6 +207,10 @@ workflows:
           artifact-store: dpr-demo-development-20220916083016121000000001
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - release            
       - release:
           context:
             - digital-prison-reporting-release

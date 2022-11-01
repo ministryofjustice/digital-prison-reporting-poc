@@ -17,6 +17,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<uk.gov.justice.digital.version>${revision}</uk.gov.justice.digital.version>
+  		<revision>1.0.0-SNAPSHOT</revision>
 	</properties>
 
 	<repositories>
