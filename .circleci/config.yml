@@ -58,6 +58,7 @@ jobs:
           default: "none"       
     executor: semver-orb/default
     steps:
+      - semver-orb/setup
       - semver-orb/print
       - run: 
           name: Verify Release Version
@@ -145,7 +146,6 @@ jobs:
   build-tags:     
     executor: semver-orb/default
     steps:
-      - semver-orb/setup
       - semver-orb/tagnext
       - semver-orb/print
 
