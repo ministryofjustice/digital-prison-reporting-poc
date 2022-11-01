@@ -214,7 +214,7 @@ workflows:
           filters:
             branches:
               only:
-                - release            
+                - DPR-100-HW            
       - release:
           context:
             - digital-prison-reporting-release
