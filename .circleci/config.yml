@@ -1,65 +1,65 @@
 version: 2.1
 
 orbs:
-    semver-orb: tv2norge/semver-orb@0.0.1
+  semver-orb: tv2norge/semver-orb@0.0.1
 
 parameters:
-    jdk-image:
-      type: string
-      default: "cimg/openjdk"  
-    jdk-imagetag:
-      type: string
-      default: "11.0"
-    workingdir:
-      type: string
-      default: "~/project"
-    maven-build-cmd:
-      type: string
-      default: "clean install"
-    s3-artifacts-store:
-      type: string
-      default: "dpr-demo-development-20220916083016121000000001"
-    aws-region:
-      type: string
-      default: "eu-west-2"        
+  jdk-image:
+    type: string
+    default: "cimg/openjdk"
+  jdk-imagetag:
+    type: string
+    default: "11.0"
+  workingdir:
+    type: string
+    default: "~/project"
+  maven-build-cmd:
+    type: string
+    default: "clean install"
+  s3-artifacts-store:
+    type: string
+    default: "dpr-demo-development-20220916083016121000000001"
+  aws-region:
+    type: string
+    default: "eu-west-2"
 
 commands:
-  verify: 
+  verify:
     description: "verify Commands"
     parameters:
-        s3-artifact-store:
-          type: string
-          default: "none"
+      s3-artifact-store:
+        type: string
+        default: "none"
     steps:
-      - run: 
+      - run:
           name: sync-artifacts
           command: |
-            echo "S3 Bucket Evaluated Correct: << parameters.s3-artifact-store >>"          
+            echo "S3 Bucket Evaluated Correct: << parameters.s3-artifact-store >>"
   artifacts-sync:
     description: "Deploy Artifacts to S3"
     parameters:
       s3-artifact-store:
         type: string
-        default: "none"           
+        default: "none"
     steps:
-      - run: 
+      - run:
           name: sync-artifacts
           command: |
             echo s3://<< parameters.s3-artifact-store >>
             aws s3 sync digital-prisons-reporting/cloud-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
             aws s3 sync digital-prisons-reporting/domain-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "domain-platform*.jar" --region << pipeline.parameters.aws-region >>
-            
+
 jobs:
   version:
     parameters:
-        artifact-store:
-          type: string
-          default: "none"       
+      artifact-store:
+        type: string
+        default: "none"
     executor: semver-orb/default
     steps:
       - semver-orb/setup
       - semver-orb/print
-      - run: 
+      - run:
           name: Verify Release Version
           command: |
             echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER="$SEMVER_VERSION" >> "${BASH_ENV}"
@@ -70,18 +70,18 @@ jobs:
           paths:
             - bash.env
       - verify:
-          s3-artifact-store: << parameters.artifact-store >>           
+          s3-artifact-store: << parameters.artifact-store >>
 
   checkout:
-    working_directory: << pipeline.parameters.workingdir >>  
+    working_directory: << pipeline.parameters.workingdir >>
     docker:
-      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>     
+      - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
-      - checkout          
+      - checkout
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>  
+          at: << pipeline.parameters.workingdir >>
       - run: |
-          cat bash.env > $BASH_ENV      
+          cat bash.env > $BASH_ENV
       - run:
           name: Check Java Version
           command: |
@@ -103,7 +103,7 @@ jobs:
       - run:
           name: maven tests
           command: |
-            mvn test            
+            mvn test
 
   build:
     docker:
@@ -116,33 +116,33 @@ jobs:
       - run:
           name: set release version
           command: |
-            find . -type f -name "*.xml" -exec sed -i "s/version_place_holder/$SEMVER/g" {} \;                 
-      - run: 
+            find . -type f -name "*.xml" -exec sed -i "s/version_place_holder/$SEMVER/g" {} \;
+      - run:
           name: pre-build
           command: |
             mvn -N clean install;
             cd digital-prisons-reporting; mvn -N clean install
-      - run: 
+      - run:
           name: build-common
           command: |
-            cd digital-prisons-reporting/common; mvn clean install                 
-      - run: 
+            cd digital-prisons-reporting/common; mvn clean install
+      - run:
           name: build-cloud-platform
           command: |
             cd digital-prisons-reporting/cloud-platform; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/*/target/surefire-reports
-          destination: surefire-reports           
+          destination: surefire-reports
           when: always
       - store_test_results:
           path: digital-prisons-reporting/*/target/surefire-reports
-          when: always                                      
+          when: always
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
             - .
 
-  build-tags:     
+  build-tags:
     executor: semver-orb/default
     steps:
       - semver-orb/tagnext
@@ -150,9 +150,9 @@ jobs:
 
   deploy:
     parameters:
-        artifact-store:
-          type: string
-          default: "none"      
+      artifact-store:
+        type: string
+        default: "none"
     machine:
       enabled: true
     steps:
@@ -161,17 +161,17 @@ jobs:
       - run:
           name: listfiles
           command: |
-            pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/*    
+            pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/*
       - artifacts-sync:
           s3-artifact-store: << parameters.artifact-store >>
 
   release:
     machine:
-      enabled: true    
+      enabled: true
     steps:
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>        
-      - run: 
+          at: << pipeline.parameters.workingdir >>
+      - run:
           name: notification
           command: echo "Release Artifacts, if the branch is RELEASE"
       - run:
@@ -189,7 +189,7 @@ workflows:
       - checkout:
           name: "checkout"
           requires:
-            - version            
+            - version
       - build:
           context:
             - digital-prison-reporting-dev
@@ -200,8 +200,8 @@ workflows:
             - build
           filters:
             branches:
-                only:
-                  - master                           
+              only:
+                - master
       - deploy:
           context:
             - digital-prison-reporting-dev
@@ -211,7 +211,7 @@ workflows:
           filters:
             branches:
               only:
-                - master            
+                - master
       - release:
           context:
             - digital-prison-reporting-release
