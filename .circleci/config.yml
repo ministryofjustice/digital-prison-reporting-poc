@@ -50,27 +50,36 @@ commands:
             aws s3 sync digital-prisons-reporting/domain-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "domain-platform*.jar" --region << pipeline.parameters.aws-region >>
 
 jobs:
-  version:
-    parameters:
-      artifact-store:
-        type: string
-        default: "none"
+  verify-version:
     executor: semver-orb/default
     steps:
       - semver-orb/setup
       - semver-orb/print
-      - run:
-          name: Verify Release Version
-          command: |
-            echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER="$SEMVER_VERSION" >> "${BASH_ENV}"
+      - semver-orb/export-tag
       - run: |
           cp $BASH_ENV bash.env
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
-            - bash.env
-      - verify:
-          s3-artifact-store: << parameters.artifact-store >>
+            - bash.env      
+    # - run:
+    #      name: Verify Release Version
+    #      command: |
+    #        echo "version checks: "; echo $SEMVER_VERSION; echo SEMVER="$SEMVER_VERSION" >> "${BASH_ENV}"
+
+  build-tags:
+    executor: semver-orb/default
+    steps:
+      - semver-orb/setup
+      - semver-orb/tagnext
+      - semver-orb/export-tag
+      - semver-orb/print
+      - run: |
+          cp $BASH_ENV bash.env
+      - persist_to_workspace:
+          root: << pipeline.parameters.workingdir >>
+          paths:
+            - bash.env      
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
@@ -81,13 +90,13 @@ jobs:
       - attach_workspace:
           at: << pipeline.parameters.workingdir >>
       - run: |
-          cat bash.env > $BASH_ENV
+          cat bash.env >> $BASH_ENV
       - run:
           name: Check Java Version
           command: |
             java --version;
             echo "Printing SEM VERSION"
-            echo $SEMVER
+            echo $SEMVER_VERSION
             echo $CIRCLE_PROJECT_REPONAME
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
@@ -184,12 +193,12 @@ workflows:
   build:
     jobs:
       - version:
-          name: "version"
+          name: "verify-version"
           artifact-store: dpr-demo-development-20220916083016121000000001
       - checkout:
           name: "checkout"
           requires:
-            - version
+            - verify-version
       - build:
           context:
             - digital-prison-reporting-dev
