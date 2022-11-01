@@ -121,11 +121,11 @@ jobs:
       - attach_workspace:
           at: << pipeline.parameters.workingdir >>
       - run: |
-          cat bash.env > $BASH_ENV
+          cat bash.env >> $BASH_ENV
       - run:
           name: set release version
           command: |
-            find . -type f -name "*.xml" -exec sed -i "s/version_place_holder/$SEMVER/g" {} \;
+            find . -type f -name "*.xml" -exec sed -i "s/version_place_holder/$SEMVER_VERSION/g" {} \;
       - run:
           name: pre-build
           command: |
