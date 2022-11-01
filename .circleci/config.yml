@@ -141,14 +141,13 @@ jobs:
           root: << pipeline.parameters.workingdir >>
           paths:
             - .
-  
-  build-tags:
-    version:      
-      executor: semver-orb/default
-      steps:
-        - semver-orb/setup
-        - semver-orb/tagnext
-        - semver-orb/print              
+
+  build-tags:     
+    executor: semver-orb/default
+    steps:
+      - semver-orb/setup
+      - semver-orb/tagnext
+      - semver-orb/print
 
   deploy:
     parameters:
