@@ -46,9 +46,9 @@ commands:
           name: sync-artifacts
           command: |
             echo s3://<< parameters.s3-artifact-store >>
-            aws s3 sync digital-prisons-reporting/cloud-platform s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.xml" --region << pipeline.parameters.aws-region >>
-#           aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
-#           aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/domain-platform/target/domain-platform*.jar" --region << pipeline.parameters.aws-region >>         
+#           aws s3 sync digital-prisons-reporting/cloud-platform s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.xml" --region << pipeline.parameters.aws-region >>
+            aws s3 sync digital-prisons-reporting/cloud-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
+#           aws s3 sync digital-prisons-reporting/domain-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "domain-platform*.jar" --region << pipeline.parameters.aws-region >>         
             
 jobs:
   version:
@@ -123,16 +123,16 @@ jobs:
       - run: 
           name: pre-build
           command: |
-            #mvn -N clean install;
-            cd digital-prisons-reporting; #mvn -N clean install
+            mvn -N clean install;
+            cd digital-prisons-reporting; mvn -N clean install
       - run: 
           name: build-common
           command: |
-            cd digital-prisons-reporting/common; #mvn clean install                 
+            cd digital-prisons-reporting/common; mvn clean install                 
       - run: 
           name: build-cloud-platform
           command: |
-            cd digital-prisons-reporting/cloud-platform; #mvn clean install
+            cd digital-prisons-reporting/cloud-platform; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/*/target/surefire-reports
           destination: surefire-reports           
