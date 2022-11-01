@@ -61,7 +61,7 @@ jobs:
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
-            - bash.env      
+            - bash.env
     # - run:
     #      name: Verify Release Version
     #      command: |
@@ -79,7 +79,7 @@ jobs:
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
-            - bash.env      
+            - bash.env
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
