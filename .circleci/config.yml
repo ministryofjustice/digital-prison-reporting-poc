@@ -58,9 +58,6 @@ jobs:
           default: "none"       
     executor: semver-orb/default
     steps:
-      - semver-orb/setup
-      - semver-orb/print
-    #  - semver-orb/tagnext
       - semver-orb/print
       - run: 
           name: Verify Release Version
@@ -144,6 +141,14 @@ jobs:
           root: << pipeline.parameters.workingdir >>
           paths:
             - .
+  
+  build-tags:
+    version:      
+      executor: semver-orb/default
+      steps:
+        - semver-orb/setup
+        - semver-orb/tagnext
+        - semver-orb/print              
 
   deploy:
     parameters:
@@ -151,27 +156,16 @@ jobs:
           type: string
           default: "none"      
     machine:
-      enabled: true    
+      enabled: true
     steps:
-      - when:
-          condition:
-            equal: [ DPR-100-HW, << pipeline.git.branch >> ]
-          steps:          
-            - run:
-                name: notification
-                command: echo "Deploy Artifacts to DEV"
-      - when:
-          condition:
-            equal: [ DPR-100-HW, << pipeline.git.branch >> ]  
-          steps:
-            - attach_workspace:
-                at: << pipeline.parameters.workingdir >>
-            - run:
-                name: listfiles
-                command: |
-                  pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/*    
-            - artifacts-sync:
-                s3-artifact-store: << parameters.artifact-store >>
+      - attach_workspace:
+          at: << pipeline.parameters.workingdir >>
+      - run:
+          name: listfiles
+          command: |
+            pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/*    
+      - artifacts-sync:
+          s3-artifact-store: << parameters.artifact-store >>
 
   release:
     machine:
@@ -206,6 +200,13 @@ workflows:
             - digital-prison-reporting-dev
           requires:
             - checkout
+      - build-tags:
+          requires:
+            - build
+          filters:
+            branches:
+                only:
+                  - master                           
       - deploy:
           context:
             - digital-prison-reporting-dev
@@ -215,7 +216,7 @@ workflows:
           filters:
             branches:
               only:
-                - DPR-100-HW            
+                - master            
       - release:
           context:
             - digital-prison-reporting-release
@@ -225,4 +226,4 @@ workflows:
           filters:
             branches:
               only:
-                - release
+                - release*
