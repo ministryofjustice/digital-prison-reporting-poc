@@ -198,7 +198,7 @@ workflows:
           filters:
             branches:
               only:
-                - master            
+                - master
       - build:
           context:
             - digital-prison-reporting-dev
