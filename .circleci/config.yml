@@ -119,7 +119,7 @@ jobs:
           name: pre-build
           command: |
             mvn -N clean -Drevision=$SEMVER install;
-            cd digital-prisons-reporting; mvn -N clean install
+            cd digital-prisons-reporting; mvn -N clean -Drevision=$SEMVER install
       - run: 
           name: build-common
           command: |
