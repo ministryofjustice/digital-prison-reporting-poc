@@ -118,7 +118,7 @@ jobs:
       - run:
           name: set release version
           command: |
-            find . -type f -name "*.xml" -exec sed -i 's/version_place_holder/$SEMVER/g' {} \;                 
+            find . -type f -name "*.xml" -exec sed -i "s/version_place_holder/$SEMVER/g" {} \;                 
       - run: 
           name: pre-build
           command: |
