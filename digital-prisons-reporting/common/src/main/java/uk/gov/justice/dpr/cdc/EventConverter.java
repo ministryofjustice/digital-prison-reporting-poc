@@ -3,7 +3,6 @@ package uk.gov.justice.dpr.cdc;
 import static org.apache.spark.sql.functions.col;
 import static org.apache.spark.sql.functions.from_json;
 import static org.apache.spark.sql.functions.concat;
-import static org.apache.spark.sql.functions.to_json;
 import static org.apache.spark.sql.functions.get_json_object;
 import static org.apache.spark.sql.functions.lit;
 import static org.apache.spark.sql.functions.schema_of_json;
@@ -58,7 +57,7 @@ public class EventConverter {
 		Dataset<Row> out = in
 				.select(
 						col("partitionKey"), 
-						concat(lit("{ \"metadata\":"), col("metadata"),lit(" \"data\": "), col("payload"), lit("}")).as("data")
+						concat(lit("{ \"metadata\":"), col("metadata"),lit(", \"data\": "), col("payload"), lit("}")).as("data")
 				);
 		
 		return out;

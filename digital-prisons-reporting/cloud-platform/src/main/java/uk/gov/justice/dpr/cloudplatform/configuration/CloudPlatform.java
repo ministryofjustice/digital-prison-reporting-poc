@@ -107,6 +107,8 @@ public class CloudPlatform {
 		// create params
 		Map<String, String> kinesisParams = new HashMap<String,String>();
 		
+		// note that this doesn't work if you use streamName and endpointUrl etc (camel-case).
+		// it only works if you use lowercase only
 		kinesisParams.put("streamname", sinkStream);
 		kinesisParams.put("endpointurl", sinkUrl);
 		if(awsAccessKey != null && !awsAccessKey.isEmpty())
@@ -114,9 +116,8 @@ public class CloudPlatform {
 		if(awsSecretKey != null && !awsSecretKey.isEmpty())
 			kinesisParams.put("awssecretkey", awsSecretKey);
 		
-//		kinesisParams.put("startingposition", "TRIM_HORIZON");
-//		kinesisParams.put("kinesis.client.avoidEmptyBatches", "true");
-		
+	
+		@SuppressWarnings("deprecation")
 		scala.collection.immutable.Map<String, String> kp = JavaConverters.mapAsScalaMapConverter(kinesisParams).
 				asScala()
 				.toMap(Predef.<Tuple2<String, String>>conforms());
