@@ -123,7 +123,7 @@ jobs:
       - run: 
           name: build-common
           command: |
-            cd digital-prisons-reporting/common; mvn clean -Drevision=$SEMVER install                 
+            cd digital-prisons-reporting/common; mvn clean -Drevision=$SEMVER -Duk.gov.justice.digital.version=$SEMVER install                 
       - run: 
           name: build-cloud-platform
           command: |
