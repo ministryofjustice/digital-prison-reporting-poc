@@ -204,6 +204,7 @@ workflows:
             - digital-prison-reporting-dev
           requires:
             - checkout
+            - build-tags
       - deploy:
           context:
             - digital-prison-reporting-dev
