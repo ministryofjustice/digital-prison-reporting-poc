@@ -169,7 +169,7 @@ jobs:
             - run:
                 name: listfiles
                 command: |
-                  pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar; ls -lsrt digital-prisons-reporting/cloud-platform/target    
+                  pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/*    
             - artifacts-sync:
                 s3-artifact-store: << parameters.artifact-store >>
 
