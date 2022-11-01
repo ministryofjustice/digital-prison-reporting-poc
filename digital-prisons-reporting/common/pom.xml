@@ -21,6 +21,7 @@
 		<delta-lake.version>1.0.1</delta-lake.version>
 		<org.mockito.version>2.1.0</org.mockito.version>
   		<revision>1.0.0-SNAPSHOT</revision>
+		<uk.gov.justice.digital.version>${revision}</uk.gov.justice.digital.version>		
 	</properties>
 
 	<repositories>
