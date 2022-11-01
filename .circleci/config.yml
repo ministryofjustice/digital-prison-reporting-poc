@@ -47,8 +47,8 @@ commands:
           command: |
             echo s3://<< parameters.s3-artifact-store >>
             aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
-            aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/data-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/data-platform/target/data-platform*.jar" --region << pipeline.parameters.aws-region >>         
-            digital-prisons-reporting/cloud-platform/target/cloud-platform-1.0.0.0-SNAPSHOT.jar
+#           aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/domain-platform/target/domain-platform*.jar" --region << pipeline.parameters.aws-region >>         
+            
 jobs:
   version:
     parameters:
