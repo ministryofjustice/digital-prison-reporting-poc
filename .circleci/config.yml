@@ -61,7 +61,7 @@ jobs:
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
-            - bash.env      
+            - bash.env
     # - run:
     #      name: Verify Release Version
     #      command: |
@@ -79,7 +79,7 @@ jobs:
       - persist_to_workspace:
           root: << pipeline.parameters.workingdir >>
           paths:
-            - bash.env      
+            - bash.env
 
   checkout:
     working_directory: << pipeline.parameters.workingdir >>
@@ -192,18 +192,18 @@ workflows:
           name: "checkout"
           requires:
             - verify-version
+      - build-tags:
+          requires:
+            - checkout
+          filters:
+            branches:
+              only:
+                - master
       - build:
           context:
             - digital-prison-reporting-dev
           requires:
             - checkout
-      - build-tags:
-          requires:
-            - build
-          filters:
-            branches:
-              only:
-                - master
       - deploy:
           context:
             - digital-prison-reporting-dev
