@@ -1,0 +1,28 @@
+{
+  "data": {
+    "OFFENDER_ID": 127,
+    "OFFENDER_NAME_SEQ": 254000,
+    "ID_SOURCE_CODE": "DUMMY",
+    "LAST_NAME": "Beilenson",
+    "NAME_TYPE": "NAME",
+    "FIRST_NAME": "Anthony",
+    "BIRTH_DATE": "1932-10-26T00:00:00Z",
+    "SEX_CODE": "male",
+    "LAST_NAME_SOUNDEX": "Beilenson",
+    "CREATE_DATE": "2015-05-19T00:00:00Z",
+    "OFFENDER_ID_DISPLAY": "33b52056-8384-471a-9e8c-74b9cc7b5c0d",
+    "MODIFY_DATETIME": "2022-09-01T18:21:36.915241000Z",
+    "AGE": 89,
+    "CREATE_USER_ID": "9887",
+    "CREATE_DATETIME": "2022-09-01T18:21:36.915241000Z",
+    "AUDIT_TIMESTAMP": "2022-09-01T18:21:36.915241000Z"
+  },
+  "metadata": {
+    "timestamp": "2022-10-04T10:44:01.390573Z",
+    "record-type": "data",
+    "operation": "load",
+    "partition-key-type": "primary-key",
+    "schema-name": "SYSTEM",
+    "table-name": "OFFENDERS"
+  }
+}

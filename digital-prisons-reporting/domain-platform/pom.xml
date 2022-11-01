@@ -1,0 +1,222 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>module</artifactId>
+        <groupId>uk.gov.justice.digital</groupId>
+		<version>version_place_holder</version>
+		<relativePath></relativePath>
+	</parent>
+	<artifactId>domain-platform</artifactId>
+	<version>version_place_holder</version>
+	<packaging>jar</packaging>
+	<name>domain-platform</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<uk.gov.justice.digital.version>version_place_holder</uk.gov.justice.digital.version>
+	</properties>
+
+	<repositories>
+	</repositories>
+
+
+
+	<dependencies>
+	
+		
+		<dependency>
+		    <groupId>uk.gov.justice.digital</groupId>
+		    <artifactId>common</artifactId>
+		    <version>${uk.gov.justice.digital.version}</version>		
+		</dependency>
+	
+		<!--  spark -->
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-core -->
+		<dependency>
+		    <groupId>org.apache.spark</groupId>
+		    <artifactId>spark-core_2.12</artifactId>
+		    <version>${spark.version}</version>
+		    <scope>provided</scope>
+		    <exclusions>
+	            <exclusion>
+			      <groupId>com.google.protobuf</groupId>
+			      <artifactId>protobuf-java</artifactId>
+			    </exclusion>
+		    </exclusions>
+		</dependency>
+
+
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-sql_2.12</artifactId>
+			<version>${spark.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-compress</artifactId>
+				</exclusion>
+	            <exclusion>
+			      <groupId>com.google.protobuf</groupId>
+			      <artifactId>protobuf-java</artifactId>
+			    </exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-hive -->
+		<dependency>
+		    <groupId>org.apache.spark</groupId>
+		    <artifactId>spark-hive_2.12</artifactId>
+		    <version>${spark.version}</version>
+		    <exclusions>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-jaxrs</artifactId>
+				</exclusion>
+	            <exclusion>
+			      <groupId>com.google.protobuf</groupId>
+			      <artifactId>protobuf-java</artifactId>
+			    </exclusion>
+			</exclusions>
+		    <scope>provided</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-catalyst -->
+		<dependency>
+		    <groupId>org.apache.spark</groupId>
+		    <artifactId>spark-catalyst_2.12</artifactId>
+		    <version>${spark.version}</version>
+		    <scope>provided</scope>
+		</dependency>
+
+
+
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib -->
+		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-mllib_2.12</artifactId>
+			<version>${spark.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/com.qubole.spark/spark-sql-kinesis -->
+		<dependency>
+		    <groupId>com.qubole.spark</groupId>
+		    <artifactId>spark-sql-kinesis_2.12</artifactId>
+		    <version>1.2.0_spark-3.0</version>
+		    <scope>provided</scope>
+		</dependency>		
+				
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->
+		<dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk-kinesis</artifactId>
+		    <version>1.12.319</version>
+		    <!--  unsure whether it is provided -->
+		</dependency>
+		
+		<!--  joda -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>com.fasterxml.jackson.datatype</groupId>
+		    <artifactId>jackson-datatype-joda</artifactId>
+		</dependency>
+		
+
+		<!-- test -->
+	<!-- test -->
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-core</artifactId>
+		    <version>2.1.0</version>
+		    <scope>test</scope>
+		</dependency>
+				
+		
+		<!-- https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito -->
+		<dependency>
+		    <groupId>org.powermock</groupId>
+		    <artifactId>powermock-api-mockito</artifactId>
+		    <scope>test</scope>
+		</dependency>
+				
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${org.junit.version}</version>
+			<scope>test</scope>
+		</dependency>		
+
+
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-bundle -->
+		<dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk-bundle</artifactId>
+		    <version>1.11.563</version>
+		    <scope>test</scope>
+		</dependency>
+				
+		
+		<!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-aws -->
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-aws</artifactId>
+		    <version>3.2.2</version>
+		    <exclusions>
+		    	<exclusion>
+		    		<groupId>com.amazonaws</groupId>
+		    		<artifactId>aws-java-sdk-bundle</artifactId>
+		    	</exclusion>
+		    </exclusions>
+		    <scope>test</scope>
+		</dependency>		
+		
+		
+		
+	</dependencies>
+	
+	<build>
+	    <plugins>
+	    	<!--  build the domain platform into a single jar (shade) -->
+	        <plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-shade-plugin</artifactId>
+	            <version>3.4.0</version>
+	            <executions>
+	                <execution>
+	                    <phase>package</phase>
+	                    <goals>
+	                        <goal>shade</goal>
+	                    </goals>
+	                    <configuration>
+	                        <minimizeJar>false</minimizeJar>
+	                        <createDependencyReducedPom>false</createDependencyReducedPom>
+	                        <dependencyReducedPomLocation>
+	                            ${java.io.tmpdir}/dependency-reduced-pom.xml
+	                        </dependencyReducedPomLocation>
+	                        <relocations>
+	                        </relocations>
+	                        <!--  see https://maven.apache.org/plugins/maven-shade-plugin/examples/includes-excludes.html -->
+	                        <artifactSet>
+	                        	<excludes>
+	                        	</excludes>
+	                        </artifactSet>
+	                    </configuration>
+	                </execution>
+	            </executions>
+	        </plugin>
+	    </plugins>
+	</build>
+</project>

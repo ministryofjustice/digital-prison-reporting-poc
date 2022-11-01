@@ -1,0 +1,30 @@
+[
+  {
+    "data": "{\r\n\t\"data\":\t{\r\n\t\t\"MIDDLE_NAME\":\t\"gandalf\",\r\n\t\t\"OFFENDER_ID\":\t127,\r\n\t\t\"OFFENDER_NAME_SEQ\":\t254000,\r\n\t\t\"ID_SOURCE_CODE\":\t\"DUMMY\",\r\n\t\t\"LAST_NAME\":\t\"Beilenson\",\r\n\t\t\"NAME_TYPE\":\t\"NAME\",\r\n\t\t\"FIRST_NAME\":\t\"Anthony\",\r\n\t\t\"BIRTH_DATE\":\t\"1932-10-26T00:00:00Z\",\r\n\t\t\"SEX_CODE\":\t\"male\",\r\n\t\t\"LAST_NAME_SOUNDEX\":\t\"Beilenson\",\r\n\t\t\"CREATE_DATE\":\t\"2015-05-19T00:00:00Z\",\r\n\t\t\"OFFENDER_ID_DISPLAY\":\t\"33b52056-8384-471a-9e8c-74b9cc7b5c0d\",\r\n\t\t\"MODIFY_DATETIME\":\t\"2022-09-01T18:21:36.915241000Z\",\r\n\t\t\"AGE\":\t89,\r\n\t\t\"CREATE_USER_ID\":\t\"9887\",\r\n\t\t\"CREATE_DATETIME\":\t\"2022-09-01T18:21:36.915241000Z\",\r\n\t\t\"AUDIT_TIMESTAMP\":\t\"2022-09-01T18:21:36.915241000Z\"\r\n\t},\r\n\t\"metadata\":\t{\r\n\t\t\"timestamp\":\t\"2022-10-05T15:00:35.672357Z\",\r\n\t\t\"record-type\":\t\"data\",\r\n\t\t\"operation\":\t\"update\",\r\n\t\t\"partition-key-type\":\t\"schema-table\",\r\n\t\t\"schema-name\":\t\"SYSTEM\",\r\n\t\t\"table-name\":\t\"OFFENDERS\",\r\n\t\t\"transaction-id\":\t1048577\r\n\t}\r\n}",
+    "streamName": "moj-target-stream",
+    "partitionKey": "SYSTEM.OFFENDERS",
+    "sequenceNumber": "49634034308391112571590404452056279016350123543828103218",
+    "approximateArrivalTimestamp": "10/9/2022 12:43:49 AM +00:00"
+  },
+  {
+    "data": "System.Byte[]",
+    "streamName": "moj-target-stream",
+    "partitionKey": "SYSTEM.OFFENDERS",
+    "sequenceNumber": "49634034308391112571590404453377634937188951302372065330",
+    "approximateArrivalTimestamp": "10/9/2022 12:53:04 AM +00:00"
+  },
+  {
+    "data": "System.Byte[]",
+    "streamName": "moj-target-stream",
+    "partitionKey": "SYSTEM.OFFENDERS",
+    "sequenceNumber": "49634034308391112571590404453378843863008565931546771506",
+    "approximateArrivalTimestamp": "10/9/2022 12:53:04 AM +00:00"
+  },
+  {
+    "data": "System.Byte[]",
+    "streamName": "moj-target-stream",
+    "partitionKey": "SYSTEM.OFFENDERS",
+    "sequenceNumber": "49634034308391112571590404453380052788828180560721477682",
+    "approximateArrivalTimestamp": "10/9/2022 12:53:04 AM +00:00"
+  }
+]

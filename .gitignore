@@ -61,3 +61,13 @@ Thumbs.db
 
 # Spark
 metastore_db/
+
+# Maven
+/target
+dependency-reduced-pom.xml
+
+# Others
+.classpath
+.project
+.settings/
+.vscode
