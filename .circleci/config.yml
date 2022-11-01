@@ -46,7 +46,7 @@ commands:
           name: sync-artifacts
           command: |
             echo s3://<< parameters.s3-artifact-store >>
-            aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/*.xml" --region << pipeline.parameters.aws-region >>
+            cd digital-prisons-reporting/cloud-platform; aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.xml" --region << pipeline.parameters.aws-region >>
 #           aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
 #           aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/domain-platform/target/domain-platform*.jar" --region << pipeline.parameters.aws-region >>         
             
