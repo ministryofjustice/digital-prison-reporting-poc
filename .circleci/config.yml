@@ -48,7 +48,7 @@ commands:
             echo s3://<< parameters.s3-artifact-store >>
             aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
             aws s3 sync target s3://<< parameters.s3-artifact-store >>/artifacts/data-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "digital-prisons-reporting/data-platform/target/data-platform*.jar" --region << pipeline.parameters.aws-region >>         
-
+            digital-prisons-reporting/cloud-platform/target/cloud-platform-1.0.0.0-SNAPSHOT.jar
 jobs:
   version:
     parameters:
@@ -162,6 +162,10 @@ jobs:
           steps:
             - attach_workspace:
                 at: << pipeline.parameters.workingdir >>
+            - run:
+                name: listfiles
+                command: |
+                  pwd; ls -lsrt; ls -lsrt digital-prisons-reporting/cloud-platform/target/cloud-platform*.jar; ls -lsrt digital-prisons-reporting/cloud-platform/target    
             - artifacts-sync:
                 s3-artifact-store: << parameters.artifact-store >>
 
