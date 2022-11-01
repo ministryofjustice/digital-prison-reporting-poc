@@ -116,18 +116,15 @@ jobs:
       - run: 
           name: pre-build
           command: |
-            export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
             mvn -N clean install;
             cd digital-prisons-reporting; mvn -N clean install
       - run: 
           name: build-common
           command: |
-            export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
             cd digital-prisons-reporting/common; mvn clean install                 
       - run: 
           name: build-cloud-platform
           command: |
-            export MAVEN_OPTS="-Xmx512m -XX:MaxPermSize=350m";
             cd digital-prisons-reporting/cloud-platform; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/*/target/surefire-reports
