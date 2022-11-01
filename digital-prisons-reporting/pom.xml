@@ -4,12 +4,12 @@
     <parent>
         <artifactId>component</artifactId>
         <groupId>uk.gov.justice.digital</groupId>
-        <version>${revision}</version>
+        <version>version_place_holder</version>
 		<relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>module</artifactId>
-    <!-- <version>1.0.0.0-SNAPSHOT</version>-->
+    <version>version_place_holder</version>
     <packaging>pom</packaging>
     <name>digital-prison-reporting</name>
     
@@ -20,7 +20,6 @@
 		<spark.version>3.1.1</spark.version>
 		<jackson.version>2.11.0</jackson.version>
 		<jackson.databind.version>2.10.0</jackson.databind.version>
-  		<revision>1.0.0-SNAPSHOT</revision>
     </properties>
 
 	<modules>

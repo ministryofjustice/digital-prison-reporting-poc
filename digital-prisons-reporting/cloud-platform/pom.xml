@@ -6,18 +6,17 @@
 	<parent>
 		<artifactId>module</artifactId>
         <groupId>uk.gov.justice.digital</groupId>
-		<version>${revision}</version>
+		<version>version_place_holder</version>
 		<relativePath></relativePath>
 	</parent>
 	<artifactId>cloud-platform</artifactId>
-	<version>${revision}</version>
+	<version>version_place_holder</version>
 	<packaging>jar</packaging>
 	<name>cloud-platform</name>
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<uk.gov.justice.digital.version>${revision}</uk.gov.justice.digital.version>
-  		<revision>1.0.0-SNAPSHOT</revision>		
+		<uk.gov.justice.digital.version>version_place_holder</uk.gov.justice.digital.version>
 	</properties>
 
 	<repositories>

@@ -6,7 +6,7 @@
 	<groupId>uk.gov.justice.digital</groupId>
 	<artifactId>component</artifactId>
 	<packaging>pom</packaging>
-	<version>${revision}</version>
+	<version>1.2.3</version>
 	<name>moj-project</name>
 	<url>http://maven.apache.org</url>
 	<developers>
@@ -26,7 +26,6 @@
 	</modules>
 
 	<properties>
-  		<revision>1.0.0-SNAPSHOT</revision>
 		<!-- Encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

@@ -6,11 +6,11 @@
 	<parent>
 		<artifactId>module</artifactId>
         <groupId>uk.gov.justice.digital</groupId>
-		<version>1.0.0-SNAPSHOT</version>
+	    <version>version_place_holder</version>
 		<relativePath></relativePath>
 	</parent>
 	<artifactId>common</artifactId>
-	<version>${revision}</version>
+	<version>version_place_holder</version>
 	<packaging>jar</packaging>
 	<name>common</name>
 	<url>http://maven.apache.org</url>
@@ -20,7 +20,6 @@
 		<!-- see https://docs.delta.io/latest/releases.html -->
 		<delta-lake.version>1.0.1</delta-lake.version>
 		<org.mockito.version>2.1.0</org.mockito.version>
-  		<revision>1.0.0-SNAPSHOT</revision>
 	</properties>
 
 	<repositories>
