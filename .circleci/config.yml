@@ -151,12 +151,6 @@ jobs:
           paths:
             - .
 
-  build-tags:
-    executor: semver-orb/default
-    steps:
-      - semver-orb/tagnext
-      - semver-orb/print
-
   deploy:
     parameters:
       artifact-store:
@@ -190,11 +184,10 @@ jobs:
 
 workflows:
   version: 2
-  build:
+  maven-pipeline:
     jobs:
-      - version:
+      - verify-version:
           name: "verify-version"
-          artifact-store: dpr-demo-development-20220916083016121000000001
       - checkout:
           name: "checkout"
           requires:
