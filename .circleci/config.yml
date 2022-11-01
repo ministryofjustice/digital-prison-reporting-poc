@@ -114,20 +114,24 @@ jobs:
       - attach_workspace:
           at: << pipeline.parameters.workingdir >>
       - run: |
-          cat bash.env > $BASH_ENV                   
+          cat bash.env > $BASH_ENV
+      - run:
+          name: set release version
+          command: |
+            find . -type f -name "*.xml" -exec sed -i 's/version_place_holder/$SEMVER/g' {} \;                 
       - run: 
           name: pre-build
           command: |
-            mvn -N clean -Drevision=$SEMVER -Duk.gov.justice.digital.version=$SEMVER install;
-            cd digital-prisons-reporting; mvn -N clean -Drevision=$SEMVER -Duk.gov.justice.digital.version=$SEMVER install
+            mvn -N clean install;
+            cd digital-prisons-reporting; mvn -N clean install
       - run: 
           name: build-common
           command: |
-            cd digital-prisons-reporting/common; mvn clean -Drevision=$SEMVER -Duk.gov.justice.digital.version=$SEMVER install                 
+            cd digital-prisons-reporting/common; mvn clean install                 
       - run: 
           name: build-cloud-platform
           command: |
-            cd digital-prisons-reporting/cloud-platform; mvn clean -Drevision=$SEMVER install
+            cd digital-prisons-reporting/cloud-platform; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/*/target/surefire-reports
           destination: surefire-reports           
