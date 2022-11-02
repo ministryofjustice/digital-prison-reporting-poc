@@ -126,11 +126,11 @@ jobs:
       - run:
           name: build-domain-platform
           command: |
-            cd digital-prisons-reporting/domain-platform; mvn clean install            
+            cd digital-prisons-reporting/domain-platform; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/common/target/surefire-reports
           destination: surefire-reports
-          when: always            
+          when: always
       - store_artifacts:
           path: digital-prisons-reporting/cloud-platform/target/surefire-reports
           destination: surefire-reports
