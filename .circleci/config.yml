@@ -16,9 +16,9 @@ parameters:
   maven-build-cmd:
     type: string
     default: "clean install"
-  s3-artifacts-store:
+  artifactstore:
     type: string
-    default: "dpr-demo-development-20220916083016121000000001"
+    default: "dpr-artifact-store-development"
   aws-region:
     type: string
     default: "eu-west-2"
@@ -126,11 +126,11 @@ jobs:
       - run:
           name: build-domain-platform
           command: |
-            cd digital-prisons-reporting/domain-platform; mvn clean install            
+            cd digital-prisons-reporting/domain-platform; mvn clean install
       - store_artifacts:
           path: digital-prisons-reporting/common/target/surefire-reports
           destination: surefire-reports
-          when: always            
+          when: always
       - store_artifacts:
           path: digital-prisons-reporting/cloud-platform/target/surefire-reports
           destination: surefire-reports
@@ -173,7 +173,7 @@ jobs:
       - run:
           name: Release
           command: |
-            aws s3 sync target s3://<< pipeline.parameters.s3-artifacts-store >>/artifacts --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
+            aws s3 sync target s3://<< pipeline.parameters.artifactstore >>/artifacts --exclude "*" --include "hello-world*.jar" --region << pipeline.parameters.aws-region >>
 
 workflows:
   version: 2
@@ -201,7 +201,7 @@ workflows:
       - deploy:
           context:
             - digital-prison-reporting-dev
-          artifact-store: dpr-demo-development-20220916083016121000000001
+          artifact-store: << pipeline.parameters.artifactstore >>
           requires:
             - build
             - build-tags
