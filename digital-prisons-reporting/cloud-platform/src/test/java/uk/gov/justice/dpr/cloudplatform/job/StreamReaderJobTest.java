@@ -24,7 +24,7 @@ import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JobTest extends BaseSparkTest {
+public class StreamReaderJobTest extends BaseSparkTest {
 
 	@Mock RawZone raw;
 	@Mock StructuredZone structured;
@@ -34,7 +34,7 @@ public class JobTest extends BaseSparkTest {
 	
 	@Test
 	public void shouldCreateJob() {
-		final Job job = new Job(null, raw, structured, curated, sink);
+		final BaseReportingHubJob job = new StreamReaderJob(null, raw, structured, curated, sink);
 		
 		assertNotNull(job);
 	}
@@ -51,7 +51,7 @@ public class JobTest extends BaseSparkTest {
 		final Path resource = this.createFileFromResource("/sample/events/kinesis.parquet", Math.random() + "kinesis.parquet");
 		final DataStreamReader dsr = spark.readStream().format("parquet").option("path", resource.toString()).schema(df.schema());
 		final Dataset<Row> in = dsr.load();
-		final Job job = new Job(dsr, raw, structured, curated, sink);
+		final BaseReportingHubJob job = new StreamReaderJob(dsr, raw, structured, curated, sink);
 		final DataStreamWriter writer = job.run(dsr)
         // .trigger(Trigger.ProcessingTime("1 seconds"))
         .option("checkpointLocation", path + "/checkpoint/");

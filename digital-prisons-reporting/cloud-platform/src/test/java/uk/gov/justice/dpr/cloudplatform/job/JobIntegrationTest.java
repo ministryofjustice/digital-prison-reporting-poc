@@ -39,7 +39,7 @@ public class JobIntegrationTest extends BaseSparkTest {
 		parameters.put("sink.accessKey", accessKey);
 		parameters.put("sink.secretKey", secretKey);
 		
-		final Job job = CloudPlatform.initialise(spark, parameters);
+		final BaseReportingHubJob job = CloudPlatform.initialise(spark, parameters);
 
 		@SuppressWarnings("rawtypes")
 		final DataStreamWriter writer = job.run()
@@ -76,7 +76,7 @@ public class JobIntegrationTest extends BaseSparkTest {
 		parameters.put("sink.accessKey", accessKey);
 		parameters.put("sink.secretKey", secretKey);
 		
-		final Job job = CloudPlatform.initialise(spark, parameters);
+		final BaseReportingHubJob job = CloudPlatform.initialise(spark, parameters);
 
 		@SuppressWarnings("rawtypes")
 		final DataStreamWriter writer = job.run()

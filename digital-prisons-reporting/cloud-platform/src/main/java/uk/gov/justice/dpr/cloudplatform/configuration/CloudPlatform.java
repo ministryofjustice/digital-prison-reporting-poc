@@ -9,18 +9,59 @@ import org.apache.spark.sql.kinesis.KinesisSink;
 import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.OutputMode;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
+
 import scala.Predef;
 import scala.Tuple2;
 import scala.collection.JavaConverters;
-import uk.gov.justice.dpr.cloudplatform.job.Job;
+import uk.gov.justice.dpr.cloudplatform.job.BaseReportingHubJob;
+import uk.gov.justice.dpr.cloudplatform.job.QueueReaderJob;
+import uk.gov.justice.dpr.cloudplatform.job.StreamReaderJob;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
+import uk.gov.justice.dpr.queue.Queue;
 
 public class CloudPlatform {
 
+	/**
+	 * Entrypoint
+	 * @param spark
+	 * @param params
+	 * @return
+	 */
+	public static BaseReportingHubJob initialise(final SparkSession spark, final Map<String,String> params ) {
+		return initialiseQueueReaderJob(spark, params);
+	}
 	
-	public static Job initialise(final SparkSession spark, final Map<String,String> params ) {
+	public static BaseReportingHubJob initialiseQueueReaderJob(final SparkSession spark, final Map<String,String> params ) {
+		
+		if(params == null || params.isEmpty()) {
+			throw new IllegalArgumentException("No Parameters provided");
+		}
+		
+		if(spark == null) {
+			throw new IllegalArgumentException("Spark Session is null");
+		}
+		// consume configuration entries and create the appropriate objects
+		final RawZone raw = getRawZone(params);
+		final StructuredZone structured = getStructuredZone(params);
+		final CuratedZone curated = getCuratedZone(params);
+		final KinesisSink sink = getKinesisSink(spark, params);
+		final Queue queue = getQueue(spark, params);
+		
+		// inject them 		
+		final QueueReaderJob job = new QueueReaderJob(spark, queue, raw, structured, curated, sink);
+		
+		// return Job
+		return job;
+	}
+	
+	public static BaseReportingHubJob initialiseStreamReaderJob(final SparkSession spark, final Map<String,String> params ) {
 		
 		if(params == null || params.isEmpty()) {
 			throw new IllegalArgumentException("No Parameters provided");
@@ -37,7 +78,7 @@ public class CloudPlatform {
 		final DataStreamReader dsr = getKinesisDataStreamReader(spark, params);
 		
 		// inject them 		
-		final Job job = new Job(dsr, raw, structured, curated, sink);
+		final StreamReaderJob job = new StreamReaderJob(dsr, raw, structured, curated, sink);
 		
 		// return Job
 		return job;
@@ -96,6 +137,36 @@ public class CloudPlatform {
 		}
 		
 		return dsr;
+	}
+	
+	protected static Queue getQueue(final SparkSession spark, final Map<String,String> params) {
+		final String queueName = getRequiredParameter(params, "source.queue");
+		final String queueRegion = getRequiredParameter(params, "source.region");
+		final String awsAccessKey = getOptionalParameter(params, "source.accessKey");
+		final String awsSecretKey = getOptionalParameter(params, "source.secretKey");
+		
+		AWSCredentialsProvider provider = null;
+		if(awsAccessKey != null && awsSecretKey != null) {
+			provider = new AWSCredentialsProvider() {
+				@Override
+				public AWSCredentials getCredentials() {
+					return new BasicAWSCredentials(awsAccessKey, awsSecretKey);
+				}
+
+				@Override
+				public void refresh() {
+				}
+			};
+		}
+		
+		AmazonSQSAsyncClientBuilder builder = AmazonSQSAsyncClientBuilder.standard().withRegion(queueRegion);
+		if(provider != null) {
+			builder = builder.withCredentials(provider);
+		}
+		final AmazonSQSAsync client = builder.build();
+		final Queue queue = new Queue(client, queueName);
+		
+		return queue;
 	}
 	
 	protected static KinesisSink getKinesisSink(final SparkSession spark, final Map<String,String> params) {

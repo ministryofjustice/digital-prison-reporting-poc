@@ -12,17 +12,15 @@ import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
 
-public class Job {
+public abstract class BaseReportingHubJob {
 
-	protected DataStreamReader dsr;
 	protected RawZone raw = null;
 	protected StructuredZone structured = null;
 	protected CuratedZone curated = null;
 	protected KinesisSink stream = null;
 	
 	
-	public Job(final DataStreamReader dsr, final RawZone raw, final StructuredZone structured, final CuratedZone curated, final KinesisSink sink) {
-		this.dsr = dsr;
+	public BaseReportingHubJob(final RawZone raw, final StructuredZone structured, final CuratedZone curated, final KinesisSink sink) {
 		this.raw = raw;
 		this.structured = structured;
 		this.curated = curated;
@@ -30,9 +28,7 @@ public class Job {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public DataStreamWriter run() {
-		return run(dsr);
-	}
+	public abstract DataStreamWriter run();
 	
 	@SuppressWarnings("rawtypes")
 	public DataStreamWriter run(final DataStreamReader in) {
@@ -41,7 +37,7 @@ public class Job {
 	
 	@SuppressWarnings("rawtypes")
 	public DataStreamWriter run(final Dataset<Row> df) {
-		return df.writeStream().foreachBatch(new Job.Function());
+		return df.writeStream().foreachBatch(new BaseReportingHubJob.Function());
 	}
 	
 	public RawZone getRawZone() {

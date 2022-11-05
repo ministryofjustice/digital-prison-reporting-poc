@@ -150,7 +150,21 @@
 		    <version>1.12.319</version>
 		    <!--  unsure whether it is provided -->
 		</dependency>
-		
+
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
+		<dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk-sqs</artifactId>
+		    <version>1.12.319</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
+		<dependency>
+		    <groupId>com.amazonaws</groupId>
+		    <artifactId>aws-java-sdk-s3</artifactId>
+		    <version>1.12.319</version>
+		</dependency>
+				
 		<!--  joda -->
 		<dependency>
 			<groupId>joda-time</groupId>

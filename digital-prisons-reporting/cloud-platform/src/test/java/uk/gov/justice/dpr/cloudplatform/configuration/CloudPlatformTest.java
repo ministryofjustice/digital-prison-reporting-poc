@@ -10,14 +10,14 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.gov.justice.dpr.BaseSparkTest;
-import uk.gov.justice.dpr.cloudplatform.job.Job;
+import uk.gov.justice.dpr.cloudplatform.job.BaseReportingHubJob;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CloudPlatformTest extends BaseSparkTest {
 
 	
 	@Test
-	public void shouldCreateAJobWithTheRightConfiguration() {
+	public void shouldCreateAStreamReaderJobWithTheRightConfiguration() {
 		
 		Map<String,String> parameters = new HashMap<String, String>();
 		parameters.put("raw.path", "raw.path");
@@ -29,7 +29,30 @@ public class CloudPlatformTest extends BaseSparkTest {
 		parameters.put("source.url", "source.url");
 		parameters.put("source.stream", "source.stream");
 		
-		final Job job = CloudPlatform.initialise(spark, parameters);
+		final BaseReportingHubJob job = CloudPlatform.initialiseStreamReaderJob(spark, parameters);
+		
+		assertNotNull(job);
+		assertNotNull(job.getRawZone());
+		assertNotNull(job.getStructuredZone());
+		assertNotNull(job.getCuratedZone());
+		assertNotNull(job.getOutStream());
+	
+	}
+	
+	@Test
+	public void shouldCreateAQueueReaderJobWithTheRightConfiguration() {
+		
+		Map<String,String> parameters = new HashMap<String, String>();
+		parameters.put("raw.path", "raw.path");
+		parameters.put("structured.path", "structured.path"); 
+		parameters.put("curated.path", "curated.path");
+		parameters.put("sink.url", "sink.url");
+		parameters.put("sink.stream", "sink.stream");
+
+		parameters.put("source.queue", "source.name");
+		parameters.put("source.region", "source.region");
+		
+		final BaseReportingHubJob job = CloudPlatform.initialiseQueueReaderJob(spark, parameters);
 		
 		assertNotNull(job);
 		assertNotNull(job.getRawZone());
