@@ -1,6 +1,0 @@
-[#ftl]
-<div> <!-- class="boxed" -->
-
-         
-               
-        
