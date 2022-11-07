@@ -71,16 +71,22 @@ object GlueApp {
     val tableChangeMonitor = uk.gov.justice.dpr.domainplatform.configuration.DomainPlatform.initialise(sparkSession, args.asJava)
 
     val writer = tableChangeMonitor.run() // returns DataStreamWriter
-                 .trigger(Trigger.Once)
-                 .option("checkpointLocation", args("checkpoint.location"))
+    
+    val writer = cp_job.run() // returns DataStreamWriter - could be null
+    
+    if(writer != null) {
+    	writer
+        	.trigger(Trigger.Once)
+            .option("checkpointLocation", args("checkpoint.location"))
                  
-    val query = writer.start()             // start() returns type StreamingQuery
+    	val query = writer.start()             // start() returns type StreamingQuery
 
-    try {
-        query.awaitTermination()
-    } 
-    catch {
-        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
+	    try {
+	        query.awaitTermination()
+	    } 
+	    catch {
+	        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
+	    }
     }
       
     Job.commit()

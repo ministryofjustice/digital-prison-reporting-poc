@@ -17,6 +17,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<uk.gov.justice.digital.version>1.0.0.0-SNAPSHOT</uk.gov.justice.digital.version>
+		<aws.sdk.version>1.12.128</aws.sdk.version>
 	</properties>
 
 	<repositories>
@@ -119,7 +120,7 @@
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-kinesis</artifactId>
-		    <version>1.12.319</version>
+		    <version>${aws.sdk.version}</version>
 		    <!--  unsure whether it is provided -->
 		</dependency>
 		

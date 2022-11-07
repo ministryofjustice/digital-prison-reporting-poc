@@ -12,8 +12,12 @@ import org.apache.spark.sql.streaming.OutputMode;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClient;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 
 import scala.Predef;
 import scala.Tuple2;
@@ -24,6 +28,7 @@ import uk.gov.justice.dpr.cloudplatform.job.StreamReaderJob;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
+import uk.gov.justice.dpr.queue.MessageFileLoader;
 import uk.gov.justice.dpr.queue.Queue;
 
 public class CloudPlatform {
@@ -35,10 +40,14 @@ public class CloudPlatform {
 	 * @return
 	 */
 	public static BaseReportingHubJob initialise(final SparkSession spark, final Map<String,String> params ) {
-		return initialiseQueueReaderJob(spark, params);
+		return initialiseQueueReaderJob(spark, null, params);
 	}
 	
-	public static BaseReportingHubJob initialiseQueueReaderJob(final SparkSession spark, final Map<String,String> params ) {
+	public static BaseReportingHubJob initialise(final SparkSession spark, final AmazonSQS sqs, final Map<String,String> params ) {
+		return initialiseQueueReaderJob(spark, sqs, params);
+	}
+	
+	public static BaseReportingHubJob initialiseQueueReaderJob(final SparkSession spark, final AmazonSQS sqs, final Map<String,String> params ) {
 		
 		if(params == null || params.isEmpty()) {
 			throw new IllegalArgumentException("No Parameters provided");
@@ -52,7 +61,7 @@ public class CloudPlatform {
 		final StructuredZone structured = getStructuredZone(params);
 		final CuratedZone curated = getCuratedZone(params);
 		final KinesisSink sink = getKinesisSink(spark, params);
-		final Queue queue = getQueue(spark, params);
+		final Queue queue = getQueue(spark, sqs, params);
 		
 		// inject them 		
 		final QueueReaderJob job = new QueueReaderJob(spark, queue, raw, structured, curated, sink);
@@ -139,7 +148,34 @@ public class CloudPlatform {
 		return dsr;
 	}
 	
-	protected static Queue getQueue(final SparkSession spark, final Map<String,String> params) {
+	protected static AmazonSQS createSQS(final Map<String,String> params) {
+		final String queueRegion = getRequiredParameter(params, "source.region");
+		final String awsAccessKey = getOptionalParameter(params, "source.accessKey");
+		final String awsSecretKey = getOptionalParameter(params, "source.secretKey");
+		
+		AWSCredentialsProvider provider = null;
+		if(awsAccessKey != null && awsSecretKey != null) {
+			provider = new AWSCredentialsProvider() {
+				@Override
+				public AWSCredentials getCredentials() {
+					return new BasicAWSCredentials(awsAccessKey, awsSecretKey);
+				}
+
+				@Override
+				public void refresh() {
+				}
+			};
+		}
+		
+		AmazonSQSClientBuilder builder = AmazonSQSClient.builder(); 
+		builder.setRegion(queueRegion);
+		if(provider != null) {
+			builder = builder.withCredentials(provider);
+		}
+		return builder.build();
+	}
+	
+	protected static Queue getQueue(final SparkSession spark, AmazonSQS client, final Map<String,String> params) {
 		final String queueName = getRequiredParameter(params, "source.queue");
 		final String queueRegion = getRequiredParameter(params, "source.region");
 		final String awsAccessKey = getOptionalParameter(params, "source.accessKey");
@@ -159,12 +195,19 @@ public class CloudPlatform {
 			};
 		}
 		
-		AmazonSQSAsyncClientBuilder builder = AmazonSQSAsyncClientBuilder.standard().withRegion(queueRegion);
-		if(provider != null) {
-			builder = builder.withCredentials(provider);
+		if(client == null) {
+			client = createSQS(params);
 		}
-		final AmazonSQSAsync client = builder.build();
-		final Queue queue = new Queue(client, queueName);
+		
+		AmazonS3ClientBuilder s3Builder = AmazonS3Client.builder().withRegion(queueRegion);
+		if(provider != null) {
+			s3Builder = s3Builder.withCredentials(provider);
+		}
+		
+	
+		final AmazonS3 s3client = s3Builder.build();
+		final MessageFileLoader loader = new MessageFileLoader(s3client);
+		final Queue queue = new Queue(client, loader, queueName);
 		
 		return queue;
 	}

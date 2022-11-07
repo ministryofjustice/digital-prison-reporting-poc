@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.spark.sql.Dataset;
@@ -120,6 +121,10 @@ public class EventConverter {
 		}
 		
 		return spark.createDataFrame(rows, EVENT_SCHEMA);
+	}
+	
+	public static Dataset<Row> getEmptyDMS_3_4_6(final SparkSession spark) {
+		return spark.createDataFrame(Collections.<Row>emptyList(), EVENT_SCHEMA);
 	}
 	
 	public static Dataset<Row> toKinesis(final Dataset<Row> in) {

@@ -26,7 +26,14 @@ public class QueueReaderJob extends BaseReportingHubJob {
 	@Override
 	public DataStreamWriter run() {
 		Dataset<Row> df = queue.getQueuedMessages(spark);
-		return df.writeStream();
+		if(df != null) {
+			try {
+				new BaseReportingHubJob.Function().call(df, Long.valueOf(0));
+			} catch (Exception e) {
+				handleError(e);
+			}
+		}
+		return null;
 	}
 
 }

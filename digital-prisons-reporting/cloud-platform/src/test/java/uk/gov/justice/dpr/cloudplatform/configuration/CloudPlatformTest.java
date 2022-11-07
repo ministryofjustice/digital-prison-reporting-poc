@@ -52,7 +52,7 @@ public class CloudPlatformTest extends BaseSparkTest {
 		parameters.put("source.queue", "source.name");
 		parameters.put("source.region", "source.region");
 		
-		final BaseReportingHubJob job = CloudPlatform.initialiseQueueReaderJob(spark, parameters);
+		final BaseReportingHubJob job = CloudPlatform.initialiseQueueReaderJob(spark, null, parameters);
 		
 		assertNotNull(job);
 		assertNotNull(job.getRawZone());

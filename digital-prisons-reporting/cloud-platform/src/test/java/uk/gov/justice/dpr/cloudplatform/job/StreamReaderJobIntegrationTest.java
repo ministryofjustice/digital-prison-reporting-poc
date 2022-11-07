@@ -15,7 +15,7 @@ import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform;
 
 @RunWith(MockitoJUnitRunner.class)
-public class JobIntegrationTest extends BaseSparkTest {
+public class StreamReaderJobIntegrationTest extends BaseSparkTest {
 	
 	
 	@Test

@@ -1,6 +1,6 @@
 package uk.gov.justice.dpr.queue;
 
-import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +10,7 @@ import org.apache.spark.sql.SparkSession;
 
 import com.amazonaws.services.s3.event.S3EventNotification;
 import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRecord;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.model.DeleteMessageRequest;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
@@ -21,10 +21,12 @@ import uk.gov.justice.dpr.cdc.EventConverter;
 public class Queue {
 
 	private final String name;
-	private final AmazonSQSAsync client;
+	private final MessageFileLoader loader;
+	private final AmazonSQS client;
 	
-	public Queue(final AmazonSQSAsync client, final String name) {
+	public Queue(final AmazonSQS client, final MessageFileLoader loader, final String name) {
 		this.client = client;
+		this.loader = loader;
 		this.name = name;
 	}
 	
@@ -33,12 +35,12 @@ public class Queue {
 	public Dataset<Row> getQueuedMessages(final SparkSession spark) {
 		try {
 			final String url = client.getQueueUrl(name).getQueueUrl();
-			final ReceiveMessageRequest req = new ReceiveMessageRequest(url).withWaitTimeSeconds(10).withMaxNumberOfMessages(50);
+			final ReceiveMessageRequest req = new ReceiveMessageRequest(url).withWaitTimeSeconds(10);
 			
 			// read the messages and post to the appropriate classes
 			final ReceiveMessageResult result = client.receiveMessage(req);
 			final List<Message> messages = result.getMessages();
-			System.out.format("Received {} messages on queue {}", messages.size(), name);
+			System.out.println("Received " + messages.size() + " messages on queue " + name);
 			Dataset<Row> union = null;
 			
 			if(messages != null) {
@@ -77,14 +79,11 @@ public class Queue {
 			// get the file using spark wholetextfiles on the exact path
 			for(final S3EventNotificationRecord enr : notification.getRecords()) {
 				try {
-					// this could be replaced with S3 streaming
-					final String path = "s3://" + enr.getS3().getBucket().getName() + "/" + enr.getS3().getObject().getKey();
-					final Dataset<Row> df = spark.read().option("wholetext", true).text(path);
-					final String json = df.first().getString(0);
-					ByteArrayInputStream bais = new ByteArrayInputStream(json.getBytes());
+					InputStream bais = loader.getContentFromS3NotificationRecord(spark, enr);
 					batches.add(EventConverter.fromRawDMS_3_4_6(spark, bais));
 				} catch(Exception e) {
 					// do something - we have missed a batch for some reason
+					e.printStackTrace();
 				}
 			}
 		} catch(Exception e) {

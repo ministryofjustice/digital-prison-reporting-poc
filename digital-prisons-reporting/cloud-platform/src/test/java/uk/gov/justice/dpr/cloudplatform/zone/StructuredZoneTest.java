@@ -38,7 +38,7 @@ public class StructuredZoneTest extends BaseSparkTest {
 		
 		zone.process(df);
 		
-		Dataset<Row> output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "nomis", "offenders");
 		assertEquals(df.count(), output.count());
 	}
 	
@@ -54,12 +54,12 @@ public class StructuredZoneTest extends BaseSparkTest {
 		
 		zone.process(load);
 		
-		Dataset<Row> output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "NOMIS", "OFFENDERS");
 		assertEquals(load.count(), output.count());
 		
 		// now update
 		zone.process(update);
-		output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		output = zone.delta.load(path, "NOMIS", "OFFENDERS");
 		assertEquals(load.count(), output.count());
 
 	}
@@ -76,12 +76,12 @@ public class StructuredZoneTest extends BaseSparkTest {
 		
 		zone.process(load);
 		
-		Dataset<Row> output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "NOMIS", "OFFENDERS");
 		assertEquals(load.count(), output.count());
 		
 		// now update
 		zone.process(delete);
-		output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		output = zone.delta.load(path, "NOMIS", "OFFENDERS");
 		assertEquals(0, output.count());
 
 	}
@@ -99,12 +99,12 @@ public class StructuredZoneTest extends BaseSparkTest {
 		
 		zone.process(load);
 		
-		Dataset<Row> output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "NOMIS", "OFFENDERS");
 		assertEquals(load.count(), output.count());
 		
 		// now update
 		zone.process(update);
-		output = zone.delta.load(path, "SYSTEM", "OFFENDERS");
+		output = zone.delta.load(path, "NOMIS", "OFFENDERS");
 		assertEquals(load.count(), output.count());
 
 	}

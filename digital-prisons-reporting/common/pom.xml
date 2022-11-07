@@ -20,6 +20,7 @@
 		<!-- see https://docs.delta.io/latest/releases.html -->
 		<delta-lake.version>1.0.1</delta-lake.version>
 		<org.mockito.version>2.1.0</org.mockito.version>
+		<aws.sdk.version>1.12.128</aws.sdk.version>
 	</properties>
 
 	<repositories>
@@ -147,7 +148,7 @@
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-kinesis</artifactId>
-		    <version>1.12.319</version>
+		    <version>${aws.sdk.version}</version>
 		    <!--  unsure whether it is provided -->
 		</dependency>
 
@@ -155,14 +156,16 @@
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-sqs</artifactId>
-		    <version>1.12.319</version>
+		    <version>${aws.sdk.version}</version>
+		    <!--  unsure whether it is provided -->
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-s3</artifactId>
-		    <version>1.12.319</version>
+		    <version>${aws.sdk.version}</version>
+		    <!--  unsure whether it is provided -->
 		</dependency>
 				
 		<!--  joda -->
@@ -222,7 +225,7 @@
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-bundle</artifactId>
-		    <version>1.11.563</version>
+		    <version>${aws.sdk.version}</version>
 		    <scope>test</scope>
 		</dependency>
 				

@@ -2,25 +2,16 @@ package uk.gov.justice.dpr.cloudplatform.zone;
 
 import static org.apache.spark.sql.functions.col;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
+import uk.gov.justice.dpr.cloudplatform.service.SourceReferenceService;
 import uk.gov.justice.dpr.delta.DeltaLakeService;
 
 public abstract class DeltaZone {
-
-	protected static final Map<String,String> primaryKeyNames;
-	
-	static {
-		primaryKeyNames = new HashMap<String,String>();
-		primaryKeyNames.put("OFFENDERS", "OFFENDER_ID");
-		primaryKeyNames.put("OFFENDER_BOOKINGS", "OFFENDER_BOOK_ID");
-	}
 	
 	protected String prefix; 
 	protected final DeltaLakeService delta = new DeltaLakeService();
@@ -38,7 +29,7 @@ public abstract class DeltaZone {
 			final String schema = t.getAs("schemaName");
 			final String table = t.getAs("tableName");
 			
-			System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ")");
+			System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") started");
 			
 			// preprocessing is needed to ensure that we do not apply changes in the wrong order
 			// for example, an insert followed by a delete of the same record results in no change
@@ -57,11 +48,15 @@ public abstract class DeltaZone {
 			changes = transform(changes, schema, table);
 			
 			
-			final String primaryKey = primaryKeyNames.get(table);
+			final String source = SourceReferenceService.getSource(schema +"." + table);
+			final String tableName = SourceReferenceService.getTable(schema +"." + table);
+			final String primaryKey = SourceReferenceService.getPrimaryKey(schema +"." + table);
 			
-			delta.merge(prefix, schema, table, primaryKey, df_payload);
+			delta.merge(prefix, source, tableName, primaryKey, df_payload);
 			
-			delta.endTableUpdates(prefix, schema, table);
+			delta.endTableUpdates(prefix, source, tableName);
+			
+			System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") completed");
 		}
 	}
 	

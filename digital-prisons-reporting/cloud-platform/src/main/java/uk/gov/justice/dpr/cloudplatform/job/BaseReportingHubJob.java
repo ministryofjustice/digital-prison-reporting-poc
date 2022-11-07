@@ -1,5 +1,8 @@
 package uk.gov.justice.dpr.cloudplatform.job;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -54,6 +57,15 @@ public abstract class BaseReportingHubJob {
 	
 	public KinesisSink getOutStream() {
 		return stream;
+	}
+	
+
+	
+	protected static void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
 	}
 	
 	public class Function implements VoidFunction2<Dataset<Row>, Long> {
