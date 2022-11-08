@@ -100,6 +100,8 @@ public abstract class BaseReportingHubJob {
 					
 					stream.addBatch(batchId, out);
 					
+					System.out.println("Written to Kinesis Stream");
+					
 				} catch(Exception e) {
 					System.err.println(e.getMessage());
 				}

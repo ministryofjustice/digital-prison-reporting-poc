@@ -72,9 +72,7 @@ object GlueApp {
         
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
     
-    val sqsClient = AmazonSQSClientBuilder.standard().withRegion(args("source.region"))
-
-    val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(sparkSession, sqsClient, args.asJava)
+    val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(sparkSession, args.asJava)
 
     val writer = cp_job.run() // returns DataStreamWriter - could be null
     

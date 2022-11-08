@@ -1,11 +1,13 @@
 package uk.gov.justice.dpr.cloudplatform.zone;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import static org.apache.spark.sql.functions.lit;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
@@ -113,9 +115,32 @@ public class StructuredZoneTest extends BaseSparkTest {
 	// shouldHandleDeleteInsertUpdateInOrder
 	// shouldHandleMultipleUpdatesOfDifferentFieldsInOrder
 	
+	// ERROR IN STRUCTURED ZONE CANNOT RESOLVE SUBMITTED DATE
+	@Test
+	public void shouldResolveNullColumnsIfPresentInInput() {
+		final String path = folder.getRoot().getAbsolutePath() + "/structured";
+		final StructuredZone zone = new StructuredZone(path);
+		
+		// load the raw data into a DF
+		final Dataset<Row> df = loadRawData("/sample/events/resolve-submitted-date-error-events.json");
+		// load a single record 
+		
+		zone.process(df);
+		// can't replicate at the moment.....
+		
+		Dataset<Row> output = zone.delta.load(path, "use_of_force", "report");
+
+		assertFalse(output.isEmpty());
+	}
+	
 	
 	protected Dataset<Row> inject(final Dataset<Row> df, final String column, final Column col) {
 		return null;
+	}
+	
+	protected Dataset<Row> loadRawData(final String resource) {
+		final InputStream is = getStream(resource);
+		return EventConverter.fromKinesis(EventConverter.fromRawDMS_3_4_6(spark, is));
 	}
 	
 	protected Dataset<Row> getEvent(final String operation) throws IOException {

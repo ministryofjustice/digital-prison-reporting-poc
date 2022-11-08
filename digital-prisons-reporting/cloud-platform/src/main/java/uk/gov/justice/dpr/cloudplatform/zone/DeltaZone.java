@@ -2,6 +2,8 @@ package uk.gov.justice.dpr.cloudplatform.zone;
 
 import static org.apache.spark.sql.functions.col;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 import org.apache.spark.sql.Dataset;
@@ -25,6 +27,8 @@ public abstract class DeltaZone {
 		final List<Row> tables = batch.filter("recordType='data'").select("schemaName", "tableName").distinct().collectAsList();
 		
 		for(final Row t : tables) {
+			
+			try {
 			
 			final String schema = t.getAs("schemaName");
 			final String table = t.getAs("tableName");
@@ -57,11 +61,22 @@ public abstract class DeltaZone {
 			delta.endTableUpdates(prefix, source, tableName);
 			
 			System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") completed");
+			
+			} catch(Exception e) {
+				handleError(e);
+			}
 		}
 	}
 	
 	protected Dataset<Row> transform(final Dataset<Row> changes, final String schema, final String table) {
 		return changes;
+	}
+	
+	protected static void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
 	}
 	
 
