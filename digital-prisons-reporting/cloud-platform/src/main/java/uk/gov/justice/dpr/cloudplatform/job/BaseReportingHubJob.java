@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.kinesis.KinesisSink;
 import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
@@ -14,16 +13,17 @@ import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
+import uk.gov.justice.dpr.kinesis.KinesisWriter;
 
 public abstract class BaseReportingHubJob {
 
 	protected RawZone raw = null;
 	protected StructuredZone structured = null;
 	protected CuratedZone curated = null;
-	protected KinesisSink stream = null;
+	protected KinesisWriter stream = null;
 	
 	
-	public BaseReportingHubJob(final RawZone raw, final StructuredZone structured, final CuratedZone curated, final KinesisSink sink) {
+	public BaseReportingHubJob(final RawZone raw, final StructuredZone structured, final CuratedZone curated, final KinesisWriter sink) {
 		this.raw = raw;
 		this.structured = structured;
 		this.curated = curated;
@@ -55,7 +55,7 @@ public abstract class BaseReportingHubJob {
 		return curated;
 	}
 	
-	public KinesisSink getOutStream() {
+	public KinesisWriter getOutStream() {
 		return stream;
 	}
 	
@@ -98,7 +98,7 @@ public abstract class BaseReportingHubJob {
 					// MUST HAVE A FIELD data and an optional PARTITIONKEY
 					Dataset<Row> out = EventConverter.toKinesis(internalEventDF);
 					
-					stream.addBatch(batchId, out);
+					stream.writeBatch(out, batchId.longValue());
 					
 					System.out.println("Written to Kinesis Stream");
 					

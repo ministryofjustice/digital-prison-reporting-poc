@@ -23,7 +23,7 @@ public class CloudPlatformTest extends BaseSparkTest {
 		parameters.put("raw.path", "raw.path");
 		parameters.put("structured.path", "structured.path"); 
 		parameters.put("curated.path", "curated.path");
-		parameters.put("sink.url", "sink.url");
+		parameters.put("sink.region", "sink.region");
 		parameters.put("sink.stream", "sink.stream");
 
 		parameters.put("source.url", "source.url");
@@ -46,7 +46,7 @@ public class CloudPlatformTest extends BaseSparkTest {
 		parameters.put("raw.path", "raw.path");
 		parameters.put("structured.path", "structured.path"); 
 		parameters.put("curated.path", "curated.path");
-		parameters.put("sink.url", "sink.url");
+		parameters.put("sink.region", "sink.region");
 		parameters.put("sink.stream", "sink.stream");
 
 		parameters.put("source.queue", "source.name");

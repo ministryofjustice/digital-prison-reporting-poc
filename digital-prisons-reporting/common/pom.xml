@@ -135,13 +135,14 @@
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.qubole.spark/spark-sql-kinesis -->
+		<!-- 
 		<dependency>
 		    <groupId>com.qubole.spark</groupId>
 		    <artifactId>spark-sql-kinesis_2.12</artifactId>
 		    <version>1.2.0_spark-3.0</version>
 		    <scope>provided</scope>
 		</dependency>
-				
+		 -->
 		
 				
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->

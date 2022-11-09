@@ -22,6 +22,7 @@ import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
+import uk.gov.justice.dpr.kinesis.KinesisWriter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StreamReaderJobTest extends BaseSparkTest {
@@ -29,7 +30,7 @@ public class StreamReaderJobTest extends BaseSparkTest {
 	@Mock RawZone raw;
 	@Mock StructuredZone structured;
 	@Mock CuratedZone curated;
-	@Mock KinesisSink sink;
+	@Mock KinesisWriter sink;
 	
 	
 	@Test

@@ -1,12 +1,9 @@
 package uk.gov.justice.dpr.configuration;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.kinesis.KinesisSink;
 import org.apache.spark.sql.streaming.DataStreamReader;
-import org.apache.spark.sql.streaming.OutputMode;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -18,9 +15,8 @@ import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 
-import scala.Predef;
-import scala.Tuple2;
-import scala.collection.JavaConverters;
+import uk.gov.justice.dpr.kinesis.KinesisConfiguration;
+import uk.gov.justice.dpr.kinesis.KinesisWriter;
 import uk.gov.justice.dpr.queue.MessageFileLoader;
 import uk.gov.justice.dpr.queue.Queue;
 
@@ -132,31 +128,19 @@ public class BaseApplicationConfiguration {
 	
 
 	
-	protected static KinesisSink getKinesisSink(final SparkSession spark, final Map<String,String> params) {
-		final String sinkUrl = getRequiredParameter(params, "sink.url");
+	protected static KinesisWriter getKinesisSink(final SparkSession spark, final Map<String,String> params) {
+		final String sinkRegion = getRequiredParameter(params, "sink.region");
 		final String sinkStream = getRequiredParameter(params, "sink.stream");
 		final String awsAccessKey = getOptionalParameter(params, "sink.accessKey");
 		final String awsSecretKey = getOptionalParameter(params, "sink.secretKey");
 		
-		// create params
-		Map<String, String> kinesisParams = new HashMap<String,String>();
+		final KinesisConfiguration config = new KinesisConfiguration();
+		config.setStream(sinkStream);
+		config.setRegion(sinkRegion);
+		config.setAwsAccessKeyId(awsAccessKey);
+		config.setAwsSecretKey(awsSecretKey);
 		
-		// note that this doesn't work if you use streamName and endpointUrl etc (camel-case).
-		// it only works if you use lowercase only
-		kinesisParams.put("streamname", sinkStream);
-		kinesisParams.put("endpointurl", sinkUrl);
-		if(awsAccessKey != null && !awsAccessKey.isEmpty())
-			kinesisParams.put("awsaccesskeyid", awsAccessKey);
-		if(awsSecretKey != null && !awsSecretKey.isEmpty())
-			kinesisParams.put("awssecretkey", awsSecretKey);
-		
-	
-		@SuppressWarnings("deprecation")
-		scala.collection.immutable.Map<String, String> kp = JavaConverters.mapAsScalaMapConverter(kinesisParams).
-				asScala()
-				.toMap(Predef.<Tuple2<String, String>>conforms());
-		
-		return new KinesisSink(spark.sqlContext(), kp, OutputMode.Update());
+		return new KinesisWriter(config);
 	}
 	
 	protected static String getRequiredParameter(final Map<String, String> params, final String name) {

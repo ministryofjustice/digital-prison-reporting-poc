@@ -35,6 +35,7 @@ import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
+import uk.gov.justice.dpr.kinesis.KinesisWriter;
 import uk.gov.justice.dpr.queue.MessageFileLoader;
 import uk.gov.justice.dpr.queue.Queue;
 
@@ -44,7 +45,7 @@ public class QueueReaderJobTest extends BaseSparkTest {
 	@Mock RawZone raw;
 	@Mock StructuredZone structured;
 	@Mock CuratedZone curated;
-	@Mock KinesisSink sink;
+	@Mock KinesisWriter sink;
 
 	@Mock AmazonSQSAsync client;
 	@Mock MessageFileLoader loader;
@@ -66,7 +67,7 @@ public class QueueReaderJobTest extends BaseSparkTest {
 	
 	@SuppressWarnings({ "rawtypes", "unchecked"})
 	@Test
-	public void shouldExecuteLoadJob() throws IOException, TimeoutException {
+	public void shouldExecuteLoadJob() throws Exception {
 		
 		
 		final String path = folder.getRoot().getAbsolutePath() ;
@@ -94,7 +95,7 @@ public class QueueReaderJobTest extends BaseSparkTest {
 		verify(raw, times(1)).writeBatch(any(Dataset.class), any(Long.class));
 		verify(structured, times(1)).writeBatch(any(Dataset.class), any(Long.class));
 		verify(curated, times(1)).writeBatch(any(Dataset.class), any(Long.class));
-		verify(sink, times(1)).addBatch(any(Long.class), any(Dataset.class));
+		verify(sink, times(1)).writeBatch(any(Dataset.class), any(Long.class));
 	}
 	
 	

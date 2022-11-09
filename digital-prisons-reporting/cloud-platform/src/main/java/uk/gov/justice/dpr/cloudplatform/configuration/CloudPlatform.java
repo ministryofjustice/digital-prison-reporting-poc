@@ -4,7 +4,6 @@ package uk.gov.justice.dpr.cloudplatform.configuration;
 import java.util.Map;
 
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.kinesis.KinesisSink;
 import org.apache.spark.sql.streaming.DataStreamReader;
 
 import com.amazonaws.services.sqs.AmazonSQS;
@@ -16,6 +15,7 @@ import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
 import uk.gov.justice.dpr.configuration.BaseApplicationConfiguration;
+import uk.gov.justice.dpr.kinesis.KinesisWriter;
 import uk.gov.justice.dpr.queue.Queue;
 
 public class CloudPlatform extends BaseApplicationConfiguration {
@@ -47,7 +47,7 @@ public class CloudPlatform extends BaseApplicationConfiguration {
 		final RawZone raw = getRawZone(params);
 		final StructuredZone structured = getStructuredZone(params);
 		final CuratedZone curated = getCuratedZone(params);
-		final KinesisSink sink = getKinesisSink(spark, params);
+		final KinesisWriter sink = getKinesisSink(spark, params);
 		final Queue queue = getQueue(spark, sqs, params);
 		
 		// inject them 		
@@ -70,7 +70,7 @@ public class CloudPlatform extends BaseApplicationConfiguration {
 		final RawZone raw = getRawZone(params);
 		final StructuredZone structured = getStructuredZone(params);
 		final CuratedZone curated = getCuratedZone(params);
-		final KinesisSink sink = getKinesisSink(spark, params);
+		final KinesisWriter sink = getKinesisSink(spark, params);
 		final DataStreamReader dsr = getKinesisDataStreamReader(spark, params);
 		
 		// inject them 		
