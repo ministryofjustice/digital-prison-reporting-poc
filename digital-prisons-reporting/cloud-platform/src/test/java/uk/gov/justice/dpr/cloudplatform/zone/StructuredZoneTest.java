@@ -1,10 +1,9 @@
 package uk.gov.justice.dpr.cloudplatform.zone;
 
+import static org.apache.spark.sql.functions.lit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-
-import static org.apache.spark.sql.functions.lit;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,9 +13,7 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 
 import uk.gov.justice.dpr.BaseSparkTest;
 import uk.gov.justice.dpr.cdc.EventConverter;
@@ -56,12 +53,13 @@ public class StructuredZoneTest extends BaseSparkTest {
 		
 		zone.process(load);
 		
-		Dataset<Row> output = zone.delta.load(path, "NOMIS", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "nomis", "offenders");
+		assertNotNull(output);
 		assertEquals(load.count(), output.count());
 		
 		// now update
 		zone.process(update);
-		output = zone.delta.load(path, "NOMIS", "OFFENDERS");
+		output = zone.delta.load(path, "nomis", "offenders");
 		assertEquals(load.count(), output.count());
 
 	}
@@ -73,17 +71,18 @@ public class StructuredZoneTest extends BaseSparkTest {
 		final String path = folder.getRoot().getAbsolutePath() + "/structured";
 		final StructuredZone zone = new StructuredZone(path);
 		// load a single record 
-		Dataset<Row> load = getEvent("load");
+		Dataset<Row> load = getEvent("update");
 		Dataset<Row> delete = getEvent("delete");
 		
 		zone.process(load);
 		
-		Dataset<Row> output = zone.delta.load(path, "NOMIS", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "nomis", "offenders");
+		assertNotNull(output);
 		assertEquals(load.count(), output.count());
 		
 		// now update
 		zone.process(delete);
-		output = zone.delta.load(path, "NOMIS", "OFFENDERS");
+		output = zone.delta.load(path, "nomis", "offenders");
 		assertEquals(0, output.count());
 
 	}
@@ -101,12 +100,13 @@ public class StructuredZoneTest extends BaseSparkTest {
 		
 		zone.process(load);
 		
-		Dataset<Row> output = zone.delta.load(path, "NOMIS", "OFFENDERS");
+		Dataset<Row> output = zone.delta.load(path, "nomis", "offenders");
+		assertNotNull(output);
 		assertEquals(load.count(), output.count());
 		
 		// now update
 		zone.process(update);
-		output = zone.delta.load(path, "NOMIS", "OFFENDERS");
+		output = zone.delta.load(path, "nomis", "offenders");
 		assertEquals(load.count(), output.count());
 
 	}
