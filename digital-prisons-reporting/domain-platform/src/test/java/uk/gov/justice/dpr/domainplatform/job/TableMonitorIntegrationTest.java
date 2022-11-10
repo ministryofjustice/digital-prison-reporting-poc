@@ -26,7 +26,7 @@ import uk.gov.justice.dpr.domainplatform.domain.DomainExecutorTest;
 public class TableMonitorIntegrationTest extends BaseSparkTest {
 
 	@Test
-	// @Ignore
+	@Ignore
 	public void shouldRunWithLocalFiles() throws IOException {
 		
 		final String domainSourcePath = folder.getRoot().getAbsolutePath() + "/domains";

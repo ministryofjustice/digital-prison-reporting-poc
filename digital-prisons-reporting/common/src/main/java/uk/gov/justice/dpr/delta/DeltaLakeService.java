@@ -41,10 +41,13 @@ public class DeltaLakeService {
 				final String uk = TARGET + "." + primaryKey;
 				dt.as(SOURCE)
 				.merge(df.as(TARGET), pk + "=" + uk )
-				// delete
-				.whenMatched(TARGET + "._operation=='delete'").delete()
+				// the order of whenMatched is important. DELETE should come after UPDATE
 				// update
 				.whenMatched(TARGET + "._operation=='update'").updateExpr(expression)
+				// reload over an existing record
+				.whenMatched(TARGET + "._operation=='load'").updateExpr(expression)
+				// delete
+				.whenMatched(TARGET + "._operation=='delete'").delete()
 				// insert
 				// should really be whenNotMatch(TARGET + "._operation=='insert' or " + TARGET + "._operation=='load'").insertExpr(expression)
 				.whenNotMatched().insertExpr(expression)
