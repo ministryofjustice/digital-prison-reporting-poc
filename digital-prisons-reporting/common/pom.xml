@@ -20,6 +20,7 @@
 		<!-- see https://docs.delta.io/latest/releases.html -->
 		<delta-lake.version>1.0.1</delta-lake.version>
 		<org.mockito.version>2.1.0</org.mockito.version>
+        <aws.sdk.version>1.12.128</aws.sdk.version>
 	</properties>
 
 	<repositories>
@@ -132,24 +133,32 @@
 			<version>${spark.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/com.qubole.spark/spark-sql-kinesis -->
-		<dependency>
-		    <groupId>com.qubole.spark</groupId>
-		    <artifactId>spark-sql-kinesis_2.12</artifactId>
-		    <version>1.2.0_spark-3.0</version>
-		    <scope>provided</scope>
-		</dependency>
 				
-		
-				
-		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->
-		<dependency>
-		    <groupId>com.amazonaws</groupId>
-		    <artifactId>aws-java-sdk-kinesis</artifactId>
-		    <version>1.12.319</version>
-		    <!--  unsure whether it is provided -->
-		</dependency>
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-kinesis</artifactId>
+            <version>${aws.sdk.version}</version>
+            <!--  unsure whether it is provided -->
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sqs</artifactId>
+            <version>${aws.sdk.version}</version>
+            <!--  unsure whether it is provided -->
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>${aws.sdk.version}</version>
+            <!--  unsure whether it is provided -->
+        </dependency>
+
+        
 		
 		<!--  joda -->
 		<dependency>
@@ -208,7 +217,7 @@
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-bundle</artifactId>
-		    <version>1.11.563</version>
+		    <version>${aws.sdk.version}</version>
 		    <scope>test</scope>
 		</dependency>
 				

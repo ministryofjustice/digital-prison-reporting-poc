@@ -1,10 +1,10 @@
 {
-  "metadata": {
-    "timestamp": "2022-10-04T10:43:54.499163Z",
-    "record-type": "control",
-    "operation": "create-table",
-    "partition-key-type": "task-id",
-    "schema-name": "",
-    "table-name": "awsdms_apply_exceptions"
-  }
+	"metadata":	{
+		"timestamp":	"2022-10-04T10:43:54.499163Z",
+		"record-type":	"control",
+		"operation":	"create-table",
+		"partition-key-type":	"task-id",
+		"schema-name":	"",
+		"table-name":	"awsdms_apply_exceptions"
+	}
 }

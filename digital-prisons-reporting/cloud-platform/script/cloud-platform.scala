@@ -42,51 +42,54 @@ object GlueApp {
 	// Parameters
 	// JOB_NAME : set by default in parameters
 	//
-	// source.stream   : Name of Kinesis Source Stream (dpr-nomis-cdc-data-stream)
-	// source.url      : Source Endpoint url (https://kinesis.eu-west-1.amazonaws.com)
+	// source.queue    : Name of Kinesis Source Queue (moj-cdc-event-queue)
+	// source.region   : Region of the queue (eu-west-1)
 	// 
 	// raw.path        : path to raw data storage (s3://dpr-reporting-hub/raw/cdc)
 	// structured.path : path to structured storage (s3://dpr-reporting-hub/structured)
 	// curated.path    : path to curated storage (s3://mdpr-reporting-hub/curated)
 	//
 	// sink.stream     : Name of Kinesis Sink Stream (domain-data-stream-events)
-	// sink.region     : Sink Region (eu-west-1)	
+	// sink.url        : https://kinesis.eu-west-1.amazonaws.com
 	// ==================================================================================
 	
     val args = GlueArgParser.getResolvedOptions(sysArgs, 
         Seq(
         "JOB_NAME", 
-        "source.stream",
-        "source.url",
+        "source.queue",
+        "source.region",
         
         "raw.path", 
         "structured.path",
         "curated.path",
         
         "sink.stream", 
-        "sink.region",
+        "sink.url",
         
         "checkpoint.location"
         
         ).toArray)
         
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
-
+    
     val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(sparkSession, args.asJava)
 
-    val writer = cp_job.run() // returns DataStreamWriter
-                 .trigger(Trigger.Once)
-                 .option("checkpointLocation", args("checkpoint.location"))
+    val writer = cp_job.run() // returns DataStreamWriter - could be null
+    
+    if(writer != null) {
+    	writer
+        	.trigger(Trigger.Once)
+            .option("checkpointLocation", args("checkpoint.location"))
                  
-    val query = writer.start()             // start() returns type StreamingQuery
+    	val query = writer.start()             // start() returns type StreamingQuery
 
-    try {
-        query.awaitTermination()
-    } 
-    catch {
-        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
+	    try {
+	        query.awaitTermination()
+	    } 
+	    catch {
+	        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
+	    }
     }
-      
       
     Job.commit()
   }

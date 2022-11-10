@@ -1,9 +1,11 @@
 package uk.gov.justice.dpr.cdc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -12,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.gov.justice.dpr.BaseSparkTest;
-import uk.gov.justice.dpr.cdc.EventConverter;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,5 +43,43 @@ public class EventConverterTest extends BaseSparkTest {
 		assertTrue("tableName missing", hasField(result, "tableName"));
 		assertTrue("transactionId missing", hasField(result, "transactionId"));
 		
+	}
+	
+	@Test
+	public void shouldConvertMessageFromFirehoseToKinesisFormat() throws IOException {
+		final InputStream events = BaseSparkTest.getStream("/sample/events/raw-on-disk-events.json");
+		
+		final Dataset<Row> df = EventConverter.fromRawDMS_3_4_6(spark, events);
+		
+		assertNotNull(df);
+		assertEquals(490, df.count());
+
+		assertTrue("partitionKey missing", hasField(df, "partitionKey"));
+		assertTrue("sequenceNumber missing", hasField(df, "sequenceNumber"));
+		assertTrue("approximateArrivalTimestamp missing", hasField(df, "approximateArrivalTimestamp"));
+		assertTrue("data missing", hasField(df, "data"));
+		
+		final Dataset<Row> result = EventConverter.fromKinesis(df);
+		// check the result
+		assertTrue("partitionKey missing", hasField(result, "partitionKey"));
+		assertTrue("sequenceNumber missing", hasField(result, "sequenceNumber"));
+		assertTrue("approximateArrivalTimestamp missing", hasField(result, "approximateArrivalTimestamp"));
+		
+		assertEquals(df.count(), result.count());
+		assertTrue("jsonData missing", hasField(result, "jsonData"));
+		assertTrue("metadata missing", hasField(result, "metadata"));
+		assertTrue("payload missing", hasField(result, "payload"));
+		assertTrue("timestamp missing", hasField(result, "timestamp"));
+		assertTrue("recordType missing", hasField(result, "recordType"));
+		assertTrue("operation missing", hasField(result, "operation"));
+		assertTrue("partitionKeyType missing", hasField(result, "partitionKeyType"));
+		assertTrue("schemaName missing", hasField(result, "schemaName"));
+		assertTrue("tableName missing", hasField(result, "tableName"));
+		assertTrue("transactionId missing", hasField(result, "transactionId"));
+		
+		
+		
+		
+
 	}
 }
