@@ -17,7 +17,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<uk.gov.justice.digital.version>version_place_holder</uk.gov.justice.digital.version>
-        <aws.sdk.version>1.12.128</aws.sdk.version>
+        <aws.sdk.version>1.12.261</aws.sdk.version>
 	</properties>
 
 	<repositories>
