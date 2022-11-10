@@ -83,19 +83,32 @@ public class DomainRepository {
 	public Set<DomainDefinition> getDomainsForSource(final String sourceTable) {
 		Set<DomainDefinition> domains = new HashSet<DomainDefinition>();
 		try {
-			final Dataset<Row> df = service.load(domainRepositoryPath, SCHEMA, TABLE);
-			final List<String> results = df
-					.where(array_contains(col("sources"), sourceTable))
-					.select(col("definition")).as(Encoders.STRING())
-					.collectAsList();
-	
-			for(final String result : results) {
-				domains.add(MAPPER.readValue(result, DomainDefinition.class));
+			// does a table exist on disk
+			
+			final Dataset<Row> df = getDomainRepository();
+			if(df != null) {
+				final List<String> results = df
+						.where(array_contains(col("sources"), sourceTable))
+						.select(col("definition")).as(Encoders.STRING())
+						.collectAsList();
+		
+				for(final String result : results) {
+					domains.add(MAPPER.readValue(result, DomainDefinition.class));
+				}
+			} else {
+				throw new RuntimeException("Domain Repository (" + domainRepositoryPath + "/" + SCHEMA + "/" + TABLE + ") does not exist. Please refresh the domain repository");
 			}
 		} catch(Exception e) {
 			handleError(e);
 		}
 		return domains;
+	}
+	
+	protected Dataset<Row> getDomainRepository() {
+		if(service.exists(domainRepositoryPath, SCHEMA, TABLE)) {
+			return service.load(domainRepositoryPath, SCHEMA, TABLE);
+		}
+		return null;
 	}
 	
 	protected void load() {

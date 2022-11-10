@@ -132,7 +132,7 @@ public class DeltaLakeService {
 
 	public Dataset<Row> load(final String prefix, final String schema, final String table) {
 		final DeltaTable dt = getTable(prefix, schema, table);
-		return dt.toDF();
+		return dt == null ? null : dt.toDF();
 	}
 	
 	
