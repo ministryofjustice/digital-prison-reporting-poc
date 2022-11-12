@@ -1,0 +1,37 @@
+{
+  "_comment": "DPR-128 Incident Domain",
+
+  "id": "6b8c6f0e-c605-431d-a175-b3564b4d4114",
+  "name": "incident",
+  "description": "Initial incident domain for DPR Proof of Concept",
+  "version": "0.0.1",
+  "location": "/incident",
+  "tags": {
+    "department": "HMPPS",
+    "unit": "Prisons"
+  },
+  "owner": "michael.w.clarke@justice.gov.uk",
+  "author": "michael.w.clarke@justice.gov.uk",
+
+  "tables": [
+    {
+      "name": "incident",
+      "description": "Prisoner Incident Table",
+      "version": "0.0.1",
+      "location": "/incident",
+      "tags": {
+        "department": "HMPPS",
+        "unit": "Prisons"
+      },
+      "owner": "michael.w.clarke@justice.gov.uk",
+      "author": "michael.w.clarke@justice.gov.uk",
+
+      "primaryKey": "id",
+      "transform": {
+        "viewText": "SELECT id, 'USE_OF_FORCE' as type, incident_date, agency_id, offender_no from use_of_force.incident",
+        "sources": ["use_of_force.incident"]
+      },
+      "violations": []
+    }
+  ]
+}

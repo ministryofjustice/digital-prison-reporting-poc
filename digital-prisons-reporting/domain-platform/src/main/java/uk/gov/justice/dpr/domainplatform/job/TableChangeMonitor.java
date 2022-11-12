@@ -55,7 +55,8 @@ public class TableChangeMonitor {
 		public Function(final SparkSession spark, final String domainRepositoryPath, final String sourcePath, final String targetPath) {
 			this.sourcePath = sourcePath;
 			this.targetPath = targetPath;
-			this.repo = new DomainRepository(spark, domainRepositoryPath, domainRepositoryPath);
+			// a read-only repo
+			this.repo = new DomainRepository(spark, domainRepositoryPath);
 		}
 		
 		private DomainRepository repo;
