@@ -1,5 +1,8 @@
 package uk.gov.justice.dpr.cloudplatform.job;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -7,22 +10,20 @@ import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
-import uk.gov.justice.dpr.cloudplatform.sink.KinesisSink;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
 import uk.gov.justice.dpr.cloudplatform.zone.RawZone;
 import uk.gov.justice.dpr.cloudplatform.zone.StructuredZone;
+import uk.gov.justice.dpr.kinesis.KinesisWriter;
 
-public class Job {
+public abstract class BaseReportingHubJob {
 
-	protected DataStreamReader dsr;
 	protected RawZone raw = null;
 	protected StructuredZone structured = null;
 	protected CuratedZone curated = null;
-	protected KinesisSink stream = null;
+	protected KinesisWriter stream = null;
 	
 	
-	public Job(final DataStreamReader dsr, final RawZone raw, final StructuredZone structured, final CuratedZone curated, final KinesisSink sink) {
-		this.dsr = dsr;
+	public BaseReportingHubJob(final RawZone raw, final StructuredZone structured, final CuratedZone curated, final KinesisWriter sink) {
 		this.raw = raw;
 		this.structured = structured;
 		this.curated = curated;
@@ -30,9 +31,7 @@ public class Job {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public DataStreamWriter run() {
-		return run(dsr);
-	}
+	public abstract DataStreamWriter run();
 	
 	@SuppressWarnings("rawtypes")
 	public DataStreamWriter run(final DataStreamReader in) {
@@ -41,7 +40,7 @@ public class Job {
 	
 	@SuppressWarnings("rawtypes")
 	public DataStreamWriter run(final Dataset<Row> df) {
-		return df.writeStream().foreachBatch(new Job.Function());
+		return df.writeStream().foreachBatch(new BaseReportingHubJob.Function());
 	}
 	
 	public RawZone getRawZone() {
@@ -56,8 +55,17 @@ public class Job {
 		return curated;
 	}
 	
-	public KinesisSink getOutStream() {
+	public KinesisWriter getOutStream() {
 		return stream;
+	}
+	
+
+	
+	protected static void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
 	}
 	
 	public class Function implements VoidFunction2<Dataset<Row>, Long> {
@@ -87,10 +95,13 @@ public class Job {
 					// pass onto domain
 					// use org.apache.spark.sql.kinesis.KinesisSink
 					// call addBatch(batchId, internalEventDF)
+					// MUST HAVE A FIELD data and an optional PARTITIONKEY
+					Dataset<Row> out = EventConverter.toKinesis(internalEventDF);
 					
-					stream.open(batchId, batchId);
-					stream.write(internalEventDF);
-					stream.close(null);
+					stream.writeBatch(out, batchId.longValue());
+					
+					System.out.println("Written to Kinesis Stream");
+					
 				} catch(Exception e) {
 					System.err.println(e.getMessage());
 				}

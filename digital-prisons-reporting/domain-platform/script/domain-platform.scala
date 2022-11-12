@@ -15,6 +15,7 @@ import org.apache.spark.sql.functions.from_json
 import org.apache.spark.sql.streaming.Trigger
 import scala.collection.JavaConverters._
 import org.apache.spark.sql.streaming.StreamingQueryException
+import org.apache.spark.sql.streaming.DataStreamWriter
 import com.amazonaws.services.glue.log.GlueLogger
 
 object GlueApp {
@@ -44,8 +45,9 @@ object GlueApp {
 	//
 	// domain.repo.path    : Path to the domain repository
 	// cloud.platform.path : Path to curated zone/fabric
-	// source.stream       : Name of Kinesis Source Stream (dpr-domain-data-stream)
-	// source.url          : Source Endpoint url (https://kinesis.eu-west-1.amazonaws.com)
+	//
+	// source.queue        : Name of Kinesis Source Queue (moj-domain-event-queue)
+	// source.region       : Region of the queue (eu-west-1)
 	// 
 	// target.path        : path to domain storage (s3://dpr-reporting-hb/domains)
 	//
@@ -58,8 +60,8 @@ object GlueApp {
 	        "domain.repo.path",
 	        "cloud.platform.path",
 	        
-	        "source.stream",
-	        "source.url",
+	        "source.queue",
+	        "source.region",
 	        
 	        "target.path",
 	        
@@ -70,17 +72,21 @@ object GlueApp {
 
     val tableChangeMonitor = uk.gov.justice.dpr.domainplatform.configuration.DomainPlatform.initialise(sparkSession, args.asJava)
 
-    val writer = tableChangeMonitor.run() // returns DataStreamWriter
-                 .trigger(Trigger.Once)
-                 .option("checkpointLocation", args("checkpoint.location"))
+    val writer = tableChangeMonitor.run() // returns DataStreamWriter - could be null
+    
+    if(writer != null) {
+    	writer
+        	.trigger(Trigger.Once)
+            .option("checkpointLocation", args("checkpoint.location"))
                  
-    val query = writer.start()             // start() returns type StreamingQuery
+    	val query = writer.start()             // start() returns type StreamingQuery
 
-    try {
-        query.awaitTermination()
-    } 
-    catch {
-        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
+	    try {
+	        query.awaitTermination()
+	    } 
+	    catch {
+	        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
+	    }
     }
       
     Job.commit()

@@ -17,6 +17,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<uk.gov.justice.digital.version>version_place_holder</uk.gov.justice.digital.version>
+        <aws.sdk.version>1.12.128</aws.sdk.version>
 	</properties>
 
 	<repositories>
@@ -114,16 +115,39 @@
 		    <scope>provided</scope>
 		</dependency>
 				
-		
+        <!--  GUAVA 21 is a dependency for the kinesis
+              Futures.addCallback was deprecated after 25.1 -->
+        <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>25.1-jre</version>
+        </dependency>
 				
 		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-kinesis -->
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-kinesis</artifactId>
-		    <version>1.12.319</version>
-		    <!--  unsure whether it is provided -->
+		    <version>${aws.sdk.version}</version>
+		    <scope>provided</scope>
 		</dependency>
-		
+
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sqs</artifactId>
+            <version>${aws.sdk.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-sqs -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>${aws.sdk.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    
 		<!--  joda -->
 		<dependency>
 			<groupId>joda-time</groupId>
@@ -183,7 +207,7 @@
 		<dependency>
 		    <groupId>com.amazonaws</groupId>
 		    <artifactId>aws-java-sdk-bundle</artifactId>
-		    <version>1.12.331</version>
+		    <version>${aws.sdk.version}</version>
 		    <scope>test</scope>
 		</dependency>
 		

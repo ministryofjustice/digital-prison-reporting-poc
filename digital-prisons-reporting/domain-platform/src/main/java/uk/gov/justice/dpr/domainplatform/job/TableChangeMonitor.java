@@ -2,6 +2,8 @@ package uk.gov.justice.dpr.domainplatform.job;
 
 import static org.apache.spark.sql.functions.col;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Set;
 
@@ -9,43 +11,42 @@ import org.apache.spark.api.java.function.VoidFunction2;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.streaming.DataStreamReader;
 import org.apache.spark.sql.streaming.DataStreamWriter;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.domain.DomainRepository;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
 import uk.gov.justice.dpr.domainplatform.domain.DomainExecutor;
+import uk.gov.justice.dpr.queue.Queue;
 import uk.gov.justice.dpr.util.TableListExtractor;
 import uk.gov.justice.dpr.util.TableListExtractor.TableTuple;
 
 public class TableChangeMonitor {
 
-	protected DataStreamReader dsr;
-	protected String domainRepositoryPath; // location of the domain repository - NOT the files
-	protected String sourcePath; // source of the tables to monitor : ie curated zone
-	protected String targetPath; // target of the load - where the domains should go
+	protected SparkSession spark;
+	protected Queue queue;
+	protected String domainRepositoryPath;
+	protected String sourcePath;
+	protected String targetPath;
 	
-	public TableChangeMonitor(final String domainRepositoryPath, final String sourcePath, final String targetPath, final DataStreamReader dsr) {
-		this.dsr = dsr;
+	public TableChangeMonitor(final SparkSession spark, final Queue queue, final String domainRepositoryPath, final String sourcePath, final String targetPath) {
 		this.domainRepositoryPath = domainRepositoryPath;
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
+		this.spark = spark;
+		this.queue = queue;
 	}
 	
-	@SuppressWarnings("rawtypes")
-	public DataStreamWriter run() {
-		return run(dsr);
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public DataStreamWriter run(final DataStreamReader in) {
-		return run(in.load());
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public DataStreamWriter run(final Dataset<Row> df) {
-		return df.writeStream().foreachBatch(new TableChangeMonitor.Function(df.sparkSession(), domainRepositoryPath, sourcePath, targetPath));
+	public DataStreamWriter<Object> run() {
+		Dataset<Row> df = queue.getQueuedMessages(spark);
+		if(df != null) {
+			try {
+				new TableChangeMonitor.Function(spark, domainRepositoryPath, sourcePath, targetPath).call(df, Long.valueOf(0L));
+			} catch (Exception e) {
+				handleError(e);
+			}
+		}
+		return null;
 	}
 	
 	public class Function implements VoidFunction2<Dataset<Row>, Long> {
@@ -79,9 +80,12 @@ public class TableChangeMonitor {
 					
 					// find all domains that depend on the events
 					for(final TableTuple table : tables) {
+						System.out.println("TableChangeMonitor::process(" + table.getSchema() + "." + table.getTable() + ") started...");
 						Set<DomainDefinition> domains = repo.getDomainsForSource(table.asString());
+						System.out.println("TableChangeMonitor::process(" + table.getSchema() + "." + table.getTable() + ") found " + domains.size() + " domains");
 						for(final DomainDefinition domain : domains) {
 							// for each, start a new domain incremental update
+							System.out.println("TableChangeMonitor::processDomainIncremental(" + domain.getName() +") started...");
 							final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
 							
 							// extract events that are for this table onlt
@@ -91,8 +95,10 @@ public class TableChangeMonitor {
 							Dataset<Row> df_payload = EventConverter.getPayload(changes);
 							
 							executor.doIncremental(df_payload, table);
-			
+							System.out.println("TableChangeMonitor::processDomainIncremental(" + domain.getName() +") completed.");
 						}
+						System.out.println("TableChangeMonitor::process(" + table.getSchema() + "." + table.getTable() + ") completed.");
+						
 					}
 					
 				} catch(Exception e) {
@@ -100,7 +106,13 @@ public class TableChangeMonitor {
 				}
 			}
 		}
-		
 	}
 	
+
+	protected static void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
+	}
 }

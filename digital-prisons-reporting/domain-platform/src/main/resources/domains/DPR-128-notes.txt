@@ -1,0 +1,19 @@
+// Use of Force Incidents
+
+// Table is use-of-force.report
+// Fields are
+// id (report_id - for primary key purposes)
+// incident_date (datetime)
+// agency_id (string)
+// offender_no (string)
+// booking_id (integer)
+
+// Redshift External Schema
+
+create external schema use_of_force from data catalog
+database 'domain.use-of-force'
+iam_role 'arn:aws:iam::958201534991:role/redshift-spectrum-role'
+create external database if not exists;
+
+// Query
+select * from use_of_force.incident

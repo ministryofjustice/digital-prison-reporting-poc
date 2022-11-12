@@ -24,8 +24,8 @@ public class DomainPlatformTest extends BaseSparkTest {
 		parameters.put("domain.files.path", "domain.files.path");
 		parameters.put("domain.repo.path", "domain.repo.path");
 		parameters.put("cloud.platform.path", "cloud.platform.path"); 
-		parameters.put("source.stream", "source.stream");
-		parameters.put("source.url", "source.url");
+		parameters.put("source.queue", "source.queue");
+		parameters.put("source.region", "source.region");
 		parameters.put("target.path", "target.path");
 		
 		final TableChangeMonitor tcm = DomainPlatform.initialise(spark, parameters);
