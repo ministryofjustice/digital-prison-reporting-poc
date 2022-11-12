@@ -22,9 +22,9 @@ import uk.gov.justice.dpr.util.TableListExtractor.TableTuple;
 public class TableChangeMonitor {
 
 	protected DataStreamReader dsr;
-	protected String domainRepositoryPath;
-	protected String sourcePath;
-	protected String targetPath;
+	protected String domainRepositoryPath; // location of the domain repository - NOT the files
+	protected String sourcePath; // source of the tables to monitor : ie curated zone
+	protected String targetPath; // target of the load - where the domains should go
 	
 	public TableChangeMonitor(final String domainRepositoryPath, final String sourcePath, final String targetPath, final DataStreamReader dsr) {
 		this.dsr = dsr;
@@ -54,7 +54,8 @@ public class TableChangeMonitor {
 		public Function(final SparkSession spark, final String domainRepositoryPath, final String sourcePath, final String targetPath) {
 			this.sourcePath = sourcePath;
 			this.targetPath = targetPath;
-			this.repo = new DomainRepository(spark, domainRepositoryPath, domainRepositoryPath);
+			// a read-only repo
+			this.repo = new DomainRepository(spark, domainRepositoryPath);
 		}
 		
 		private DomainRepository repo;

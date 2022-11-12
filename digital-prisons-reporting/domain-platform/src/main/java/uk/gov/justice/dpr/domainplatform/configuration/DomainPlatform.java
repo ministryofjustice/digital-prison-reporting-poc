@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.DataStreamReader;
 
+import uk.gov.justice.dpr.domain.DomainRepository;
 import uk.gov.justice.dpr.domainplatform.job.TableChangeMonitor;
 
 public class DomainPlatform {
@@ -18,11 +19,15 @@ public class DomainPlatform {
 			throw new IllegalArgumentException("Spark Session is null");
 		}
 
+		final String domainFilesPath = getRequiredParameter(params, "domain.files.path");
 		final String domainRepoPath = getRequiredParameter(params, "domain.repo.path");
 		final String sourcePath = getRequiredParameter(params, "cloud.platform.path");
 		final String targetPath = getRequiredParameter(params, "target.path");
 
 		final DataStreamReader dsr = getKinesisDataStreamReader(spark, params);
+		
+		getOrCreateDomainRepository(spark, domainFilesPath, domainRepoPath);
+		
 		return new TableChangeMonitor(domainRepoPath, sourcePath, targetPath, dsr);
 	}
 	
@@ -60,6 +65,13 @@ public class DomainPlatform {
 		}
 		
 		return dsr;
+	}
+	
+	protected static void getOrCreateDomainRepository(final SparkSession spark, final String domainFilesPath, final String domainRepositoryPath) {
+		final DomainRepository repository = new DomainRepository(spark, domainFilesPath, domainRepositoryPath);
+		if(!repository.exists()) {
+			repository.touch();
+		}
 	}
 	
 	

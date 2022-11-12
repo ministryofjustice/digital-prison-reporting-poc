@@ -21,6 +21,7 @@ public class DomainPlatformTest extends BaseSparkTest {
 	public void shouldCreateAJobWithTheRightConfiguration() {
 		
 		Map<String,String> parameters = new HashMap<String, String>();
+		parameters.put("domain.files.path", "domain.files.path");
 		parameters.put("domain.repo.path", "domain.repo.path");
 		parameters.put("cloud.platform.path", "cloud.platform.path"); 
 		parameters.put("source.stream", "source.stream");

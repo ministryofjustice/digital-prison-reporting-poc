@@ -69,7 +69,12 @@ public class DomainRepository {
 	protected String domainFilesPath; // sourceDomains
 	protected String domainRepositoryPath; // delta table repo
 	protected DeltaLakeService service = new DeltaLakeService();
-		
+	
+	
+	public DomainRepository(final SparkSession spark, final String domainRepositoryPath) {
+		this(spark, null, domainRepositoryPath);
+	}
+	
 	public DomainRepository(final SparkSession spark, final String domainFilesPath, final String domainRepositoryPath) {
 		this.spark = spark;
 		this.domainFilesPath = domainFilesPath;
@@ -78,6 +83,10 @@ public class DomainRepository {
 	
 	public void touch() {
 		load();
+	}
+	
+	public boolean exists() {
+		return service.exists(domainRepositoryPath, SCHEMA, TABLE);
 	}
 	
 	public Set<DomainDefinition> getDomainsForSource(final String sourceTable) {
@@ -99,7 +108,11 @@ public class DomainRepository {
 	}
 	
 	protected void load() {
-		// this loads all the domains that are in the repository into the architecture
+		// this loads all the domains that are in the the bucket into a repository for referencing
+		if(domainFilesPath == null || domainFilesPath.isEmpty()) {
+			throw new IllegalArgumentException("No Domain Files Path. The repository is read-only and cannot load domains.");
+		}
+		
 		try {
 			final Dataset<Row> df_domains = spark.read().option("wholetext", true).option("recursiveFileLookup", true).text(domainFilesPath);
 			
