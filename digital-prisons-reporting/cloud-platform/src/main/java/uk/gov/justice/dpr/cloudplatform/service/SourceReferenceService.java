@@ -21,9 +21,26 @@ public class SourceReferenceService {
 		REF.put("oms_owner.offender_bookings", new SourceReference("SYSTEM.OFFENDER_BOOKINGS", "nomis", "offender_bookings", "OFFENDER_BOOK_ID"));
 		
 		// use of force
-		REF.put("public.statement", new SourceReference("public.statement", "use_of_force", "statement", "id"));
-		REF.put("public.report", new SourceReference("public.report", "use_of_force", "report", "id"));
+		Map<String,String> casts = new HashMap<String,String>();
+		casts.put("submitted_date", "date");
+		casts.put("created_date", "date");
+		casts.put("updated_date", "date");
+		casts.put("next_reminder_date", "date");
+		casts.put("overdue_date", "date");
+		casts.put("deleted", "date");
+		casts.put("removal_requested", "date");
+		
+		REF.put("public.statement", new SourceReference("public.statement", "use_of_force", "statement", "id", casts));
+		
+		casts = new HashMap<String,String>();
+		casts.put("submitted_date", "date");
+		casts.put("created_date", "date");
+		casts.put("incident_date", "date");
+		casts.put("updated_date", "date");
+		casts.put("deleted", "date");
+		REF.put("public.report", new SourceReference("public.report", "use_of_force", "report", "id", casts));
 	}
+	
 	
 	public static String getPrimaryKey(final String key) {
 		final SourceReference ref = REF.get(key.toLowerCase());
@@ -40,18 +57,33 @@ public class SourceReferenceService {
 		return (ref == null ? null : ref.getTable());
 	}
 	
+	public static Map<String,String> getCasts(final String key) {
+		final SourceReference ref = REF.get(key.toLowerCase());
+		return (ref == null ? null : ref.getCasts());
+	}
+	
 	public static class SourceReference {
 		
 		private String key;
 		private String source;
 		private String table;
 		private String primaryKey;
+		private Map<String,String> casts;
 		
 		public SourceReference(final String key, final String source, final String table, final String primaryKey) {
 			this.key = key;
 			this.source = source;
 			this.table = table;
 			this.primaryKey = primaryKey;
+			this.casts = new HashMap<String,String>();
+		}
+		
+		public SourceReference(final String key, final String source, final String table, final String primaryKey, Map<String,String> casts) {
+			this.key = key;
+			this.source = source;
+			this.table = table;
+			this.primaryKey = primaryKey;
+			this.casts = casts;
 		}
 		
 		public String getKey() {
@@ -78,6 +110,11 @@ public class SourceReferenceService {
 		public void setPrimaryKey(String primaryKey) {
 			this.primaryKey = primaryKey;
 		}
-		
+		public Map<String, String> getCasts() {
+			return casts;
+		}
+		public void setCasts(Map<String, String> casts) {
+			this.casts = casts;
+		}
 	}
 }

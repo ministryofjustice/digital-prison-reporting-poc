@@ -74,7 +74,7 @@ public class StructuredZoneTest extends BaseSparkTest {
 		Dataset<Row> load = getEvent("update");
 		Dataset<Row> delete = getEvent("delete");
 		
-		zone.process(load);
+ 		zone.process(load);
 		
 		Dataset<Row> output = zone.delta.load(path, "nomis", "offenders");
 		assertNotNull(output);
@@ -132,7 +132,6 @@ public class StructuredZoneTest extends BaseSparkTest {
 
 		assertFalse(output.isEmpty());
 	}
-	
 	
 	protected Dataset<Row> inject(final Dataset<Row> df, final String column, final Column col) {
 		return null;
