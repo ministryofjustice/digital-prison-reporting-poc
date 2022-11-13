@@ -13,11 +13,13 @@ public class RawZone implements Zone {
 		this.prefix = prefix;
 	}
 
-	public void writeBatch(final Dataset<Row> batch, Long batchId) {
+	public Dataset<Row> writeBatch(final Dataset<Row> batch, Long batchId) {
 		System.out.println("RawZone::writeBatch(<batch>, " + batchId + ")");
 		batch.write()
 			.mode(SaveMode.Append)
 			.format("parquet")
 			.save(prefix + "/"+ batchId +"/");
+		
+		return batch;
 	}
 }

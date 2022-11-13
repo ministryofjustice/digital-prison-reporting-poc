@@ -22,7 +22,7 @@ public abstract class DeltaZone {
 		this.prefix = prefix;
 	}
 	
-	protected void process(Dataset<Row> batch) {
+	protected Dataset<Row> process(Dataset<Row> batch) {
 		// determine the tables in 	the batch
 		final List<Row> tables = batch.filter("recordType='data'").select("schemaName", "tableName").distinct().collectAsList();
 		
@@ -69,12 +69,15 @@ public abstract class DeltaZone {
 				
 				System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") completed");
 				
+				return df_merge;
+				
 			} catch(Exception e) {
 				
 				System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") failed : " + e.getMessage());
 				handleError(e);
 			}
 		}
+		return batch;
 	}
 	
 	protected Dataset<Row> removeDuplicates(final Dataset<Row> changes, final String primaryKey) {

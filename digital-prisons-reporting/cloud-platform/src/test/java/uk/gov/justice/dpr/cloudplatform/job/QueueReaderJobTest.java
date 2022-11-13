@@ -51,11 +51,13 @@ public class QueueReaderJobTest extends BaseSparkTest {
 	@Mock MessageFileLoader loader;
 	
 	
+	@SuppressWarnings("unchecked")
 	@Before
 	public void before() {
 		super.before();
 		when(client.getQueueUrl(any(String.class))).thenReturn(new GetQueueUrlResult());
-		
+		when(structured.writeBatch(any(Dataset.class), any(Long.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(curated.writeBatch(any(Dataset.class), any(Long.class))).thenAnswer(invocation -> invocation.getArgument(0));
 	}
 	
 	@Test

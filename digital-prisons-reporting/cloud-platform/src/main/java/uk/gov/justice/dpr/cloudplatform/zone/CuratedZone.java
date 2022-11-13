@@ -10,9 +10,9 @@ public class CuratedZone extends DeltaZone implements Zone {
 	}
 
 	@Override // Zone
-	public void writeBatch(Dataset<Row> batch, Long batchId) {
+	public Dataset<Row> writeBatch(Dataset<Row> batch, Long batchId) {
 		System.out.println("CuratedZone::writeBatch(<batch>," + batchId + ")");
-		process(batch);
+		return process(batch);
 	}
 	
 	@Override // DeltaZone

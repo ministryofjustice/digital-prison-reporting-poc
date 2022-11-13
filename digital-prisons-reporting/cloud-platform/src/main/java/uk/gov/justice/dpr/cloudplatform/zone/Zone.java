@@ -5,5 +5,5 @@ import org.apache.spark.sql.Row;
 
 public interface Zone {
 
-	void writeBatch(final Dataset<Row> batch, Long batchId);
+	Dataset<Row> writeBatch(final Dataset<Row> batch, Long batchId);
 }
