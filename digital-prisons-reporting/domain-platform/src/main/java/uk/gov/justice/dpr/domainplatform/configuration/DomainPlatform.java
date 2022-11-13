@@ -34,7 +34,9 @@ public class DomainPlatform extends BaseApplicationConfiguration {
 	protected static void getOrCreateDomainRepository(final SparkSession spark, final String domainFilesPath, final String domainRepositoryPath) {
 		final DomainRepository repository = new DomainRepository(spark, domainFilesPath, domainRepositoryPath);
 		if(!repository.exists()) {
+			System.out.println("Domain repository cache missing. Caching domains...");
 			repository.touch();
+			System.out.println("Domain repository cached.");
 		}
 	}
 

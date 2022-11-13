@@ -1,6 +1,8 @@
 package uk.gov.justice.dpr.queue;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class Queue {
 	public Dataset<Row> getQueuedMessages(final SparkSession spark) {
 		try {
 			final String url = client.getQueueUrl(name).getQueueUrl();
+			System.out.println("Reading queue '" + name + "'...");
 			final ReceiveMessageRequest req = new ReceiveMessageRequest(url).withWaitTimeSeconds(10);
 			
 			// read the messages and post to the appropriate classes
@@ -57,13 +60,13 @@ public class Queue {
 						}
 						client.deleteMessage(new DeleteMessageRequest(url, message.getReceiptHandle()));
 					} catch(Exception e) {
-						System.out.println(e.getMessage());
+						handleError(e);
 					}
 				};
 			}
 			return union;
 		} catch(Exception e) {
-			System.out.println(e.getMessage());
+			handleError(e);
 		}
 		return null;
 	}
@@ -90,5 +93,12 @@ public class Queue {
 			// ignore the event - it is not for us
 		}
 		return batches;
+	}
+	
+	protected void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
 	}
 }
