@@ -79,6 +79,7 @@ public class DomainRepository {
 		this.spark = spark;
 		this.domainFilesPath = domainFilesPath;
 		this.domainRepositoryPath = domainRepositoryPath;
+		System.out.println("Domain Repository(files='" + this.domainFilesPath + "';repo='" + this.domainRepositoryPath + "')");
 	}
 	
 	public void touch() {
@@ -133,6 +134,7 @@ public class DomainRepository {
 			
 			final List<Row> listDomains = df_domains.collectAsList();
 			
+			System.out.println("Processing domains (" + listDomains.size() + "...)");
 			for(final Row row : listDomains) {
 				loadOne("", row.getString(0), records);
 			}
@@ -144,7 +146,11 @@ public class DomainRepository {
 			}
 			
 			final Dataset<Row> df = spark.createDataFrame(rows, DomainRepoRecord.SCHEMA);
-			service.replace(domainRepositoryPath, SCHEMA, TABLE, df);
+			if(service.exists(domainFilesPath, SCHEMA, TABLE)) {
+				service.replace(domainRepositoryPath, SCHEMA, TABLE, df);
+			} else {
+				service.append(domainRepositoryPath, SCHEMA, TABLE, df);
+			}
 		} catch(Exception e) {
 			handleError(e);
 		}
@@ -152,7 +158,9 @@ public class DomainRepository {
 	
 	protected void loadOne(final String filename, final String json, List<DomainRepoRecord> records ) {
 		try {
+			
 			final DomainDefinition domain = MAPPER.readValue(json, DomainDefinition.class);
+			System.out.println("Processing domain '" + domain.getName() + "'");
 			
 			DomainRepoRecord record = new DomainRepoRecord();
 			

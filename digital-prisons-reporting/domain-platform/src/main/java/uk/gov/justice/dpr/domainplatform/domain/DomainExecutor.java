@@ -81,26 +81,33 @@ public class DomainExecutor {
 		try {
 			df.createOrReplaceTempView(sourceTable);
 
+			System.out.println("DomainExecutor::applyTransform(" + table.getName() + ")...");
 			// Transform
 			final Dataset<Row> df_transform = applyTransform(df, table.getTransform());
-
+			
+			System.out.println("DomainExecutor::applyViolations(" + table.getName() + ")...");
 			// Process Violations - we now have a subset
 			final Dataset<Row> df_postViolations = applyViolations(df_transform, table.getViolations());
 
+			System.out.println("DomainExecutor::applyMappings(" + table.getName() + ")...");
 			// Mappings
 			final Dataset<Row> df_postMappings = applyMappings(df_postViolations, table.getMapping());
 
 			return df_postMappings;
 
-		} finally {
+		} catch(Exception e) {
+			handleError(e);
+			return df;
+		}
+		finally {
+			System.out.println("DomainExecutor::apply(" + table.getName() + ") completed.");
 			df.sparkSession().catalog().dropTempView(sourceTable);
 		}
-
 	}
 	
 	
 	protected Dataset<Row> applyMappings(final Dataset<Row> df, final MappingDefinition mapping) {
-		if(mapping.getViewText() != null && !mapping.getViewText().isEmpty()) {
+		if(mapping != null && mapping.getViewText() != null && !mapping.getViewText().isEmpty()) {
 			return df.sqlContext().sql(mapping.getViewText()).toDF();
 		}
 		return df;
@@ -120,14 +127,28 @@ public class DomainExecutor {
 	}
 	
 	protected Dataset<Row> applyTransform(final Dataset<Row> df, final TransformDefinition transform) {
+		final List<String> srcs = new ArrayList<String>();
 		try {
-			if(transform.getViewText() != null && !transform.getViewText().isEmpty()) {
-				return df.sqlContext().sql(transform.getViewText()).toDF();
+			String view = transform.getViewText();
+			for(final String source : transform.getSources()) {
+				final String src = source.replace(".","__");
+				df.createOrReplaceTempView(src);
+				srcs.add(src);
+				view = view.replace(source, src);
 			}
+			return df.sqlContext().sql(view).toDF();
 		} catch(Exception e) {
-			handleError(e);
+			return df;
+		} finally {
+			try {
+				for(final String source : srcs) {
+					df.sparkSession().catalog().dropTempView(source);
+				}
+			}
+			catch(Exception e) {
+				// continue;
+			}
 		}
-		return df;
 	}
 	
 	

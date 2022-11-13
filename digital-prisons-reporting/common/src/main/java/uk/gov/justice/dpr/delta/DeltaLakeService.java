@@ -65,7 +65,8 @@ public class DeltaLakeService {
 		.format("delta")
 		.mode("append")
 		.option("path", getTablePath(prefix, schema, table))
-		.saveAsTable(table);
+		.save(); 
+		//.saveAsTable(table);
 	}
 	
 	public void replace(final String prefix, final String schema, final String table, final Dataset<Row> df) {
@@ -74,7 +75,8 @@ public class DeltaLakeService {
 			.mode("overwrite")
 			.option("overwriteSchema", true)
 			.option("path", getTablePath(prefix, schema, table))
-			.saveAsTable(table);
+			.save(); 
+			//.saveAsTable(table);
 	}
 	
 	public void vacuum(final String prefix, final String schema, final String table) {

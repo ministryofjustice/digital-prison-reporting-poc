@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.apache.spark.sql.streaming.DataStreamWriter;
-import org.apache.spark.sql.streaming.StreamingQuery;
-import org.apache.spark.sql.streaming.Trigger;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,47 +34,46 @@ public class TableMonitorIntegrationTest extends BaseSparkTest {
 		Map<String,String> parameters = new HashMap<String, String>();
 		
 		parameters.put("domain.repo.path", domainRepoPath);
+		parameters.put("domain.files.path", domainSourcePath);
 		parameters.put("cloud.platform.path", folder.getRoot().getAbsolutePath() + "/curated"); 
-		parameters.put("source.stream", "source.stream");
-		parameters.put("source.url", "source.url");
+		
 		parameters.put("target.path", folder.getRoot().getAbsolutePath() + "/target");
 		
 		// Source Kinesis
-		parameters.put("source.url", "https://kinesis.eu-west-1.amazonaws.com");
-		parameters.put("source.stream", "moj-domain-stream");
+		parameters.put("source.region", "eu-west-1");
+		parameters.put("source.queue", "moj-domain-event-queue");
 		parameters.put("source.accessKey", accessKey);
 		parameters.put("source.secretKey", secretKey);
 		
-		// Sink Kinesis
-		parameters.put("sink.region", "eu-west-1");
-		parameters.put("sink.stream", "moj-redshift-stream");
-		parameters.put("sink.accessKey", accessKey);
-		parameters.put("sink.secretKey", secretKey);
+
+		parameters.put("checkpoint.location", folder.getRoot().getAbsolutePath() + "/checkpoint");
 		
 		final TableChangeMonitor tcm = DomainPlatform.initialise(spark, parameters);
 
-		@SuppressWarnings("rawtypes")
-		final DataStreamWriter writer = tcm.run()
-				.trigger(Trigger.Once())
-				.option("checkpointLocation", folder.getRoot().getAbsolutePath() + "/checkpoint/");
+		tcm.run();
 		
-		
-		while(true) {
-			try {
-				final StreamingQuery query = writer.start();
-				query.awaitTermination();
-			} catch(Exception e) {
-				e.printStackTrace();
-			} 
-			break;
-		}
+//		@SuppressWarnings("rawtypes")
+//		final DataStreamWriter writer = tcm.run()
+//				.trigger(Trigger.Once())
+//				.option("checkpointLocation", folder.getRoot().getAbsolutePath() + "/checkpoint/");
+//		
+//		
+//		while(true) {
+//			try {
+//				final StreamingQuery query = writer.start();
+//				query.awaitTermination();
+//			} catch(Exception e) {
+//				e.printStackTrace();
+//			} 
+//			break;
+//		}
 		
 		
 	}
 	
 	private void loadDomainEnvironment(final String domainSourcePath, final String domainRepoPath) throws IOException {
 		// list the domains we are happy to map
-		createDomainSourceFolder("domains", "/sample/domain/domain-system-offenders.json");
+		createDomainSourceFolder("domains", "/sample/domain/domain-system-offenders.json", "/domains/incident.domain.json");
 		
 		final DomainRepository repo = new DomainRepository(spark, domainSourcePath, domainRepoPath);
 		repo.touch();
