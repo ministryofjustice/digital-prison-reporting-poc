@@ -84,12 +84,12 @@ public abstract class BaseReportingHubJob {
 					
 					// structured
 					if(structured != null) {
-						internalEventDF = structured.writeBatch(internalEventDF, batchId);
+						/* internalEventDF =*/ structured.writeBatch(internalEventDF, batchId);
 					}
 	
 					// curated
 					if(curated != null) {
-						internalEventDF = curated.writeBatch(internalEventDF, batchId);
+						/* internalEventDF =*/ curated.writeBatch(internalEventDF, batchId);
 					}
 					
 					// pass onto domain

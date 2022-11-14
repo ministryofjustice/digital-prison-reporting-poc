@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.StructField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -15,12 +16,14 @@ import uk.gov.justice.dpr.delta.DeltaLakeService;
 import uk.gov.justice.dpr.domain.DomainValidator;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition;
+import uk.gov.justice.dpr.domain.model.TableDefinition.MappingDefinition;
 import uk.gov.justice.dpr.domain.model.TableDefinition.TransformDefinition;
 
 public abstract class BaseDomainTest extends BaseSparkTest {
 	
 
 	protected static final ObjectMapper MAPPER = new ObjectMapper();
+	protected final DeltaLakeService service = new DeltaLakeService();
 	
 	// shouldLoadADomainJsonAndValidate	
 	protected DomainDefinition loadAndValidateDomain(final String domainPath) throws Exception {
@@ -53,6 +56,42 @@ public abstract class BaseDomainTest extends BaseSparkTest {
 				// continue;
 			}
 		}
+	}
+	
+	protected Dataset<Row> applyMapping(final TableDefinition table, final Dataset<Row> in) {
+		try {
+			final MappingDefinition mapping = table.getMapping();
+			if(mapping != null) {
+				String view = mapping.getViewText();
+				return in.sqlContext().sql(view).toDF();
+			}
+			return in;
+		} finally {
+		}
+	}
+	
+	protected String getType(final Dataset<Row> in, final String name) {
+		int index = in.schema().fieldIndex(name);
+		if(index >=0 && index < in.schema().fields().length) {
+			final StructField field = in.schema().fields()[index];
+			return field == null ? null : field.dataType().typeName();
+		}
+		return null;
+	}
+	
+	protected void saveToDisk(final String schema, final String table, final Dataset<Row> df) {
+		final String prefix = folder.getRoot().getAbsolutePath() + "/target";
+		service.replace(prefix, schema, table, df);
+	}
+	
+	protected void mergeToDisk(final String schema, final String table, final String primaryKey, final Dataset<Row> df) {
+		final String prefix = folder.getRoot().getAbsolutePath() + "/target";
+		service.merge(prefix, schema, table, primaryKey, df);
+	}
+	
+	protected Dataset<Row> readFromDisk(final String schema, final String table) {
+		final String prefix = folder.getRoot().getAbsolutePath() + "/target";
+		return service.load(prefix, schema, table);
 	}
 	
 	protected TableDefinition getTableByName(final DomainDefinition domain, final String name) {

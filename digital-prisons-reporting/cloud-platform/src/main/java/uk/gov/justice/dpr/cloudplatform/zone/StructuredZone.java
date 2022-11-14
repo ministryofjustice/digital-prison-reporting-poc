@@ -29,7 +29,7 @@ public class StructuredZone extends DeltaZone implements Zone {
 	@Override // DeltaZone
 	protected Dataset<Row> transform(final Dataset<Row> changes, final String schema, final String table) {
 		Map<String,String> casts = SourceReferenceService.getCasts(schema + "." + table);
-		if(!casts.isEmpty()) {
+		if(casts != null && !casts.isEmpty()) {
 			List<Column> cols = new ArrayList<Column>();
 			for(final String name : changes.columns()) {
 				if(casts.containsKey(name)) {

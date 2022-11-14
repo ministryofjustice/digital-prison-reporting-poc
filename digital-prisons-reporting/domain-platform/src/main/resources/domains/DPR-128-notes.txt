@@ -10,10 +10,24 @@
 
 // Redshift External Schema
 
-create external schema use_of_force from data catalog
-database 'domain.use-of-force'
+create external schema incident from data catalog
+database 'domain_incident'
 iam_role 'arn:aws:iam::958201534991:role/redshift-spectrum-role'
 create external database if not exists;
 
 // Query
-select * from use_of_force.incident
+select * from incident.incident
+
+
+OR
+
+CREATE EXTERNAL SCHEMA domain from data catalog
+database 'domain'
+iam_role 'arn:aws:iam::958201534991:role/redshift-spectrum-role'
+create external database if not exists;
+
+CREATE EXTERNAL TABLE domain.incident (id bigint, incident_date varchar, agency_id varchar, offender_no varchar )
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION 's3://moj-domain-platform/target/incident/incident/_symlink_format_manifest/' 

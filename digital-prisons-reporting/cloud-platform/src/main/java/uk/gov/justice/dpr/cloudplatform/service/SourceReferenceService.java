@@ -20,25 +20,10 @@ public class SourceReferenceService {
 		REF.put("oms_owner.offenders", new SourceReference("SYSTEM.OFFENDERS", "nomis", "offenders", "OFFENDER_ID"));
 		REF.put("oms_owner.offender_bookings", new SourceReference("SYSTEM.OFFENDER_BOOKINGS", "nomis", "offender_bookings", "OFFENDER_BOOK_ID"));
 		
-		// use of force
-		Map<String,String> casts = new HashMap<String,String>();
-		casts.put("submitted_date", "date");
-		casts.put("created_date", "date");
-		casts.put("updated_date", "date");
-		casts.put("next_reminder_date", "date");
-		casts.put("overdue_date", "date");
-		casts.put("deleted", "date");
-		casts.put("removal_requested", "date");
 		
-		REF.put("public.statement", new SourceReference("public.statement", "use_of_force", "statement", "id", casts));
+		REF.put("public.statement", new SourceReference("public.statement", "use_of_force", "statement", "id"));
 		
-		casts = new HashMap<String,String>();
-		casts.put("submitted_date", "date");
-		casts.put("created_date", "date");
-		casts.put("incident_date", "date");
-		casts.put("updated_date", "date");
-		casts.put("deleted", "date");
-		REF.put("public.report", new SourceReference("public.report", "use_of_force", "report", "id", casts));
+		REF.put("public.report", new SourceReference("public.report", "use_of_force", "report", "id"));
 	}
 	
 	
