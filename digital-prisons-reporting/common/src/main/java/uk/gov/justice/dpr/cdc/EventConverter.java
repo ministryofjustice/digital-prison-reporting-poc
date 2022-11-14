@@ -119,7 +119,7 @@ public class EventConverter {
 		} catch (IOException e) {
 			handleError(e);
 		}
-		
+		System.out.println("Read " + rows.size() + " rows...");
 		return spark.createDataFrame(rows, EVENT_SCHEMA);
 	}
 	

@@ -69,7 +69,7 @@ public abstract class DeltaZone {
 				
 				System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") completed");
 				
-				return df_merge;
+				// return df_merge;
 				
 			} catch(Exception e) {
 				

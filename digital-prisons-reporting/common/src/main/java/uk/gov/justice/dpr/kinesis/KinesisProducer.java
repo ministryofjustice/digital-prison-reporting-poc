@@ -1,5 +1,7 @@
 package uk.gov.justice.dpr.kinesis;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,11 +18,11 @@ import com.amazonaws.services.kinesis.model.PutRecordsResult;
 
 public class KinesisProducer {
 
-	private static Map<KinesisConfiguration, KinesisProducer> CACHE = new HashMap<KinesisConfiguration, KinesisProducer>();
+	protected static Map<KinesisConfiguration, KinesisProducer> CACHE = new HashMap<KinesisConfiguration, KinesisProducer>();
 	
-	private AmazonKinesis client;
-	private KinesisConfiguration config;
-	private String streamName;
+	protected AmazonKinesis client;
+	protected KinesisConfiguration config;
+	protected String streamName;
 	
 	public static KinesisProducer getOrCreate(final KinesisConfiguration config) {
 		if(CACHE.containsKey(config)) {
@@ -53,26 +55,33 @@ public class KinesisProducer {
 		return result.getSequenceNumber();
 	}
 	
-	public int writeBuffer(Map<String, ByteBuffer> records) {
+	public int writeBuffer(List<PutRecordsRequestEntry> entries) {
 		
-		PutRecordsRequest request = new PutRecordsRequest();
-		List<PutRecordsRequestEntry> entries = new ArrayList<PutRecordsRequestEntry>();
-		for(final String key : records.keySet()) {
-			entries.add(new PutRecordsRequestEntry().withData(records.get(key)).withPartitionKey(key));
-		}
-		if(entries.isEmpty()) {
-			System.out.println("No records to write to stream " + streamName);
+		try {
+			PutRecordsRequest request = new PutRecordsRequest();
+			if(entries.isEmpty()) {
+				System.out.println("No records to write to stream " + streamName);
+				return 0;
+			}
+			request.setStreamName(streamName);
+			request.setRecords(entries);
+			final PutRecordsResult result = client.putRecords(request);
+			if(result.getFailedRecordCount() == 0) {
+				System.out.println("Written " + entries.size() + " to stream " + streamName);
+			} else {
+				System.out.println("Written " + (entries.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors");
+			}
+			return entries.size() - result.getFailedRecordCount();
+		} catch(Exception e) {
+			handleError(e);
 			return 0;
 		}
-		request.setStreamName(streamName);
-		request.setRecords(entries);
-		final PutRecordsResult result = client.putRecords(request);
-		if(result.getFailedRecordCount() == 0) {
-			System.out.println("Written " + records.size() + " to stream " + streamName);
-		} else {
-			System.out.println("Written " + (records.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors");
-		}
-		return records.size() - result.getFailedRecordCount();
 	}
 	
+	protected static void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
+	}
 }

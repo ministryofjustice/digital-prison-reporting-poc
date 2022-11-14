@@ -136,6 +136,10 @@ public class DomainExecutor {
 				srcs.add(src);
 				view = view.replace(source, src);
 			}
+			// add the operation and timestamp in if this is incremental and these are present
+			if(df.schema().contains("_operation") && df.schema().contains("_timestamp")) {
+				view = view.replace(" from ", ", _operation, _timestamp from ");
+			}
 			return df.sqlContext().sql(view).toDF();
 		} catch(Exception e) {
 			return df;
