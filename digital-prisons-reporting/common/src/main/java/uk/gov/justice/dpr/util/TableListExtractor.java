@@ -27,6 +27,13 @@ public class TableListExtractor {
 			
 		}
 		
+		public TableTuple(final String source) {
+			if(source != null && source.contains(".")) {
+				this.schema = source.split("\\.")[0];
+				this.table = source.split("\\.")[1];
+			}
+		}
+		
 		public TableTuple(final String schema, final String table) {
 			this.schema = schema;
 			this.table = table;

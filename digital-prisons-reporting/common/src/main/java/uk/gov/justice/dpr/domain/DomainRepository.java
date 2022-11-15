@@ -98,7 +98,7 @@ public class DomainRepository {
 			final Dataset<Row> df = getDomainRepository();
 			if(df != null) {
 				final List<String> results = df
-						.where(array_contains(col("sources"), sourceTable))
+						.where(array_contains(col("sources"), sourceTable.toLowerCase()))
 						.select(col("definition")).as(Encoders.STRING())
 						.collectAsList();
 		

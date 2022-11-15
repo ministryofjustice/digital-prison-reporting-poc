@@ -87,7 +87,7 @@ public class TableChangeMonitorTest extends BaseSparkTest {
 		// create some domains
 		final DomainRepository repo = createAndFillDomainRepository(domainSourcePath, domainRepoPath, "/sample/domain/domain-system-offenders.json", "/sample/domain/domain-3-tables.json");
 		
-		Set<DomainDefinition> domains = repo.getDomainsForSource("SYSTEM.OFFENDERS");
+		Set<DomainDefinition> domains = repo.getDomainsForSource("system.offenders");
 		assertNotNull(domains);
 		assertFalse(domains.isEmpty());
 		

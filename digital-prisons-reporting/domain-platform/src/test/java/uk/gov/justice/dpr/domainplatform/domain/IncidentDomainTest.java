@@ -5,6 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.Test;
@@ -118,4 +121,38 @@ public class IncidentDomainTest extends BaseDomainTest {
 		
 	}
 	
+	
+	// DPR-129 [https://dsdmoj.atlassian.net/browse/DPR-129] demographics data
+	@Test
+	public void shouldExecuteTransformOnDemographicsTable() throws Exception {
+		final DomainDefinition def = this.loadAndValidateDomain("/domains/incident.domain.json");
+		final TableDefinition table = this.getTableByName(def, "demographics");
+
+		assertNotNull(table);
+		// setup a source or 2
+		Dataset<Row> df_offenders = loadParquetDataframe("/sample/offenders.parquet", "offenders.parquet");
+		Dataset<Row> df_offender_bookings = loadParquetDataframe("/sample/offender-bookings.parquet", "offender-bookings.parquet");
+
+		Map<String, Dataset<Row>> refs = new HashMap<String, Dataset<Row>>();
+		
+		refs.put("nomis.offenders", df_offenders);
+		refs.put("nomis.offender_bookings", df_offender_bookings);
+		
+		Dataset<Row> result = this.applyTransform(refs, table.getTransform());
+
+		assertNotNull(result);
+		// it may be empty assertFalse(result.isEmpty());
+
+		result.show(false);
+
+		// check columns
+		assertTrue(hasColumn(result, "id"));
+		assertTrue(hasColumn(result, "birth_date"));
+		assertTrue(hasColumn(result, "living_unit_id"));
+		assertTrue(hasColumn(result, "first_name"));
+		assertTrue(hasColumn(result, "last_name"));
+		assertTrue(hasColumn(result, "offender_no"));
+		assertEquals(6, columnCount(result));
+		// check results
+	}
 }

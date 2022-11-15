@@ -26,8 +26,8 @@
 			"author": "alice.jones@justice.gov.uk",
 			
 			"transform": {
-				"viewText" : "SELECT * from source.table",
-				"sources" : [ "source.table" ]
+				"viewText" : "SELECT ob.BOOKING_BEGIN_DATE, ob.BOOKING_CREATED_DATE, ob.BOOKING_NO, ob.LIVING_UNIT_ID, ob.OFFENDER_BOOK_ID, o.* from nomis.offender_bookings ob join nomis.offenders o on ob.OFFENDER_ID = o.OFFENDER_ID",
+				"sources" : [ "nomis.offenders", "nomis.offender_bookings" ]
 			},
 			
 			"mapping": {

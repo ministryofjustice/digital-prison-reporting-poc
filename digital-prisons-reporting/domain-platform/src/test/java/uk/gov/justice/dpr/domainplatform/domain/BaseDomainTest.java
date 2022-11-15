@@ -3,10 +3,13 @@ package uk.gov.justice.dpr.domainplatform.domain;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.StructField;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,22 +37,54 @@ public abstract class BaseDomainTest extends BaseSparkTest {
 		return def;
 	}
 	
-	protected Dataset<Row> applyTransform(final TableDefinition table, final Dataset<Row> in) {
+	protected Dataset<Row> applyTransform(final TableDefinition table, Dataset<Row> df) {
+		return applyTransform(table.getTransform(), df);
+	}
+	
+	protected Dataset<Row> applyTransform(final TransformDefinition transform, Dataset<Row> df) {
+		final Map<String, Dataset<Row>> refs = new HashMap<String,Dataset<Row>>();
+		if(transform.getSources().size() == 1) {
+			refs.put(transform.getSources().get(0), df);
+			return applyTransform(refs, transform);
+		} else {
+			throw new IllegalArgumentException("Cannot apply transform as there are more than one source");
+		}
+	}
+	
+	protected Dataset<Row> applyTransform(final Map<String,Dataset<Row>> dfs, final TransformDefinition transform) {
 		final List<String> srcs = new ArrayList<String>();
+		SparkSession spark = null;
 		try {
-			final TransformDefinition transform = table.getTransform();
 			String view = transform.getViewText();
+			boolean incremental = false;
 			for(final String source : transform.getSources()) {
 				final String src = source.replace(".","__");
-				in.createOrReplaceTempView(src);
-				srcs.add(src);
+				final Dataset<Row> df_source = dfs.get(source);
+				if(df_source != null) {
+					df_source.createOrReplaceTempView(src);
+					srcs.add(src);
+					if(!incremental && 
+							df_source.schema().contains("_operation") && 
+							df_source.schema().contains("_timestamp")) 
+					{
+						view = view.replace(" from ", ", " + src +"._operation, " + src + "._timestamp from ");
+						incremental = true;
+					}
+					if(spark == null) {
+						spark = df_source.sparkSession();
+					}
+				}
 				view = view.replace(source, src);
 			}
-			return in.sqlContext().sql(view).toDF();
+			return spark == null ? null : spark.sqlContext().sql(view).toDF();
+		} catch(Exception e) {
+			return null;
 		} finally {
 			try {
-				for(final String source : srcs) {
-					spark.catalog().dropTempView(source);
+				if(spark != null) {
+					for(final String source : srcs) {
+						spark.catalog().dropTempView(source);
+					}
 				}
 			}
 			catch(Exception e) {
