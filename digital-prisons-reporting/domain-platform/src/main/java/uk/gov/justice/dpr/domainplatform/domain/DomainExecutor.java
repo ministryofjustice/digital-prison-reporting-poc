@@ -3,10 +3,14 @@ package uk.gov.justice.dpr.domainplatform.domain;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 
 import uk.gov.justice.dpr.delta.DeltaLakeService;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
@@ -48,8 +52,8 @@ public class DomainExecutor {
 			
 			// (3) run transforms
 			// (4) run violations
-			// (5) run mappings if available
-			final Dataset<Row> df_target = apply(table, sourceTable.getTable(), df);
+			// (5) run mappings if available			
+			final Dataset<Row> df_target = apply(table, sourceTable, df);
 		
 			// (6) save materialised view
 			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
@@ -69,7 +73,7 @@ public class DomainExecutor {
 			// (3) run transforms
 			// (4) run violations
 			// (5) run mappings if available
-			final Dataset<Row> df_target = apply(table, sourceTable.getTable(), df_source);
+			final Dataset<Row> df_target = apply(table, sourceTable, df_source);
 		
 			// (6) save materialised view
 			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
@@ -77,13 +81,15 @@ public class DomainExecutor {
 		}
 	}
 	
-	protected Dataset<Row> apply(final TableDefinition table, final String sourceTable, final Dataset<Row> df) {
+	protected Dataset<Row> apply(final TableDefinition table, final TableTuple sourceTable, final Dataset<Row> df) {
 		try {
-			df.createOrReplaceTempView(sourceTable);
-
+			
 			System.out.println("DomainExecutor::applyTransform(" + table.getName() + ")...");
 			// Transform
-			final Dataset<Row> df_transform = applyTransform(df, table.getTransform());
+			final Map<String, Dataset<Row>> refs = this.getAllSourcesForTable(table, sourceTable);
+			refs.put(sourceTable.asString().toLowerCase(), df);
+			System.out.println("'" + table.getName() + "' has " + refs.size() + " references to tables...");
+			final Dataset<Row> df_transform = applyTransform(refs, table.getTransform());
 			
 			System.out.println("DomainExecutor::applyViolations(" + table.getName() + ")...");
 			// Process Violations - we now have a subset
@@ -101,7 +107,6 @@ public class DomainExecutor {
 		}
 		finally {
 			System.out.println("DomainExecutor::apply(" + table.getName() + ") completed.");
-			df.sparkSession().catalog().dropTempView(sourceTable);
 		}
 	}
 	
@@ -126,27 +131,53 @@ public class DomainExecutor {
 		return working_df;
 	}
 	
-	protected Dataset<Row> applyTransform(final Dataset<Row> df, final TransformDefinition transform) {
+	protected Dataset<Row> applyTransform(final Dataset<Row> in, final TransformDefinition transform) {
+		if(transform != null && transform.getSources() != null && transform.getSources().size() == 1) {
+			final Map<String,Dataset<Row>> refs = new HashMap<String, Dataset<Row>>();
+			refs.put(transform.getSources().get(0), in);
+			return applyTransform(refs, transform);
+		} else {
+			System.err.println("Transform has more than one source");
+			return in;
+		}
+	}
+	
+	protected Dataset<Row> applyTransform(final Map<String,Dataset<Row>> dfs, final TransformDefinition transform) {
 		final List<String> srcs = new ArrayList<String>();
+		SparkSession spark = null;
 		try {
-			String view = transform.getViewText();
+			String view = transform.getViewText().toLowerCase();
+			boolean incremental = false;
 			for(final String source : transform.getSources()) {
-				final String src = source.replace(".","__");
-				df.createOrReplaceTempView(src);
-				srcs.add(src);
+				final String src = source.toLowerCase().replace(".","__");
+				final Dataset<Row> df_source = dfs.get(source);
+				if(df_source != null) {
+					df_source.createOrReplaceTempView(src);
+					srcs.add(src);
+					if(!incremental && 
+							schemaContains(df_source, "_operation") && 
+							schemaContains(df_source, "_timestamp")) 
+					{
+						view = view.replace(" from ", ", " + src +"._operation, " + src + "._timestamp from ");
+						incremental = true;
+					}
+					if(spark == null) {
+						spark = df_source.sparkSession();
+					}
+				}
 				view = view.replace(source, src);
 			}
-			// add the operation and timestamp in if this is incremental and these are present
-			if(df.schema().contains("_operation") && df.schema().contains("_timestamp")) {
-				view = view.replace(" from ", ", _operation, _timestamp from ");
-			}
-			return df.sqlContext().sql(view).toDF();
+			System.out.println("Executing view '" + view + "'...");
+			return spark == null ? null : spark.sqlContext().sql(view).toDF();
 		} catch(Exception e) {
-			return df;
+			handleError(e);
+			return null;
 		} finally {
 			try {
-				for(final String source : srcs) {
-					df.sparkSession().catalog().dropTempView(source);
+				if(spark != null) {
+					for(final String source : srcs) {
+						spark.catalog().dropTempView(source);
+					}
 				}
 			}
 			catch(Exception e) {
@@ -154,7 +185,6 @@ public class DomainExecutor {
 			}
 		}
 	}
-	
 	
 	protected void saveViolations(final TableInfo target, final Dataset<Row> df) {
 		// save the violations to the specified location
@@ -169,11 +199,40 @@ public class DomainExecutor {
 		deltaService.merge(info.getPrefix(), info.getSchema(), info.getTable(), primaryKey, df);
 	}
 	
+	protected Map<String, Dataset<Row>> getAllSourcesForTable(final TableDefinition table, final TableTuple exclude) {
+		Map<String,Dataset<Row>> fullSources = new HashMap<String,Dataset<Row>>();
+		if(table.getTransform() != null && table.getTransform().getSources() != null && table.getTransform().getSources().size() > 0) {
+			for( final String source : table.getTransform().getSources()) {
+				if(exclude != null && exclude.asString().equalsIgnoreCase(source)) {
+					// we already have this table
+				} else {
+					try {
+						TableTuple full = new TableTuple(source);
+						final Dataset<Row> df = deltaService.load(sourceRootPath, full.getSchema(), full.getTable());
+						if(df == null) {
+							System.err.println("Unable to load source '" + source +"' for Table Definition '" + table.getName() + "'");
+						} else {
+							System.out.println("Loaded source '" + full.asString() +"'.");
+							fullSources.put(source.toLowerCase(), df);
+						}
+					} catch(Exception e) {
+						handleError(e);
+					}
+				}
+			}
+		}
+		return fullSources;
+	}
+	
+	protected boolean schemaContains(final Dataset<Row> df, final String field) {
+		return Arrays.<String>asList(df.schema().fieldNames()).contains(field);
+	}
+	
 	protected List<TableDefinition> getTablesChangedForSourceTable(final TableTuple sourceTable) {
 		List<TableDefinition> tables = new ArrayList<TableDefinition>();
 		for(final TableDefinition table : domainDefinition.getTables()) {
 			for( final String source : table.getTransform().getSources()) {
-				if(sourceTable != null && sourceTable.asString().equals(source)) {
+				if(sourceTable != null && sourceTable.asString().equalsIgnoreCase(source)) {
 					tables.add(table);
 					break;
 				}

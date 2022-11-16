@@ -6,7 +6,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -30,7 +33,7 @@ import uk.gov.justice.dpr.util.TableListExtractor.TableTuple;
 public class DomainExecutorTest extends BaseSparkTest {
 
 	
-
+	// shouldInitializeDomainExecutor
 	@Test
 	public void shouldInitializeDomainExecutionJob() throws IOException {
 		final String sourcePath = folder.getRoot().getAbsolutePath() + "/source-data";
@@ -109,10 +112,85 @@ public class DomainExecutorTest extends BaseSparkTest {
 		// assertTrue(areEqual(df_offenders, df_refreshed));	
 	}
 	
-	
-	private void assertEqual(long count, long count2) {
-		// TODO Auto-generated method stub
+	// shouldRunWithFullUpdateIfMultipleTablesAreInDomain
+	@Test
+	public void shouldRunWithFullUpdateIfMultipleTablesAreInDomain() throws IOException {
+		final String sourcePath = folder.getRoot().getAbsolutePath() + "/source";
+		final String targetPath = folder.getRoot().getAbsolutePath() + "/target";
+
+		DeltaLakeService service = new DeltaLakeService();
+
+		final DomainDefinition domain = getDomain("/sample/domain/sample-domain-execution-join.json");
+
+		final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
+
+		// save a source
+		final Dataset<Row> df_offenders = getOffenders();
+		saveDataToDisk(TableInfo.create(sourcePath, "nomis", "offenders"), df_offenders);
 		
+
+		final Dataset<Row> df_offenderBookings = getOffenderBookings();
+		saveDataToDisk(TableInfo.create(sourcePath, "nomis", "offender_bookings"), df_offenderBookings);
+		
+
+		// do Full Materialize of source to target
+		TableTuple table = new TableTuple("nomis", "offenders");
+		executor.doFull(table);
+		// there should be a target table
+		assertTrue(service.exists(targetPath, "example", "prisoner"));
+		// it should have all the joined records in it
+		final Dataset<Row> df_refreshed = service.load(targetPath, "example", "prisoner");
+		df_refreshed.show();
+		// not equal
+		
+		// now the reverse
+		table = new TableTuple("nomis", "offender_bookings");
+		executor.doFull(table);
+		// there should be a target table
+		assertTrue(service.exists(targetPath, "example", "prisoner"));
+		// it should have all the joined records in it
+		final Dataset<Row> df_refreshed2 = service.load(targetPath, "example", "prisoner");
+		df_refreshed2.show();
+		
+		
+	}
+
+	// shouldRunWithIncrementalUpdateIfMultipleTablesAreInDomain
+	@Test
+	public void shouldRunWithIncrementalUpdateIfMultipleTablesAreInDomain() throws IOException {
+		final String sourcePath = folder.getRoot().getAbsolutePath() + "/source";
+		final String targetPath = folder.getRoot().getAbsolutePath() + "/target";
+
+		DeltaLakeService service = new DeltaLakeService();
+
+		final DomainDefinition domain = getDomain("/sample/domain/sample-domain-execution.json");
+
+		final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
+
+		// save a source
+		TableTuple table = new TableTuple("source", "table");
+		Dataset<Row> df_offenders = getOffenders();
+		// give each a new id
+		df_offenders = df_offenders.withColumn("OFFENDER_ID", functions.monotonically_increasing_id());
+		saveDataToDisk(TableInfo.create(sourcePath, "source", "table"), df_offenders);
+
+		// do Full Materialize of source to target
+		// so as to populate the table with original data
+		executor.doFull(table);
+
+		// get some events
+		final Dataset<Row> df_incremental = getValidDataset();
+		final Dataset<Row> df_data = EventConverter.getPayload(df_incremental);
+		executor.doIncremental(df_data, table);
+
+		// there should be a target table
+		assertTrue(service.exists(targetPath, "example", "prisoner"));
+
+		// it should have all the offenders in it
+		final Dataset<Row> df_refreshed = service.load(targetPath, "example", "prisoner");
+		// but they should be updated
+		assertEqual(df_offenders.count(), df_refreshed.count());
+		// assertTrue(areEqual(df_offenders, df_refreshed));
 	}
 
 	// shouldRunWith0ChangesIfTableIsNotInDomain
@@ -152,7 +230,7 @@ public class DomainExecutorTest extends BaseSparkTest {
 		
 		final TransformDefinition transform = new TransformDefinition();
 		transform.setViewText("");
-		
+				
 		final Dataset<Row> outputs = executor.applyTransform(inputs, transform);
 		assertEquals(inputs.count(), outputs.count());
 		assertTrue(this.areEqual(inputs, outputs));
@@ -187,14 +265,26 @@ public class DomainExecutorTest extends BaseSparkTest {
 		final Dataset<Row> inputs = getOffenders();	
 		
 		final TransformDefinition transform = new TransformDefinition();
-		transform.setViewText("select table.*, months_between(current_date(), to_date(table.BIRTH_DATE)) / 12 as AGE_NOW from table");
+		transform.setViewText("select a.table.*, months_between(current_date(), to_date(a.table.BIRTH_DATE)) / 12 as AGE_NOW from a.table");
+		transform.setSources(Arrays.<String>asList("a.table"));
 		
-		Dataset<Row> outputs = doTransform(executor, inputs, transform, "table");
+		Dataset<Row> outputs = doTransform(executor, inputs, transform, "a.table");
 		
  		outputs.toDF().show();
 		
 		assertEquals(inputs.count(), outputs.count());
 		assertFalse(this.areEqual(inputs, outputs));
+		
+		transform.setViewText("select a.*, months_between(current_date(), to_date(a.BIRTH_DATE)) / 12 as AGE_NOW from a.table a");
+		transform.setSources(Arrays.<String>asList("a.table"));
+		
+		outputs = doTransform(executor, inputs, transform, "a.table");
+		
+ 		outputs.toDF().show();
+		
+		assertEquals(inputs.count(), outputs.count());
+		assertFalse(this.areEqual(inputs, outputs));
+		
 	}
 	
 	// ********************
@@ -252,13 +342,21 @@ public class DomainExecutorTest extends BaseSparkTest {
 		assertTrue(service.exists(targetPath, "violations", "young"));
 	}
 
+	// ********************
+	// FUNCTIONS
+	// ********************
+
+	
+	
+	
+	private void assertEqual(long count, long count2) {
+		// TODO to check equality
+	}
 	
 	protected Dataset<Row> doTransform(final DomainExecutor executor, final Dataset<Row> df, final TransformDefinition transform, final String source) {
 		try {
-			df.createOrReplaceTempView(source);
 			return executor.applyTransform(df, transform);
 		} finally {
-			spark.catalog().dropTempView(source);
 		}
 	}
 	
@@ -276,6 +374,11 @@ public class DomainExecutorTest extends BaseSparkTest {
 	
 	private Dataset<Row> getOffenders() throws IOException {
 		final Dataset<Row> df = this.loadParquetDataframe("/sample/offenders.parquet", "offenders.parquet");
+		return df;
+	}
+	
+	private Dataset<Row> getOffenderBookings() throws IOException {
+		final Dataset<Row> df = this.loadParquetDataframe("/sample/offender-bookings.parquet", "offender-bookings.parquet");
 		return df;
 	}
 	
