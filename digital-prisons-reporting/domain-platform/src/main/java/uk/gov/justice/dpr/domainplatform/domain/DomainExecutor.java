@@ -81,13 +81,33 @@ public class DomainExecutor {
 		}
 	}
 	
+	public void doFull() {
+		
+		// Replace all tables
+		final List<TableDefinition> tables = domainDefinition.getTables();
+		for(final TableDefinition table : tables) {
+			
+			// (3) run transforms
+			// (4) run violations
+			// (5) run mappings if available
+			final Dataset<Row> df_target = apply(table, null, null);
+		
+			// (6) save materialised view
+			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
+			saveFull(targetInfo, df_target);
+		}
+	}
+	
 	protected Dataset<Row> apply(final TableDefinition table, final TableTuple sourceTable, final Dataset<Row> df) {
 		try {
 			
 			System.out.println("DomainExecutor::applyTransform(" + table.getName() + ")...");
 			// Transform
 			final Map<String, Dataset<Row>> refs = this.getAllSourcesForTable(table, sourceTable);
-			refs.put(sourceTable.asString().toLowerCase(), df);
+			// Add sourceTable if present
+			if(sourceTable != null && df != null) {
+				refs.put(sourceTable.asString().toLowerCase(), df);
+			}
 			System.out.println("'" + table.getName() + "' has " + refs.size() + " references to tables...");
 			final Dataset<Row> df_transform = applyTransform(refs, table.getTransform());
 			
@@ -102,6 +122,7 @@ public class DomainExecutor {
 			return df_postMappings;
 
 		} catch(Exception e) {
+			System.out.println("DomainExecutor::apply(" + table.getName() + ") failed.");
 			handleError(e);
 			return df;
 		}
@@ -153,6 +174,7 @@ public class DomainExecutor {
 				final Dataset<Row> df_source = dfs.get(source);
 				if(df_source != null) {
 					df_source.createOrReplaceTempView(src);
+					System.out.println("Added view '" + src +"'");
 					srcs.add(src);
 					if(!incremental && 
 							schemaContains(df_source, "_operation") && 
