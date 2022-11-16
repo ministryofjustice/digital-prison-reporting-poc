@@ -15,7 +15,7 @@
 
   "tables": [
     {
- 	  "_comment": "DPR-128 Incident Table",
+      "_comment": "DPR-128 Incident Table",
       "name": "incident",
       "description": "Prisoner Incident Table",
       "version": "0.0.1",
@@ -35,7 +35,7 @@
       "violations": []
     },
     {
-	  "_comment": "DPR-129 Demographics Table",
+      "_comment": "DPR-129 Demographics Table",
       "name": "demographics",
       "description": "Prisoner Demographics Table",
       "version": "0.0.1",
