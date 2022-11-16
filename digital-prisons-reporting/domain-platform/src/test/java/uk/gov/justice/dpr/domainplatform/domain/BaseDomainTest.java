@@ -2,6 +2,8 @@ package uk.gov.justice.dpr.domainplatform.domain;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,7 @@ public abstract class BaseDomainTest extends BaseSparkTest {
 			}
 			return spark == null ? null : spark.sqlContext().sql(view).toDF();
 		} catch(Exception e) {
+			handleError(e);
 			return null;
 		} finally {
 			try {
@@ -153,4 +156,11 @@ public abstract class BaseDomainTest extends BaseSparkTest {
 		return df.schema().fields().length;
 	}
 	
+
+	protected void handleError(final Exception e) {
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		System.err.print(sw.getBuffer().toString());
+	}
 }

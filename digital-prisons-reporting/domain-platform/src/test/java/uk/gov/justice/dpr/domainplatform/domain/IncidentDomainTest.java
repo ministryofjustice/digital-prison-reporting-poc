@@ -57,10 +57,12 @@ public class IncidentDomainTest extends BaseDomainTest {
 		assertTrue(hasColumn(result, "incident_date"));
 		assertTrue(hasColumn(result, "agency_id"));
 		assertTrue(hasColumn(result, "offender_no"));
-		assertEquals(5, columnCount(result));
+		assertTrue(hasColumn(result, "booking_id"));
+		assertEquals(6, columnCount(result));
 		// check results
 	}
 	
+	// DPR-128 [https://dsdmoj.atlassian.net/browse/DPR-128] incident data
 	@Test
 	public void shouldExecuteMappingOnIncidentTable() throws Exception {
 		final DomainDefinition def = this.loadAndValidateDomain("/domains/incident.domain.json");
@@ -87,37 +89,41 @@ public class IncidentDomainTest extends BaseDomainTest {
 		assertTrue(hasColumn(result, "incident_date"));
 		assertTrue(hasColumn(result, "agency_id"));
 		assertTrue(hasColumn(result, "offender_no"));
-		assertEquals(5, columnCount(result));
+		assertTrue(hasColumn(result, "booking_id"));
+		assertEquals(6, columnCount(result));
 		// check results
 		assertEquals("integer", getType(result, "id"));
 		assertEquals("string", getType(result, "type"));
 		assertEquals("timestamp", getType(result, "incident_date"));
 		assertEquals("string", getType(result, "agency_id"));
 		assertEquals("string", getType(result, "offender_no"));
+		assertEquals("integer", getType(result, "booking_id"));
 		
 		// save to disk and re-read
 		this.saveToDisk("incident", "incident", result);
 		
 		Dataset<Row> df_saved = this.readFromDisk("incident", "incident");
 		
-		assertEquals(5, columnCount(df_saved));
+		assertEquals(6, columnCount(df_saved));
 		// check results
 		assertEquals("integer", getType(df_saved, "id"));
 		assertEquals("string", getType(df_saved, "type"));
 		assertEquals("timestamp", getType(df_saved, "incident_date"));
 		assertEquals("string", getType(df_saved, "agency_id"));
 		assertEquals("string", getType(df_saved, "offender_no"));
+		assertEquals("integer", getType(df_saved, "booking_id"));
 		
 		this.mergeToDisk("incidental", "incident", "id", result);
 		Dataset<Row> df_merged = this.readFromDisk("incidental", "incident");
 				
-		assertEquals(5, columnCount(df_merged));
+		assertEquals(6, columnCount(df_merged));
 		// check results
 		assertEquals("integer", getType(df_merged, "id"));
 		assertEquals("string", getType(df_merged, "type"));
 		assertEquals("timestamp", getType(df_merged, "incident_date"));
 		assertEquals("string", getType(df_merged, "agency_id"));
 		assertEquals("string", getType(df_merged, "offender_no"));
+		assertEquals("integer", getType(df_merged, "booking_id"));
 		
 	}
 	
