@@ -76,10 +76,15 @@ public class TableChangeMonitor {
 					// first get all control messages and process them
 					// PAUSE, RESUME
 					// get a list of tables the events relate to
-					List<TableTuple> tables = TableListExtractor.extractTableList(df);
+					List<TableTuple> tables = TableListExtractor.extractTranslatedTableList(df);
+					
+					// tables have aliases. So SYSTEM OFFENDERS or OMS_OWNER OFFENDERS actually apply to nomis.offenders
+					// we need to translate table schema/table names into 'local' names
+					// this is done by the TABLE LIST EXTRACTOR
 					
 					// find all domains that depend on the events
 					for(final TableTuple table : tables) {
+						
 						System.out.println("TableChangeMonitor::process(" + table.getSchema() + "." + table.getTable() + ") started...");
 						Set<DomainDefinition> domains = repo.getDomainsForSource(table.asString());
 						System.out.println("TableChangeMonitor::process(" + table.getSchema() + "." + table.getTable() + ") found " + domains.size() + " domains");
@@ -89,7 +94,7 @@ public class TableChangeMonitor {
 							final DomainExecutor executor = new DomainExecutor(sourcePath, targetPath, domain);
 							
 							// extract events that are for this table onlt
-							Dataset<Row> changes = df.filter("(recordType == 'data' and schemaName == '" + table.getSchema() +"' and tableName == '" + table.getTable() + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
+							Dataset<Row> changes = df.filter("(recordType == 'data' and schemaName == '" + table.getOriginalSchema() +"' and tableName == '" + table.getOriginalTable() + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
 										.orderBy(col("timestamp"));
 			
 							Dataset<Row> df_payload = EventConverter.getPayload(changes);
