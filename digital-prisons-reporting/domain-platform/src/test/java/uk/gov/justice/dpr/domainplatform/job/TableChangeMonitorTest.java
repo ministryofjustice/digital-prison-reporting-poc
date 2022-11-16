@@ -85,9 +85,9 @@ public class TableChangeMonitorTest extends BaseSparkTest {
 		final String targetPath = folder.getRoot().getAbsolutePath() + "/target";
 
 		// create some domains
-		final DomainRepository repo = createAndFillDomainRepository(domainSourcePath, domainRepoPath, "/sample/domain/domain-system-offenders.json", "/sample/domain/domain-3-tables.json");
+		final DomainRepository repo = createAndFillDomainRepository(domainSourcePath, domainRepoPath, "/sample/domain/domain-nomis-offenders.json", "/sample/domain/domain-3-tables.json");
 		
-		Set<DomainDefinition> domains = repo.getDomainsForSource("system.offenders");
+		Set<DomainDefinition> domains = repo.getDomainsForSource("nomis.offenders");
 		assertNotNull(domains);
 		assertFalse(domains.isEmpty());
 		
