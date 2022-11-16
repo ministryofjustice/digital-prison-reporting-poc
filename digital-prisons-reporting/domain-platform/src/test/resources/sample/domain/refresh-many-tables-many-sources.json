@@ -1,0 +1,62 @@
+{
+  "id": "1f9da22f-5acb-4950-a295-97311cf1025c",
+  "name": "example",
+  "description": "An example domain for testing purposes",
+  "version": "1.2.3.4",
+  "location": "s3://domain-bucket/safety",
+  "tags": {
+    "department": "HMPPS",
+    "unit": "Prisons"
+  },
+  "owner": "david.smith@justice.gov.uk",
+  "author": "alice.jones@justice.gov.uk",
+
+  "tables": [
+    {
+      "name": "prisoner",
+      "description": "Prisoner Table",
+      "version": "1.2.3.4",
+      "location": "prisoner",
+      "tags": {
+        "department": "HMPPS",
+        "unit": "Prisons"
+      },
+      "owner": "david.smith@justice.gov.uk",
+      "author": "alice.jones@justice.gov.uk",
+
+      "transform": {
+        "viewText": "SELECT nomis.offenders.offender_id as id, nomis.offenders.first_name, nomis.offenders.last_name, nomis.offenders.birth_date, nomis.offender_bookings.booking_no, nomis.offender_bookings.living_unit_id from nomis.offenders join nomis.offender_bookings on nomis.offenders.offender_id=nomis.offender_bookings.offender_id",
+        "sources": ["nomis.offenders", "nomis.offender_bookings"]
+      },
+
+      "mapping": {
+        "viewText": ""
+      },
+
+      "violations": []
+    },
+    {
+      "name": "bookings",
+      "description": "Bookings Table",
+      "version": "1.2.3.4",
+      "location": "bookings",
+      "tags": {
+        "department": "HMPPS",
+        "unit": "Prisons"
+      },
+      "owner": "david.smith@justice.gov.uk",
+      "author": "alice.jones@justice.gov.uk",
+
+      "transform": {
+        "viewText": "SELECT * from nomis.offender_bookings",
+        "sources": ["nomis.offender_bookings"]
+      },
+
+      "mapping": {
+        "viewText": ""
+      },
+
+      "violations": []
+    }
+  ]
+}

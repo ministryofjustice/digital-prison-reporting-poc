@@ -90,6 +90,28 @@ public class DomainRepository {
 		return service.exists(domainRepositoryPath, SCHEMA, TABLE);
 	}
 	
+	public Set<DomainDefinition> getForName(final String name) {
+		Set<DomainDefinition> domains = new HashSet<DomainDefinition>();
+		try {
+			final Dataset<Row> df = getDomainRepository();
+			if(df != null) {
+				final List<String> results = df
+						.where("name='" + name.toLowerCase() + "'")
+						.select(col("definition")).as(Encoders.STRING())
+						.collectAsList();
+		
+				for(final String result : results) {
+					domains.add(MAPPER.readValue(result, DomainDefinition.class));
+				}
+			} else {
+				throw new RuntimeException("Domain Repository (" + domainRepositoryPath + "/" + SCHEMA + "/" + TABLE + ") does not exist. Please refresh the domain repository");
+			}
+		} catch(Exception e) {
+			handleError(e);
+		}
+		return domains;
+	}
+	
 	public Set<DomainDefinition> getDomainsForSource(final String sourceTable) {
 		Set<DomainDefinition> domains = new HashSet<DomainDefinition>();
 		try {

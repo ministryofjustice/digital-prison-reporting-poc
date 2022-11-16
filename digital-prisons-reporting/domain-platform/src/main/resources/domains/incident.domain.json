@@ -15,6 +15,7 @@
 
   "tables": [
     {
+ 	  "_comment": "DPR-128 Incident Table",
       "name": "incident",
       "description": "Prisoner Incident Table",
       "version": "0.0.1",
@@ -28,12 +29,13 @@
 
       "primaryKey": "id",
       "transform": {
-        "viewText": "SELECT id, 'USE_OF_FORCE' as type, incident_date, agency_id, offender_no from public.report",
-        "sources": ["public.report"]
+        "viewText": "SELECT id, 'USE_OF_FORCE' as type, incident_date, agency_id, offender_no from use_of_force.report",
+        "sources": ["use_of_force.report"]
       },
       "violations": []
     },
     {
+	  "_comment": "DPR-129 Demographics Table",
       "name": "demographics",
       "description": "Prisoner Demographics Table",
       "version": "0.0.1",
@@ -47,7 +49,7 @@
 
       "primaryKey": "id",
       "transform": {
-        "viewText": "select ob.offender_book_id as id, o.birth_date as birth_date, ob.living_unit_id as living_unit_id, o.first_name as first_name, o.last_name as last_name, o.offender_id_display as offender_no from nomis.offender_bookings ob join nomis.offenders o on ob.offender_id = o.offender_id",
+        "viewText": "select nomis.offender_bookings.offender_book_id as id, nomis.offenders.birth_date as birth_date, nomis.offender_bookings.living_unit_id as living_unit_id, nomis.offenders.first_name as first_name, nomis.offenders.last_name as last_name, nomis.offenders.offender_id_display as offender_no from nomis.offender_bookings join nomis.offenders on nomis.offender_bookings.offender_id = nomis.offenders.offender_id",
         "sources": ["nomis.offender_bookings", "nomis.offenders"]
       },
       "violations": []
