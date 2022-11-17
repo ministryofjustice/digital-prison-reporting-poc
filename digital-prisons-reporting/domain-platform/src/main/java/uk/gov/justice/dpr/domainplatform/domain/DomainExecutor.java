@@ -211,10 +211,12 @@ public class DomainExecutor {
 	protected void saveViolations(final TableInfo target, final Dataset<Row> df) {
 		// save the violations to the specified location
 		deltaService.append(target.getPrefix(), target.getSchema(), target.getTable(), df);
+		deltaService.endTableUpdates(target.getPrefix(), target.getSchema(), target.getTable());
 	}
 	
 	protected void saveFull(final TableInfo info, final Dataset<Row> df) {
 		deltaService.replace(info.getPrefix(), info.getSchema(), info.getTable(), df);
+		deltaService.endTableUpdates(info.getPrefix(), info.getSchema(), info.getTable());
 	}
 	
 	protected void saveIncremental(final TableInfo info, final String primaryKey, final Dataset<Row> df) {

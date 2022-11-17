@@ -29,7 +29,7 @@
 
       "primaryKey": "id",
       "transform": {
-        "viewText": "SELECT id, 'USE_OF_FORCE' as type, incident_date, agency_id, offender_no from use_of_force.report",
+        "viewText": "SELECT use_of_force.report.id, 'USE_OF_FORCE' as type, use_of_force.report.incident_date, use_of_force.report.agency_id, use_of_force.report.offender_no, use_of_force.report.booking_id from use_of_force.report",
         "sources": ["use_of_force.report"]
       },
       "violations": []
