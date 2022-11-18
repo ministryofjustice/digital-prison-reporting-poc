@@ -45,14 +45,22 @@ CREATE MATERIALIZED VIEW MV_AGED_INCIDENT_BINNED
 AS
 select mv.*,
 case
-    when age_at_incident between 0 and 19 then 'Under 20'
-    when age_at_incident between 20 and 29 then '20-29'
-    when age_at_incident between 30 and 39 then '30-39'
-    when age_at_incident between 40 and 49 then '40-49'
-    when age_at_incident between 50 and 59 then '50-59'
-    when age_at_incident between 60 and 69 then '60-69'
-    when age_at_incident between 70 and 79 then '70-79'
-    when age_at_incident between 80 and 89 then '80-89'
-    when age_at_incident between 90 and 200 then 'Over 90'
+    when age_at_incident between 0 and 20 then 'Under 21'
+    when age_at_incident between 21 and 25 then '21-25'
+    when age_at_incident between 26 and 30 then '26-30'
+    
+    when age_at_incident between 31 and 35 then '31-35'
+    when age_at_incident between 36 and 40 then '36-40'
+    
+    when age_at_incident between 41 and 45 then '41-45'
+    when age_at_incident between 46 and 50 then '46-50'
+    
+    when age_at_incident between 51 and 55 then '51-55'
+    when age_at_incident between 56 and 60 then '56-60'
+    
+    when age_at_incident between 61 and 65 then '61-65'
+    when age_at_incident between 66 and 70 then '66-70'
+    
+    when age_at_incident between 71 and 200 then 'Over 70'
 end as age_category
 from MV_AGED_INCIDENT mv
