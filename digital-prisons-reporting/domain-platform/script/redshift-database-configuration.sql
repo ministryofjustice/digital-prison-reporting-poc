@@ -27,8 +27,11 @@ create external database if not exists;
 CREATE MATERIALIZED VIEW MV_AGED_INCIDENT
 -- AUTO REFRESH YES -- apparently it is not available on external tables
 AS
-select i.*, datediff(year, date(birth_date), date(incident_date)) as age_at_incident
-from domain.incident i join domain.demographics d on i.booking_id = d.id
+select i.*, lu.name as living_unit, e.name as location, datediff(year, date(birth_date), date(incident_date)) as age_at_incident
+from domain.incident i 
+join domain.demographics d on i.booking_id = d.id
+join domain.living_unit lu on i.agency_id = lu.code
+join domain.establishment e on lu.establishment_id = e.id
 
 
 -- =================================================================
@@ -64,3 +67,7 @@ case
     when age_at_incident between 71 and 200 then 'Over 70'
 end as age_category
 from MV_AGED_INCIDENT mv
+
+-- Remember to re grant
+-- GRANT SELECT ON ALL TABLES IN SCHEMA public TO dpruser
+-- GRANT USAGE ON SCHEMA domain TO dpruser
