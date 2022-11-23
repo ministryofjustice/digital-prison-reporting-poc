@@ -162,12 +162,12 @@ jobs:
           name: Tag Artifacts
           command: |
             echo "Tag Latest Artifacts to vLatest"
-            cp -rp digital-prisons-reporting/cloud-platform/target/cloud-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/cloud-platform/target/cloud-platform-vlatest.jar 
-            cp -rp digital-prisons-reporting/domain-platform/target/domain-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/domain-platform/target/domain-platform-vlatest.jar  
+            cp -rp digital-prisons-reporting/cloud-platform/target/cloud-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/cloud-platform/target/cloud-platform-vLatest.jar 
+            cp -rp digital-prisons-reporting/domain-platform/target/domain-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/domain-platform/target/domain-platform-vLatest.jar  
 
             echo "Tag Latest Scripts to vLatest"
-            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do ; cp -rp $script $(echo "$script" | sed -r 's|.scala|-vlatest.scala|g') ; done
-            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do ; cp -rp $script $(echo "$script" | sed -r 's|.scala|-vlatest.scala|g') ; done
+            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r 's|.scala|-vLatest.scala|g') ; done
+            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r 's|.scala|-vLatest.scala|g') ; done
 
             echo "List Artifacts"
             pwd; ls -lsrt digital-prisons-reporting/domain-platform/; ls -lsrt digital-prisons-reporting/cloud-platform/*
