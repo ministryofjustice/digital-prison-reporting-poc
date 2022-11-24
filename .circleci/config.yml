@@ -166,8 +166,8 @@ jobs:
             cp -rp digital-prisons-reporting/domain-platform/target/domain-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/domain-platform/target/domain-platform-vLatest.jar  
 
             echo "Tag Latest Scripts to vLatest"
-            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; mv $script $(echo "$script" | sed -r "s|.scala|\"${SEMVER_VERSION}\".scala|g") ; done
-            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; mv $script $(echo "$script" | sed -r "s|.scala|\"${SEMVER_VERSION}\".scala|g") ; done
+            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; mv $script $(echo "$script" | sed -r "s|.scala|-${SEMVER_VERSION}.scala|g") ; done
+            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; mv $script $(echo "$script" | sed -r "s|.scala|-${SEMVER_VERSION}.scala|g") ; done
 
             echo "List Artifacts"
             pwd; ls -lsrt digital-prisons-reporting/domain-platform/; ls -lsrt digital-prisons-reporting/cloud-platform/*
