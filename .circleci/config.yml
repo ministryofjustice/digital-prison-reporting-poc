@@ -37,7 +37,7 @@ commands:
             aws s3 sync digital-prisons-reporting/cloud-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
             aws s3 sync digital-prisons-reporting/cloud-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
             aws s3 sync digital-prisons-reporting/domain-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "domain-platform*.jar" --region << pipeline.parameters.aws-region >>
-            aws s3 sync digital-prisons-reporting/domain-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
+            aws s3 sync digital-prisons-reporting/domain-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
 
 jobs:
   verify-version:
@@ -166,10 +166,8 @@ jobs:
             cp -rp digital-prisons-reporting/domain-platform/target/domain-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/domain-platform/target/domain-platform-vLatest.jar  
 
             echo "Tag Latest Scripts to vLatest"
-            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; done
-            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|\"${SEMVER_VERSION}\".scala|g") ; done
-            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; done
-            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|\"${SEMVER_VERSION}\".scala|g") ; done
+            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; cp -rp $script $(echo "$script" | sed -r "s|.scala|\"${SEMVER_VERSION}\".scala|g") ; done
+            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do cp -rp $script $(echo "$script" | sed -r "s|.scala|-vLatest.scala|g") ; cp -rp $script $(echo "$script" | sed -r "s|.scala|\"${SEMVER_VERSION}\".scala|g") ; done
 
             echo "List Artifacts"
             pwd; ls -lsrt digital-prisons-reporting/domain-platform/; ls -lsrt digital-prisons-reporting/cloud-platform/*
