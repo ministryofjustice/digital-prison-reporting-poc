@@ -27,7 +27,7 @@ object GlueApp {
     
     import sparkSession.implicits._
     
-    spark.setLogLevel("INFO")
+    spark.setLogLevel("WARN")
     
     
 	// =================================================================================
@@ -50,7 +50,7 @@ object GlueApp {
 	// curated.path    : path to curated storage (s3://mdpr-reporting-hub/curated)
 	//
 	// sink.stream     : Name of Kinesis Sink Stream (domain-data-stream-events)
-	// sink.url        : https://kinesis.eu-west-1.amazonaws.com
+	// sink.region     : Sink Region (eu-west-1)	
 	// ==================================================================================
 	
     val args = GlueArgParser.getResolvedOptions(sysArgs, 
@@ -64,32 +64,17 @@ object GlueApp {
         "curated.path",
         
         "sink.stream", 
-        "sink.url",
+        "sink.region",
         
         "checkpoint.location"
         
         ).toArray)
         
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
-    
+
     val cp_job = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.initialise(sparkSession, args.asJava)
 
     val writer = cp_job.run() // returns DataStreamWriter - could be null
-    
-    if(writer != null) {
-    	writer
-        	.trigger(Trigger.Once)
-            .option("checkpointLocation", args("checkpoint.location"))
-                 
-    	val query = writer.start()             // start() returns type StreamingQuery
-
-	    try {
-	        query.awaitTermination()
-	    } 
-	    catch {
-	        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
-	    }
-    }
       
     Job.commit()
   }
