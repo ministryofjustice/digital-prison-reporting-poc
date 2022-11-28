@@ -64,13 +64,14 @@ public class KinesisWriteTask  implements AutoCloseable, Serializable {
 						}
 						if(rows.size() >= MAX_ROWS || sz >= MAX_SIZE) {
 							producer.writeBuffer(rows);
+							System.out.println("Written partition of " + rows.size() + " rows [" + sz + " bytes]");
 							sz = 0L;
 							rows.clear();
 						}
 					}
 					// flush the remaining
 					producer.writeBuffer(rows);
-					System.out.println("Written partition of " + rows.size() + " rows");
+					System.out.println("Written partition of " + rows.size() + " rows [" + sz + " bytes]");
 				} catch(Exception e) {
 					handleError(e);
 				}
