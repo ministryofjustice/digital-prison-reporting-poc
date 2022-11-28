@@ -1,78 +1,77 @@
 {
-  "type" : "struct",
-  "fields" : [ 
-  
-  {
-    "name" : "id",
-    "type" : "long",
-    "nullable" : false,
-    "metadata" : { }
-  },
-  {
-    "name" : "agency_id",
-    "type" : "string",
-    "nullable" : false,
-    "metadata" : { }
-  },
-  {
-    "name" : "booking_id",
-    "type" : "long",
-    "nullable" : false,
-    "metadata" : { }
-  },
-  {
-    "name" : "create_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "form_response",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "incident_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "offender_no",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "reporter_name",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "sequence_no",
-    "type" : "long",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "status",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "updated_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "user_id",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  }
+  "type": "struct",
+  "fields": [
+    {
+      "name": "id",
+      "type": "long",
+      "nullable": false,
+      "metadata": {}
+    },
+    {
+      "name": "agency_id",
+      "type": "string",
+      "nullable": false,
+      "metadata": {}
+    },
+    {
+      "name": "booking_id",
+      "type": "long",
+      "nullable": false,
+      "metadata": {}
+    },
+    {
+      "name": "create_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "form_response",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "incident_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "offender_no",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "reporter_name",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "sequence_no",
+      "type": "long",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "updated_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "user_id",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    }
   ]
 }

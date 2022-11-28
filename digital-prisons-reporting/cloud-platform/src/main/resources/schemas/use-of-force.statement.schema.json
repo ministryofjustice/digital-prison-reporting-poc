@@ -1,108 +1,107 @@
 {
-  "type" : "struct",
-  "fields" : [ 
-  
-  {
-    "name" : "id",
-    "type" : "long",
-    "nullable" : false,
-    "metadata" : { }
-  },
-  {
-    "name" : "created_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "email",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "in_progress",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "job_start_year",
-    "type" : "long",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "last_training_month",
-    "type" : "long",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "last_training_year",
-    "type" : "long",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "name",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "next_reminder_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "overdue_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "report_id",
-    "type" : "long",
-    "nullable" : false,
-    "metadata" : { }
-  },
-  {
-    "name" : "staff_id",
-    "type" : "long",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "statement",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "statement_status",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "submitted_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "updated_date",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  },
-  {
-    "name" : "user_id",
-    "type" : "string",
-    "nullable" : true,
-    "metadata" : { }
-  }
+  "type": "struct",
+  "fields": [
+    {
+      "name": "id",
+      "type": "long",
+      "nullable": false,
+      "metadata": {}
+    },
+    {
+      "name": "created_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "email",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "in_progress",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "job_start_year",
+      "type": "long",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "last_training_month",
+      "type": "long",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "last_training_year",
+      "type": "long",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "next_reminder_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "overdue_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "report_id",
+      "type": "long",
+      "nullable": false,
+      "metadata": {}
+    },
+    {
+      "name": "staff_id",
+      "type": "long",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "statement",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "statement_status",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "submitted_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "updated_date",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    },
+    {
+      "name": "user_id",
+      "type": "string",
+      "nullable": true,
+      "metadata": {}
+    }
   ]
 }
