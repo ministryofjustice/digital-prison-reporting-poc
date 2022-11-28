@@ -1,5 +1,6 @@
 package uk.gov.justice.dpr.cdc;
 
+import static org.apache.spark.sql.functions.col;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,10 +77,27 @@ public class EventConverterTest extends BaseSparkTest {
 		assertTrue("schemaName missing", hasField(result, "schemaName"));
 		assertTrue("tableName missing", hasField(result, "tableName"));
 		assertTrue("transactionId missing", hasField(result, "transactionId"));
-		
-		
-		
-		
 
 	}
+	
+	@Test
+	public void shouldConvertSchemaIntoNullableSchemaThroughoutForPayload() throws IOException {
+		final InputStream events = BaseSparkTest.getStream("/sample/events/raw-on-disk-events.json");
+		final Dataset<Row> df = EventConverter.fromKinesis(EventConverter.fromRawDMS_3_4_6(spark, events));
+		
+		// only get the report ones
+		df.show();
+		
+		Dataset<Row> df_filtered = df.filter("partitionKey == 'public.report'").orderBy(col("approximateArrivalTimestamp"));
+		df_filtered.show(false);
+		
+		final Dataset<Row> df_payload = EventConverter.getPayload(df_filtered);
+		
+		df_payload.show(false);
+		df_payload.printSchema();
+		System.out.println(df_payload.schema().prettyJson());
+		// one payload record per row
+		assertEquals(df_filtered.count(), df_payload.count());
+	}
+	
 }

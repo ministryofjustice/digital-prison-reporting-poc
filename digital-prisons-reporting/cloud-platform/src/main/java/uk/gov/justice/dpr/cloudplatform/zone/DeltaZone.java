@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.types.DataType;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
 import uk.gov.justice.dpr.cloudplatform.service.SourceReferenceService;
@@ -47,8 +48,10 @@ public abstract class DeltaZone {
 			    Dataset<Row> changes = batch.filter("(recordType == 'data' and schemaName == '" + schema +"' and tableName == '" + table + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
 											.orderBy(col("timestamp"));
 				
+			    final DataType payloadSchema = SourceReferenceService.getSchema(schema +"."+ table);
+			    
 			    // GET PAYLOAD AND RETAIN _operation and _timestamp
-			    Dataset<Row> df_payload = EventConverter.getPayload(changes);
+			    Dataset<Row> df_payload = EventConverter.getPayload(changes, payloadSchema);
 			    
 				// THIS IS THE POINT AT WHICH STRUCTURE IS APPLIED TO THE DATA
 				Dataset<Row> df_applied = transform(df_payload, schema, table);
