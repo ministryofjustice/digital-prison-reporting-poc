@@ -15,6 +15,8 @@ import com.amazonaws.services.kinesis.model.PutRecordResult;
 import com.amazonaws.services.kinesis.model.PutRecordsRequest;
 import com.amazonaws.services.kinesis.model.PutRecordsRequestEntry;
 import com.amazonaws.services.kinesis.model.PutRecordsResult;
+import com.amazonaws.services.kinesis.model.PutRecordsResultEntry;
+import com.amazonaws.services.kinesis.model.Record;
 
 public class KinesisProducer {
 
@@ -70,6 +72,27 @@ public class KinesisProducer {
 				System.out.println("Written " + entries.size() + " to stream " + streamName);
 			} else {
 				System.out.println("Written " + (entries.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors");
+				List<PutRecordsResultEntry> resultEntries = result.getRecords();
+	            int  i = 0;
+	            for (PutRecordsResultEntry resultEntry : resultEntries) {
+	                final String errorCode = resultEntry.getErrorCode();
+	                if (null != errorCode) {
+	                    switch (errorCode) {
+	                    case "ProvisionedThroughputExceededException":
+	                    case "InternalFailure":
+	                        // Records are processed in the order you submit them,
+	                        // so this will align with the initial record batch
+	                        handleFailedRecord(entries.get(i), i, errorCode + ":" + resultEntry.getErrorMessage());
+	                        break;
+	                    default:
+	                        validateSuccessfulRecord(entries.get(i), i, resultEntry);
+	                        break;
+	                    }
+	                } else {
+	                    validateSuccessfulRecord(entries.get(i), i, resultEntry);
+	                }
+	                ++i;
+	            }
 			}
 			return entries.size() - result.getFailedRecordCount();
 		} catch(Exception e) {
@@ -77,6 +100,18 @@ public class KinesisProducer {
 			return 0;
 		}
 	}
+	
+	private void validateSuccessfulRecord(PutRecordsRequestEntry record, final int position, PutRecordsResultEntry resultEntry)  {
+        if (null == resultEntry.getSequenceNumber() || null == resultEntry.getShardId()
+                || resultEntry.getSequenceNumber().isEmpty() || resultEntry.getShardId().isEmpty()) {
+            // Some kind of other error, handle it.
+            handleFailedRecord(record, position, "Missing SequenceId or ShardId.");
+        }
+    }
+	
+	private void handleFailedRecord(PutRecordsRequestEntry record, final int position, final String cause) {
+		System.err.println("Error on Record"  + position + " " + record.getPartitionKey() + ": " + cause );
+    }
 	
 	protected static void handleError(final Exception e) {
 		final StringWriter sw = new StringWriter();
