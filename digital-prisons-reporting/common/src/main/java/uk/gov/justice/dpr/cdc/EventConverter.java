@@ -152,9 +152,15 @@ public class EventConverter {
 		return df.withColumn("parsed", from_json(col("payload"), schema)).select(col("operation").as("_operation"), col("timestamp").as("_timestamp"), col("parsed.*"));
 	}
 	
+	public static Dataset<Row> getPayload(Dataset<Row> df, final DataType schema) {
+		return df.withColumn("parsed", from_json(col("payload"), schema)).select(col("operation").as("_operation"), col("timestamp").as("_timestamp"), col("parsed.*"));
+	}
+	
+	// SCHEMA MUST BE NULLABLE THROUGHOUT. PRIMARY KEY MAY NOT BE NULLABLE.
+	// DPR-139
 	protected static DataType getSchema(Dataset<Row> df, final String column) {
 		final Row[] schs = (Row[])df.sqlContext().range(1).select(
-				schema_of_json(lit(df.select(column).first().getString(0)))
+				schema_of_json(lit(df.select(column).first().getString(0))) // <=== theis is the PROBLEM. Using the first row that may contain nulls
 				).collect();
 		final String schemaStr = schs[0].getString(0);
 		
