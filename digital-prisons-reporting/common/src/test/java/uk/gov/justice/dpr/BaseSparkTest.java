@@ -56,6 +56,8 @@ public abstract class BaseSparkTest {
 				// these need to be in the cloud-platform
 				.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
 			    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+			    .config("spark.sql.legacy.charVarcharAsString", true)
+			    
 			    .config("spark.databricks.delta.schema.autoMerge.enabled", true)
 			    .config("spark.databricks.delta.optimizeWrite.enabled", true)
 			    .config("spark.databricks.delta.autoCompact.enabled", true)
