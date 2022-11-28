@@ -17,7 +17,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -153,7 +155,11 @@ public class EventConverter {
 	}
 	
 	public static Dataset<Row> getPayload(Dataset<Row> df, final DataType schema) {
-		return df.withColumn("parsed", from_json(col("payload"), schema)).select(col("operation").as("_operation"), col("timestamp").as("_timestamp"), col("parsed.*"));
+		// Map<String,String> options = new HashMap<String,String>();
+		final DataType sch = schema == null ? getSchema(df, "payload") : schema;
+		return df.withColumn("parsed", 
+				from_json(col("payload"), sch)
+			).select(col("operation").as("_operation"), col("timestamp").as("_timestamp"), col("parsed.*"));
 	}
 	
 	// SCHEMA MUST BE NULLABLE THROUGHOUT. PRIMARY KEY MAY NOT BE NULLABLE.

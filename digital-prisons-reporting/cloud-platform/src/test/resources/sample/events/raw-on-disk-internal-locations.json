@@ -1,0 +1,71 @@
+{
+	"data":	{
+		"INTERNAL_LOCATION_ID":	16827,
+		"INTERNAL_LOCATION_CODE":	"004",
+		"AGY_LOC_ID":	"WEI",
+		"INTERNAL_LOCATION_TYPE":	"CELL",
+		"DESCRIPTION":	"WEI-D-4-004",
+		"CAPACITY":	1,
+		"CREATE_USER_ID":	"OMS_OWNER",
+		"PARENT_INTERNAL_LOCATION_ID":	16823,
+		"ACTIVE_FLAG":	"Y",
+		"LIST_SEQ":	4,
+		"CREATE_DATETIME":	"2009-06-26T18:28:35Z",
+		"MODIFY_DATETIME":	"2017-05-09T21:28:21.220462000Z",
+		"MODIFY_USER_ID":	"OMS_OWNER",
+		"CNA_NO":	1,
+		"CERTIFIED_FLAG":	"Y",
+		"UNIT_TYPE":	"NA",
+		"NO_OF_OCCUPANT":	1,
+		"TRACKING_FLAG":	"N",
+		"AUDIT_TIMESTAMP":	"2017-05-09T21:28:21.220481000Z",
+		"AUDIT_USER_ID":	"OMS_OWNER",
+		"AUDIT_MODULE_NAME":	"sqlplus@DAPDL0001 (TNS V1-V3)",
+		"AUDIT_CLIENT_USER_ID":	"oracle",
+		"AUDIT_CLIENT_WORKSTATION_NAME":	"pts/6"
+	},
+	"metadata":	{
+		"timestamp":	"2022-11-28T11:30:40.255795Z",
+		"record-type":	"data",
+		"operation":	"load",
+		"partition-key-type":	"primary-key",
+		"partition-key-value":	"OMS_OWNER.AGENCY_INTERNAL_LOCATIONS.16827",
+		"schema-name":	"OMS_OWNER",
+		"table-name":	"AGENCY_INTERNAL_LOCATIONS"
+	}
+}{
+	"data":	{
+		"INTERNAL_LOCATION_ID":	16828,
+		"INTERNAL_LOCATION_CODE":	"005",
+		"AGY_LOC_ID":	"WEI",
+		"INTERNAL_LOCATION_TYPE":	"CELL",
+		"DESCRIPTION":	"WEI-D-4-005",
+		"CAPACITY":	1,
+		"CREATE_USER_ID":	"OMS_OWNER",
+		"PARENT_INTERNAL_LOCATION_ID":	16823,
+		"ACTIVE_FLAG":	"Y",
+		"LIST_SEQ":	5,
+		"CREATE_DATETIME":	"2009-06-26T18:28:35Z",
+		"MODIFY_DATETIME":	"2017-05-09T21:28:21.220534000Z",
+		"MODIFY_USER_ID":	"OMS_OWNER",
+		"CNA_NO":	1,
+		"CERTIFIED_FLAG":	"Y",
+		"UNIT_TYPE":	"NA",
+		"NO_OF_OCCUPANT":	0,
+		"TRACKING_FLAG":	"N",
+		"AUDIT_TIMESTAMP":	"2017-05-09T21:28:21.220553000Z",
+		"AUDIT_USER_ID":	"OMS_OWNER",
+		"AUDIT_MODULE_NAME":	"sqlplus@DAPDL0001 (TNS V1-V3)",
+		"AUDIT_CLIENT_USER_ID":	"oracle",
+		"AUDIT_CLIENT_WORKSTATION_NAME":	"pts/6"
+	},
+	"metadata":	{
+		"timestamp":	"2022-11-28T11:30:40.266357Z",
+		"record-type":	"data",
+		"operation":	"load",
+		"partition-key-type":	"primary-key",
+		"partition-key-value":	"OMS_OWNER.AGENCY_INTERNAL_LOCATIONS.16828",
+		"schema-name":	"OMS_OWNER",
+		"table-name":	"AGENCY_INTERNAL_LOCATIONS"
+	}
+}

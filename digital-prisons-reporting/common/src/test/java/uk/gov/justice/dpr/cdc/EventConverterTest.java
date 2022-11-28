@@ -100,4 +100,25 @@ public class EventConverterTest extends BaseSparkTest {
 		assertEquals(df_filtered.count(), df_payload.count());
 	}
 	
+	
+	@Test
+	public void shouldConvertSchemaWithVarChars() throws IOException {
+		final InputStream events = BaseSparkTest.getStream("/sample/events/raw-on-disk-internal-locations.json");
+		final Dataset<Row> df = EventConverter.fromKinesis(EventConverter.fromRawDMS_3_4_6(spark, events));
+		
+		// only get the report ones
+		df.show();
+		
+		Dataset<Row> df_filtered = df.filter("partitionKey == 'OMS_OWNER.AGENCY_INTERNAL_LOCATIONS'").orderBy(col("approximateArrivalTimestamp"));
+		df_filtered.show(false);
+		
+		final Dataset<Row> df_payload = EventConverter.getPayload(df_filtered);
+		
+		df_payload.show(false);
+		df_payload.printSchema();
+		System.out.println(df_payload.schema().prettyJson());
+		// one payload record per row
+		assertEquals(df_filtered.count(), df_payload.count());
+	}
+	
 }

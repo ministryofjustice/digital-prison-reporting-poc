@@ -87,7 +87,7 @@
     },
     {
       "name": "CNA_NO",
-      "type": "string",
+      "type": "long",
       "nullable": true,
       "metadata": {}
     },

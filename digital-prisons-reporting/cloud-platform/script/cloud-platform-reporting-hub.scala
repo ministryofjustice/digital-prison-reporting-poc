@@ -37,6 +37,10 @@ object GlueApp {
 	
 	sparkSession.conf.set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
     sparkSession.conf.set("spark.databricks.delta.schema.autoMerge.enabled", true)
+	sparkSession.conf.set("spark.databricks.delta.optimizeWrite.enabled", true)
+	sparkSession.conf.set("spark.databricks.delta.autoCompact.enabled", true)
+	sparkSession.conf.set("spark.sql.legacy.charVarcharAsString", true)
+	
     
     // =================================================================================
 	// Parameters
