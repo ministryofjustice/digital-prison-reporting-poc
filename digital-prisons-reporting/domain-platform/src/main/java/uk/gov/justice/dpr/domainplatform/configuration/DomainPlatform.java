@@ -21,10 +21,10 @@ public class DomainPlatform extends BaseApplicationConfiguration {
 			throw new IllegalArgumentException("Spark Session is null");
 		}
 
-		final String domainFilesPath = getRequiredParameter(params, "domain.files.path");
-		final String domainRepoPath = getRequiredParameter(params, "domain.repo.path");
-		final String sourcePath = getRequiredParameter(params, "cloud.platform.path");
-		final String targetPath = getRequiredParameter(params, "target.path");
+		final String domainFilesPath = getParameterAsPath( getRequiredParameter(params, "domain.files.path"));
+		final String domainRepoPath = getParameterAsPath( getRequiredParameter(params, "domain.repo.path"));
+		final String sourcePath = getParameterAsPath( getRequiredParameter(params, "cloud.platform.path"));
+		final String targetPath = getParameterAsPath( getRequiredParameter(params, "target.path"));
 		
 		getOrCreateDomainRepository(spark, domainFilesPath, domainRepoPath);
 
@@ -41,10 +41,10 @@ public class DomainPlatform extends BaseApplicationConfiguration {
 			throw new IllegalArgumentException("Spark Session is null");
 		}
 
-		final String domainFilesPath = getRequiredParameter(params, "domain.files.path");
-		final String domainRepoPath = getRequiredParameter(params, "domain.repo.path");
-		final String sourcePath = getRequiredParameter(params, "cloud.platform.path");
-		final String targetPath = getRequiredParameter(params, "target.path");
+		final String domainFilesPath = getParameterAsPath( getRequiredParameter(params, "domain.files.path"));
+		final String domainRepoPath = getParameterAsPath( getRequiredParameter(params, "domain.repo.path"));
+		final String sourcePath = getParameterAsPath( getRequiredParameter(params, "cloud.platform.path"));
+		final String targetPath = getParameterAsPath( getRequiredParameter(params, "target.path"));
 		
 		getOrCreateDomainRepository(spark, domainFilesPath, domainRepoPath);
 

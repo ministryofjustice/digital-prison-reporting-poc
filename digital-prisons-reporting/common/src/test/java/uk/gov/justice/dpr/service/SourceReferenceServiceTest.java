@@ -1,10 +1,12 @@
-package uk.gov.justice.dpr.cloudplatform.service;
+package uk.gov.justice.dpr.service;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import uk.gov.justice.dpr.service.SourceReferenceService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SourceReferenceServiceTest {

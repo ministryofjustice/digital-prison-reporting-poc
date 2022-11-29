@@ -1,4 +1,4 @@
-package uk.gov.justice.dpr.cloudplatform.service;
+package uk.gov.justice.dpr.service;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -6,6 +6,7 @@ import com.amazonaws.services.glue.GlueContext
 import com.amazonaws.services.glue.util.GlueArgParser
 import com.amazonaws.services.glue.util.Job
 import java.util.Calendar
+import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.Row
@@ -21,7 +22,9 @@ import com.amazonaws.services.glue.log.GlueLogger
 object GlueApp {
   def main(sysArgs: Array[String]) {
   
-    val spark: SparkContext = new SparkContext()
+    val conf: SparkConf = new SparkConf().set("spark.sql.warehouse.dir", "file:///tmp/spark-warehouse")
+    
+    val spark: SparkContext = new SparkContext(conf)
     val glueContext: GlueContext = new GlueContext(spark)
     val logger = new GlueLogger
     val sparkSession: SparkSession = glueContext.getSparkSession
@@ -58,6 +61,7 @@ object GlueApp {
         Seq(
 	        "JOB_NAME", 
 	        "domain.repo.path",
+	        "domain.files.path",
 	        "cloud.platform.path",
 	        
 	        "source.queue",
@@ -68,26 +72,12 @@ object GlueApp {
 	        "checkpoint.location"
         ).toArray)
         
+        
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
 
     val tableChangeMonitor = uk.gov.justice.dpr.domainplatform.configuration.DomainPlatform.initialise(sparkSession, args.asJava)
 
-    val writer = tableChangeMonitor.run() // returns DataStreamWriter - could be null
-    
-    if(writer != null) {
-    	writer
-        	.trigger(Trigger.Once)
-            .option("checkpointLocation", args("checkpoint.location"))
-                 
-    	val query = writer.start()             // start() returns type StreamingQuery
-
-	    try {
-	        query.awaitTermination()
-	    } 
-	    catch {
-	        case e: StreamingQueryException => println("Streaming Query Exception caught!: " + e);
-	    }
-    }
+    tableChangeMonitor.run() 
       
     Job.commit()
   }

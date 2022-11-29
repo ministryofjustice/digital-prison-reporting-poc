@@ -11,8 +11,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.types.DataType;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
-import uk.gov.justice.dpr.cloudplatform.service.SourceReferenceService;
 import uk.gov.justice.dpr.delta.DeltaLakeService;
+import uk.gov.justice.dpr.service.SourceReferenceService;
 
 public abstract class DeltaZone {
 	
