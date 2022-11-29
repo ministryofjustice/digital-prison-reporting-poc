@@ -110,7 +110,7 @@ public class KinesisProducer {
     }
 	
 	private void handleFailedRecord(PutRecordsRequestEntry record, final int position, final String cause) {
-		System.err.println("Error on Record"  + position + " " + record.getPartitionKey() + ": " + cause );
+		System.err.println("Error on Record "  + position + " " + record.getPartitionKey() + ": " + cause );
     }
 	
 	protected static void handleError(final Exception e) {

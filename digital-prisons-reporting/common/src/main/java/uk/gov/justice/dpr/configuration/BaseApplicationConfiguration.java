@@ -154,4 +154,10 @@ public class BaseApplicationConfiguration {
 	protected static String getOptionalParameter(final Map<String, String> params, final String name) {
 		return params.getOrDefault(name, null);
 	}
+	
+	protected static String getParameterAsPath(final String in) {
+		if(in == null || in.isEmpty()) return in;
+		if(in.endsWith("/")) return in;
+		return in + "/";
+	}
 }

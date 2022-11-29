@@ -12,8 +12,10 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.streaming.DataStreamWriter;
+import org.apache.spark.sql.types.DataType;
 
 import uk.gov.justice.dpr.cdc.EventConverter;
+import uk.gov.justice.dpr.service.SourceReferenceService;
 import uk.gov.justice.dpr.domain.DomainRepository;
 import uk.gov.justice.dpr.domain.model.DomainDefinition;
 import uk.gov.justice.dpr.domainplatform.domain.DomainExecutor;
@@ -81,6 +83,7 @@ public class TableChangeMonitor {
 					// tables have aliases. So SYSTEM OFFENDERS or OMS_OWNER OFFENDERS actually apply to nomis.offenders
 					// we need to translate table schema/table names into 'local' names
 					// this is done by the TABLE LIST EXTRACTOR
+					System.out.println("Batch contains " + (tables == null ? 0 : tables.size()) + " tables");
 					
 					// find all domains that depend on the events
 					for(final TableTuple table : tables) {
@@ -97,7 +100,9 @@ public class TableChangeMonitor {
 							Dataset<Row> changes = df.filter("(recordType == 'data' and schemaName == '" + table.getOriginalSchema() +"' and tableName == '" + table.getOriginalTable() + "' and (operation == 'load' or operation == 'insert' or operation == 'update' or operation == 'delete'))")
 										.orderBy(col("timestamp"));
 			
-							Dataset<Row> df_payload = EventConverter.getPayload(changes);
+						    final DataType payloadSchema = SourceReferenceService.getSchema(table.asString());
+
+							Dataset<Row> df_payload = EventConverter.getPayload(changes, payloadSchema);
 							
 							executor.doIncremental(df_payload, table);
 							System.out.println("TableChangeMonitor::processDomainIncremental(" + domain.getName() +") completed.");
@@ -107,7 +112,8 @@ public class TableChangeMonitor {
 					}
 					
 				} catch(Exception e) {
-					System.err.println(e.getMessage());
+					System.out.println("TableChangeMonitor::process() failed - " + e.getMessage());
+					handleError(e);
 				}
 			}
 		}

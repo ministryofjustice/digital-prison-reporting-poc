@@ -8,9 +8,9 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-import static org.apache.spark.sql.functions.col;
+import uk.gov.justice.dpr.service.SourceReferenceService;
 
-import uk.gov.justice.dpr.cloudplatform.service.SourceReferenceService;
+import static org.apache.spark.sql.functions.col;
 
 public class StructuredZone extends DeltaZone implements Zone {
 	
