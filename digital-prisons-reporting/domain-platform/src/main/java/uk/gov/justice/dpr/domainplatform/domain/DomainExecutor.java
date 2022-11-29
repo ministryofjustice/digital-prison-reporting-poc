@@ -50,14 +50,18 @@ public class DomainExecutor {
 		final List<TableDefinition> tables = getTablesChangedForSourceTable(sourceTable);
 		for(final TableDefinition table : tables) {
 			
-			// (3) run transforms
-			// (4) run violations
-			// (5) run mappings if available			
-			final Dataset<Row> df_target = apply(table, sourceTable, df);
-		
-			// (6) save materialised view
-			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
-			saveIncremental(targetInfo, table.getPrimaryKey(), df_target);
+			try {
+				// (3) run transforms
+				// (4) run violations
+				// (5) run mappings if available			
+				final Dataset<Row> df_target = apply(table, sourceTable, df);
+			
+				// (6) save materialised view
+				final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
+				saveIncremental(targetInfo, table.getPrimaryKey(), df_target);
+			} catch(Exception e) {
+				handleError(e);
+			}
 		}
 	}
 	
@@ -70,14 +74,18 @@ public class DomainExecutor {
 		final List<TableDefinition> tables = getTablesChangedForSourceTable(sourceTable);
 		for(final TableDefinition table : tables) {
 			
-			// (3) run transforms
-			// (4) run violations
-			// (5) run mappings if available
-			final Dataset<Row> df_target = apply(table, sourceTable, df_source);
-		
-			// (6) save materialised view
-			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
-			saveFull(targetInfo, df_target);
+			try {
+				// (3) run transforms
+				// (4) run violations
+				// (5) run mappings if available
+				final Dataset<Row> df_target = apply(table, sourceTable, df_source);
+			
+				// (6) save materialised view
+				final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
+				saveFull(targetInfo, df_target);
+			} catch(Exception e) {
+				handleError(e);
+			}
 		}
 	}
 	
@@ -87,14 +95,18 @@ public class DomainExecutor {
 		final List<TableDefinition> tables = domainDefinition.getTables();
 		for(final TableDefinition table : tables) {
 			
-			// (3) run transforms
-			// (4) run violations
-			// (5) run mappings if available
-			final Dataset<Row> df_target = apply(table, null, null);
-		
-			// (6) save materialised view
-			final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
-			saveFull(targetInfo, df_target);
+			try {
+				// (3) run transforms
+				// (4) run violations
+				// (5) run mappings if available
+				final Dataset<Row> df_target = apply(table, null, null);
+			
+				// (6) save materialised view
+				final TableInfo targetInfo = TableInfo.create(targetRootPath,  domainDefinition.getName(), table.getName());
+				saveFull(targetInfo, df_target);
+			} catch(Exception e) {
+				handleError(e);
+			}
 		}
 	}
 	
