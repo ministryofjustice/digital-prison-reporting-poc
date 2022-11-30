@@ -233,6 +233,7 @@ public class DomainExecutor {
 	
 	protected void saveIncremental(final TableInfo info, final String primaryKey, final Dataset<Row> df) {
 		deltaService.merge(info.getPrefix(), info.getSchema(), info.getTable(), primaryKey, df);
+		deltaService.endTableUpdates(info.getPrefix(), info.getSchema(), info.getTable());
 	}
 	
 	protected Map<String, Dataset<Row>> getAllSourcesForTable(final TableDefinition table, final TableTuple exclude) {
