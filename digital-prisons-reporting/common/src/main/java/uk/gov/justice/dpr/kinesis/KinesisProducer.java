@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClient;
@@ -57,44 +58,54 @@ public class KinesisProducer {
 		return result.getSequenceNumber();
 	}
 	
-	public int writeBuffer(List<PutRecordsRequestEntry> entries) {
+	public int writeBuffer(List<PutRecordsRequestEntry> entries, int depth) {
 		
 		try {
-			PutRecordsRequest request = new PutRecordsRequest();
-			if(entries.isEmpty()) {
-				System.out.println("No records to write to stream " + streamName);
-				return 0;
-			}
-			request.setStreamName(streamName);
-			request.setRecords(entries);
-			final PutRecordsResult result = client.putRecords(request);
-			if(result.getFailedRecordCount() == 0) {
-				System.out.println("Written " + entries.size() + " to stream " + streamName);
-			} else {
-				System.out.println("Written " + (entries.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors");
-				List<PutRecordsResultEntry> resultEntries = result.getRecords();
-	            int  i = 0;
-	            for (PutRecordsResultEntry resultEntry : resultEntries) {
-	                final String errorCode = resultEntry.getErrorCode();
-	                if (null != errorCode) {
-	                    switch (errorCode) {
-	                    case "ProvisionedThroughputExceededException":
-	                    case "InternalFailure":
-	                        // Records are processed in the order you submit them,
-	                        // so this will align with the initial record batch
-	                        handleFailedRecord(entries.get(i), i, errorCode + ":" + resultEntry.getErrorMessage());
-	                        break;
-	                    default:
-	                        validateSuccessfulRecord(entries.get(i), i, resultEntry);
-	                        break;
-	                    }
-	                } else {
-	                    validateSuccessfulRecord(entries.get(i), i, resultEntry);
-	                }
-	                ++i;
-	            }
-			}
-			return entries.size() - result.getFailedRecordCount();
+			if(depth <= 3) {
+				PutRecordsRequest request = new PutRecordsRequest();
+				if(entries.isEmpty()) {
+					System.out.println("No records to write to stream " + streamName);
+					return 0;
+				}
+				request.setStreamName(streamName);
+				request.setRecords(entries);
+				final PutRecordsResult result = client.putRecords(request);
+				int retrySize = 0;
+				if(result.getFailedRecordCount() == 0) {
+					System.out.println("Written " + entries.size() + " to stream " + streamName);
+				} else {
+					// we need to extract the errors and retry them after a timeout
+					List<PutRecordsRequestEntry> retry = new ArrayList<PutRecordsRequestEntry>();
+					
+					System.out.println("Written " + (entries.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors");
+					List<PutRecordsResultEntry> resultEntries = result.getRecords();
+		            int  i = 0;
+		            for (PutRecordsResultEntry resultEntry : resultEntries) {
+		                final String errorCode = resultEntry.getErrorCode();
+		                if (null != errorCode) {
+		                    switch (errorCode) {
+		                    case "ProvisionedThroughputExceededException":
+		                    case "InternalFailure":
+		                        // Records are processed in the order you submit them,
+		                        // so this will align with the initial record batch
+		                        handleFailedRecord(entries.get(i), i, errorCode + ":" + resultEntry.getErrorMessage());
+		                        retry.add(entries.get(i));
+		                        break;
+		                    default:
+		                        validateSuccessfulRecord(entries.get(i), i, resultEntry);
+		                        break;
+		                    }
+		                } else {
+		                    validateSuccessfulRecord(entries.get(i), i, resultEntry);
+		                }
+		                ++i;
+		            }
+		            TimeUnit.SECONDS.sleep(1);
+		            retrySize = writeBuffer(retry, depth++);
+				}
+				return entries.size() + retrySize - result.getFailedRecordCount();
+			} 
+			return 0;
 		} catch(Exception e) {
 			handleError(e);
 			return 0;
