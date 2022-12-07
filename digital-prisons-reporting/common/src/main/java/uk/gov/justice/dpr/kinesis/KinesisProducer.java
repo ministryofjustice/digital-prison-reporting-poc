@@ -77,7 +77,7 @@ public class KinesisProducer {
 					// we need to extract the errors and retry them after a timeout
 					List<PutRecordsRequestEntry> retry = new ArrayList<PutRecordsRequestEntry>();
 					
-					System.out.println("Written " + (entries.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors");
+					System.out.println("Written " + (entries.size() - result.getFailedRecordCount()) + " to stream " + streamName + " with " + result.getFailedRecordCount() + " errors [Retry " + depth + "]");
 					List<PutRecordsResultEntry> resultEntries = result.getRecords();
 		            int  i = 0;
 		            for (PutRecordsResultEntry resultEntry : resultEntries) {
@@ -85,11 +85,12 @@ public class KinesisProducer {
 		                if (null != errorCode) {
 		                    switch (errorCode) {
 		                    case "ProvisionedThroughputExceededException":
+		                        retry.add(entries.get(i));
+		                        break;
 		                    case "InternalFailure":
 		                        // Records are processed in the order you submit them,
 		                        // so this will align with the initial record batch
 		                        handleFailedRecord(entries.get(i), i, errorCode + ":" + resultEntry.getErrorMessage());
-		                        retry.add(entries.get(i));
 		                        break;
 		                    default:
 		                        validateSuccessfulRecord(entries.get(i), i, resultEntry);
@@ -102,9 +103,15 @@ public class KinesisProducer {
 		            }
 		            TimeUnit.SECONDS.sleep(1);
 		            retrySize = writeBuffer(retry, depth++);
-				}
+				} 
 				return entries.size() + retrySize - result.getFailedRecordCount();
-			} 
+			} else {
+				int i = 0;
+				for(final PutRecordsRequestEntry e : entries) {
+					handleFailedRecord(e, i, "ProvisionedThroughputExceededException: Rate exceeded");
+					i++;
+				}
+			}
 			return 0;
 		} catch(Exception e) {
 			handleError(e);
