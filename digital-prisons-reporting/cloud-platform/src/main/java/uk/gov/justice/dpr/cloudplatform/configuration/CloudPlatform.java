@@ -9,6 +9,7 @@ import org.apache.spark.sql.streaming.DataStreamReader;
 import com.amazonaws.services.sqs.AmazonSQS;
 
 import uk.gov.justice.dpr.cloudplatform.job.BaseReportingHubJob;
+import uk.gov.justice.dpr.cloudplatform.job.ManagementJob;
 import uk.gov.justice.dpr.cloudplatform.job.QueueReaderJob;
 import uk.gov.justice.dpr.cloudplatform.job.StreamReaderJob;
 import uk.gov.justice.dpr.cloudplatform.zone.CuratedZone;
@@ -32,6 +33,11 @@ public class CloudPlatform extends BaseApplicationConfiguration {
 	
 	public static BaseReportingHubJob initialise(final SparkSession spark, final AmazonSQS sqs, final Map<String,String> params ) {
 		return initialiseQueueReaderJob(spark, sqs, params);
+	}
+	
+	public static ManagementJob management(final SparkSession spark, final Map<String,String> params ) {
+		final String path = getRequiredParameter(params, "path");
+		return new ManagementJob(spark, path);
 	}
 	
 	public static BaseReportingHubJob initialiseQueueReaderJob(final SparkSession spark, final AmazonSQS sqs, final Map<String,String> params ) {

@@ -27,12 +27,10 @@ create external database if not exists;
 CREATE MATERIALIZED VIEW MV_AGED_INCIDENT
 -- AUTO REFRESH YES -- apparently it is not available on external tables
 AS
-select i.*, lu.name as living_unit, e.name as location, datediff(year, date(birth_date), date(incident_date)) as age_at_incident
+select i.*, null as living_unit, e.name as location, datediff(year, date(birth_date), date(incident_date)) as age_at_incident
 from domain.incident i 
 join domain.demographics d on i.booking_id = d.id
-join domain.living_unit lu on i.agency_id = lu.code
-join domain.establishment e on lu.establishment_id = e.id
-
+join domain.establishment e on i.agency_id=e.id
 
 -- =================================================================
 -- MV_AGED_INCIDENT_BINNING

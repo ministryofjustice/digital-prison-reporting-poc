@@ -108,6 +108,26 @@ public class DeltaLakeServiceTest extends BaseSparkTest {
 		
 	}
 	
+	@Test
+	public void shouldCompactATableWhenAsked() throws IOException {
+		final DeltaLakeService service = new DeltaLakeService();
+		
+		final String prefix = folder.getRoot().getAbsolutePath();
+
+		Dataset<Row> inputs = getValidDataset();
+		Dataset<Row> data = EventConverter.getPayload(inputs);
+		
+		service.insert(prefix, "schema", "compact", "OFFENDER_ID", data);
+		Dataset<Row> outputs = service.load(prefix, "schema", "compact");
+		
+		service.compact(spark, prefix, "schema", "compact", 2);
+		
+		Dataset<Row> compacted = service.load(prefix, "schema", "compact");
+		
+		assertTrue(areEqual(outputs, compacted));
+		
+	}
+	
 	private Dataset<Row> getValidDataset() throws IOException {
 		final Dataset<Row> df = this.loadParquetDataframe("/sample/events/updates.parquet", "updates.parquet");
 		return df;
