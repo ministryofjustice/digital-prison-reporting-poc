@@ -7,7 +7,9 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.spark.sql.types.DataType;
 
@@ -81,6 +83,9 @@ public class SourceReferenceService {
 		return (ref == null ? null : ref.getCasts());
 	}
 	
+	public static Set<SourceReference> getReferences() {
+		return new HashSet<SourceReference>(REF.values());
+	}
 	
 	protected static InputStream getStream(final String resource) {
 		InputStream stream = System.class.getResourceAsStream(resource);

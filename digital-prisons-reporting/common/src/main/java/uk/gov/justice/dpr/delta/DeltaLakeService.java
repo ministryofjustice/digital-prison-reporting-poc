@@ -14,6 +14,7 @@ import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.functions;
 
 import io.delta.tables.DeltaTable;
@@ -84,6 +85,19 @@ public class DeltaLakeService {
 		if(dt != null) {
 			dt.vacuum();
 		}
+	}
+	
+	public void compact(final SparkSession session, final String prefix, final String schema, final String table, final int partitions) {
+		final String path = getTablePath(prefix, schema, table); 
+		session.read()
+		 .format("delta")
+		 .load(path)
+		 .repartition(partitions <= 0 ? 32 : partitions)
+		 .write()
+		 .option("dataChange", "false")
+		 .format("delta")
+		 .mode("overwrite")
+		 .save(path);
 	}
 	
 	public void delete(final String prefix, final String schema, final String table, final String primaryKey, final Dataset<Row> df) {
