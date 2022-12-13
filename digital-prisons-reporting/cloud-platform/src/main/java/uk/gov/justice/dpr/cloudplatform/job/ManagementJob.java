@@ -25,4 +25,13 @@ public class ManagementJob {
 			delta.compact(spark, zone, reference.getSource(), reference.getTable(), 16);
 		}
 	}
+	
+	public void vacuum() {
+		DeltaLakeService delta = new DeltaLakeService();
+		Set<SourceReference> references = SourceReferenceService.getReferences();
+		
+		for(SourceReference reference : references) {
+			delta.vacuum(zone, reference.getSource(), reference.getTable());
+		}
+	}
 }

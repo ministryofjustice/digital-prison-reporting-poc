@@ -64,6 +64,7 @@ object GlueApp {
     val compactor = uk.gov.justice.dpr.cloudplatform.configuration.CloudPlatform.management(sparkSession, args.asJava)
 
     compactor.compactAll() 
+    compactor.vacuum()
       
     Job.commit()
   }
