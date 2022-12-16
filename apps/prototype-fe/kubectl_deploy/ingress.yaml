@@ -10,16 +10,16 @@ metadata:
 spec:
   ingressClassName: default
   tls:
-  - hosts:
-    - hmpps-dpr-poc.apps.live.cloud-platform.service.justice.gov.uk
+    - hosts:
+        - hmpps-dpr-poc.apps.live.cloud-platform.service.justice.gov.uk
   rules:
-  - host: hmpps-dpr-poc.apps.live.cloud-platform.service.justice.gov.uk
-    http:
-      paths:
-      - path: /
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: hmpps-dpr-poc
-            port:
-              number: 8080
+    - host: hmpps-dpr-poc.apps.live.cloud-platform.service.justice.gov.uk
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: hmpps-dpr-poc
+                port:
+                  number: 8080

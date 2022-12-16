@@ -6,8 +6,8 @@ metadata:
     app: hmpps-dpr-poc
 spec:
   ports:
-  - port: 8080
-    name: http
-    targetPort: 8080
+    - port: 8080
+      name: http
+      targetPort: 8080
   selector:
     app: hmpps-dpr-poc
