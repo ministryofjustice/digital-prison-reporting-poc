@@ -72,7 +72,7 @@
 		<opensaml.version>2.4.1</opensaml.version>
         <freemarker.version>2.3.24-incubating</freemarker.version>
         <logback.version>1.0.11</logback.version>
-        <owasp-esapi.version>2.0.1</owasp-esapi.version>
+        <owasp-esapi.version>2.3.0.0</owasp-esapi.version>
         <jackson.version>2.12.0</jackson.version>
         <jersey.version>1.17</jersey.version>
         <jedis.version>2.1.0</jedis.version>
