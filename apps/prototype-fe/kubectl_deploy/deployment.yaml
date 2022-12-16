@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hmpps-dpr-poc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hmpps-dpr-poc
+  template:
+    metadata:
+      labels:
+        app: hmpps-dpr-poc
+    spec:
+      containers:
+        - name: hmpps-dpr-poc
+          image: 754256621582.dkr.ecr.eu-west-2.amazonaws.com/hmpps-digital-prison-reporting/hmpps-dpr-poc-dev-ecr:1.0
+          securityContext:
+            runAsUser: 2000
+            allowPrivilegeEscalation: false
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_OPTS
+              value: "-DDATAMART_CONNECTION_STRING=jdbc:redshift://dpr-redshift-development.ctf9dwuxkfvc.eu-west-2.redshift.amazonaws.com:5439/datamart -Ddatamart.user=dpruser -Ddatamart.password=<look in DPR-122>"
