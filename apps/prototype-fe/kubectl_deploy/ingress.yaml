@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hmpps-dpr-poc
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    external-dns.alpha.kubernetes.io/set-identifier: hmpps-dpr-poc-hmpps-dpr-poc-dev-green
+    external-dns.alpha.kubernetes.io/aws-weight: "100"
+spec:
+  ingressClassName: default
+  tls:
+  - hosts:
+    - hmpps-dpr-poc.apps.live.cloud-platform.service.justice.gov.uk
+  rules:
+  - host: hmpps-dpr-poc.apps.live.cloud-platform.service.justice.gov.uk
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: hmpps-dpr-poc
+            port:
+              number: 8080
