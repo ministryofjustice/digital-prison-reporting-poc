@@ -189,7 +189,6 @@ jobs:
               echo "Error: Branch Prefix Pattern Error, please verify if your branch: ${BR_PREFIX} follows, DPR-000 Pattern"
               exit 0
             fi
-            echo "---- DEV VERSION ---- ${DEV_VERSION}"
       - run:
           name: Tag Artifacts
           command: |
