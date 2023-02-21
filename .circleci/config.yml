@@ -112,6 +112,20 @@ jobs:
     steps:
       - attach_workspace:
           at: << pipeline.parameters.workingdir >>
+      - run: Set Dev Version
+        command: |
+            echo "Set Dev Deploy Version"
+            br_prefix=$(echo $CIRCLE_BRANCH | cut -f1,2 -d'-' | tr '[:lower:]' '[:upper:]') #dpr-000
+            
+            # Check br_prefix Pattern
+            if [[ $br_prefix =~ ^(DPR-[0-9]+$) ]]; then
+              echo "Branch Prefix is Okay, Proceeding !"
+            fi
+            dev_version=$(echo $SEMVER_VERSION | sed "s/-dev.*/-dev.$br_prefix/")
+            echo "---- DEV VERSION ---- ${DEV_VERSION}"
+            echo "---- CIRCLE BRANCH ---- ${CIRCLE_BRANCH}"
+            echo "---- BR PREFIX ---- ${br_prefix}"
+            # Update Dev Version    
       - run: |
           cat bash.env >> $BASH_ENV
       - run:
