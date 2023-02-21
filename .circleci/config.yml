@@ -125,7 +125,7 @@ jobs:
                 echo "Branch Prefix is Okay, Proceeding !"
               fi
               dev_version=$(echo $SEMVER_VERSION | sed "s/-dev.*/-dev.$br_prefix/")
-              echo "---- DEV VERSION ---- ${DEV_VERSION}"
+              echo "---- DEV VERSION ---- ${dev_version}"
               echo "---- CIRCLE BRANCH ---- ${CIRCLE_BRANCH}"
               echo "---- BR PREFIX ---- ${br_prefix}"
               # Update Dev Version           
