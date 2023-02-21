@@ -10,10 +10,9 @@
 
 **_This repository is for a Proof of Concept only_**
 
-**_Under no circumstance should this repo be considered for production deployment**
+**\_Under no circumstance should this repo be considered for production deployment**
 
 ## Details
-
 
 #### Confluence Page:
 
@@ -24,9 +23,9 @@
 [DPR Solution Architecture](https://dsdmoj.atlassian.net/wiki/spaces/DPR/pages/4101931018/Solution+Architecture)
 
 The main components are:
+
 - **Cloud Platform** : a platform to ingest data from a variety of sources and store it for reporting purposes;
 - **Domain Platform** : a platform to provide reporting SMEs with a flexible way to develop a data mesh of domains on top of the Cloud Platform
-
 
 #### Further Investigation
 
@@ -57,12 +56,14 @@ This Proof of concept uses maven to build and run tests.
 mvn clean install
 ```
 
-Tests can be skipped using 
+Tests can be skipped using
+
 ```
 mvn clean install -DskipTests=true
 ```
 
-## Unit Testing 
+## Unit Testing
+
 Unit testing uses JUnit and Mockito where appropriate.
 
 ```
@@ -74,6 +75,7 @@ mvn clean test
 ```
 TBD
 ```
+
 ## Acceptance Testing
 
 ```
