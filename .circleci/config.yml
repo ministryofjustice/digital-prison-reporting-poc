@@ -157,6 +157,9 @@ jobs:
       artifact-store:
         type: string
         default: "none"
+      artifact-lifecycle:
+        type: string
+        default: "-dev"  
     machine:
       enabled: true
     steps:
