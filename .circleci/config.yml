@@ -124,8 +124,8 @@ jobs:
               dev_version=$(echo $SEMVER_VERSION | sed "s/-dev.*/-dev.$br_prefix/")
 
               # Update Dev Version
-              echo "BR_PREFIX=${br_prefix}" >> $BASH_ENV
-              echo "DEV_VERSION=${dev_version}" >> $BASH_ENV 
+              echo "BR_PREFIX=${br_prefix}" >> bash.env
+              echo "DEV_VERSION=${dev_version}" >> bash.env 
       - run:
           name: set release version
           command: |
@@ -186,7 +186,7 @@ jobs:
             if [[ $BR_PREFIX =~ ^(dpr-[0-9]+$) ]]; then
               echo "Branch Prefix is Okay, Proceeding !"
             else 
-              echo "Error: Branch Prefix Pattern Error, please verify if your branch follows, DPR-000 Pattern"
+              echo "Error: Branch Prefix Pattern Error, please verify if your branch: ${BR_PREFIX} follows, DPR-000 Pattern"
               exit 0
             fi
             echo "---- DEV VERSION ---- ${DEV_VERSION}"
