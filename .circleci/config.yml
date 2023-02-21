@@ -111,7 +111,9 @@ jobs:
       - image: << pipeline.parameters.jdk-image >>:<< pipeline.parameters.jdk-imagetag >>
     steps:
       - attach_workspace:
-          at: << pipeline.parameters.workingdir >>
+          at: << pipeline.parameters.workingdir >>   
+      - run: |
+          cat bash.env >> $BASH_ENV
       - run:
           name: Set Dev Version
           command: |
@@ -126,9 +128,7 @@ jobs:
               echo "---- DEV VERSION ---- ${DEV_VERSION}"
               echo "---- CIRCLE BRANCH ---- ${CIRCLE_BRANCH}"
               echo "---- BR PREFIX ---- ${br_prefix}"
-              # Update Dev Version    
-      - run: |
-          cat bash.env >> $BASH_ENV
+              # Update Dev Version           
       - run:
           name: set release version
           command: |
