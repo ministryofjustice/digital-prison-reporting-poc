@@ -19,7 +19,7 @@ parameters:
   artifactstore:
     type: string
     default: "dpr-artifact-store-development"
-  dev-artifacts-key:
+  dev-artifacts-suffix:
     type: string
     default: "-dev"  
   aws-region:
@@ -190,7 +190,7 @@ jobs:
             pwd; ls -lsrt digital-prisons-reporting/domain-platform/; ls -lsrt digital-prisons-reporting/cloud-platform/*
       - artifacts-sync:
           s3-artifact-store: << parameters.artifact-store >>
-          artifacts-lifecycle: << parameters.dev-artifacts-key >>
+          artifacts-lifecycle: << parameters.artifact-lifecycle >>
 
   release:
     parameters:
@@ -261,6 +261,7 @@ workflows:
           context:
             - digital-prison-reporting-dev
           artifact-store: << pipeline.parameters.artifactstore >>
+          artifact-lifecycle: << pipeline.parameters.dev-artifacts-suffix >>
           requires:
             - build
           filters:
