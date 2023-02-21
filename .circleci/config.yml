@@ -177,7 +177,12 @@ jobs:
             if [[ $br_prefix =~ ^(DPR-[0-9]+$) ]]; then
               echo "Branch Prefix is Okay, Proceeding !"
             fi
-            DEV_VERSION=$(echo $SEMVER_VERSION | sed "s/-dev.*/-dev.$br_prefix/")
+            dev_version=$(echo $SEMVER_VERSION | sed "s/-dev.*/-dev.$br_prefix/")
+            echo "---->> DEV VERSION <<---- ${DEV_VERSION}"
+            echo "---->> CIRCLE BRANCH <<---- ${CIRCLE_BRANCH}"
+            echo "---->> BR PREFIX <<---- ${br_prefix}"
+            # Update Dev Version
+            echo "DEV_VERSION=${dev_version}" >> $BASH_ENV
       - run:
           name: Tag Artifacts
           command: |
