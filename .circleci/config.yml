@@ -19,6 +19,9 @@ parameters:
   artifactstore:
     type: string
     default: "dpr-artifact-store-development"
+  dev-artifacts-key:
+    type: string
+    default: "-dev"  
   aws-region:
     type: string
     default: "eu-west-2"
@@ -30,14 +33,17 @@ commands:
       s3-artifact-store:
         type: string
         default: "none"
+      artifacts-lifecycle:
+        type: string
+        default: "none"  
     steps:
       - run:
           name: sync-artifacts
           command: |
-            aws s3 sync digital-prisons-reporting/cloud-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
-            aws s3 sync digital-prisons-reporting/cloud-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
-            aws s3 sync digital-prisons-reporting/domain-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "domain-platform*.jar" --region << pipeline.parameters.aws-region >>
-            aws s3 sync digital-prisons-reporting/domain-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
+            aws s3 sync digital-prisons-reporting/cloud-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME<< parameters.artifacts-lifecycle >>/ --exclude "*" --include "cloud-platform*.jar" --region << pipeline.parameters.aws-region >>         
+            aws s3 sync digital-prisons-reporting/cloud-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/cloud-platform/$CIRCLE_PROJECT_REPONAME<< parameters.artifacts-lifecycle >>/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
+            aws s3 sync digital-prisons-reporting/domain-platform/target s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME<< parameters.artifacts-lifecycle >>/ --exclude "*" --include "domain-platform*.jar" --region << pipeline.parameters.aws-region >>
+            aws s3 sync digital-prisons-reporting/domain-platform/script s3://<< parameters.s3-artifact-store >>/artifacts/domain-platform/$CIRCLE_PROJECT_REPONAME<< parameters.artifacts-lifecycle >>/ --exclude "*" --include "*.scala" --region << pipeline.parameters.aws-region >>
 
 jobs:
   verify-version:
@@ -159,6 +165,46 @@ jobs:
       - run: |
           cat bash.env >> $BASH_ENV
       - run:
+          name: set deploy version
+          command: |
+            echo "Set Dev Deploy Version"
+            br_prefix=$(echo $CIRCLE_BRANCH | cut -f1,2 -d'-' | tr '[:lower:]' '[:upper:]') #dpr-000
+            
+            # Check br_prefix Pattern
+            if [[ $br_prefix =~ ^(DPR-[0-9]+$) ]]; then
+              echo "Branch Prefix is Okay, Proceeding !"
+            fi
+            DEV_VERSION=$(echo $SEMVER_VERSION | sed "s/-dev.*/-dev.$br_prefix/")
+      - run:
+          name: Tag Artifacts
+          command: |
+            echo "Tag Latest Artifacts to Dev Version"
+            mv digital-prisons-reporting/cloud-platform/target/cloud-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/cloud-platform/target/cloud-platform-${DEV_VERSION}.jar 
+            mv digital-prisons-reporting/domain-platform/target/domain-platform-${SEMVER_VERSION}.jar digital-prisons-reporting/domain-platform/target/domain-platform-${DEV_VERSION}.jar  
+
+            echo "Tag Latest Scripts to Dev Version"
+            for script in $(find digital-prisons-reporting/domain-platform/script -name '*.scala') ; do mv $script $(echo "$script" | sed -r "s|.scala|-${DEV_VERSION}.scala|g") ; done
+            for script in $(find digital-prisons-reporting/cloud-platform/script -name '*.scala') ; do mv $script $(echo "$script" | sed -r "s|.scala|-${DEV_VERSION}.scala|g") ; done
+
+            echo "List Artifacts"
+            pwd; ls -lsrt digital-prisons-reporting/domain-platform/; ls -lsrt digital-prisons-reporting/cloud-platform/*
+      - artifacts-sync:
+          s3-artifact-store: << parameters.artifact-store >>
+          artifacts-lifecycle: << parameters.dev-artifacts-key >>
+
+  release:
+    parameters:
+      artifact-store:
+        type: string
+        default: "none"
+    machine:
+      enabled: true
+    steps:
+      - attach_workspace:
+          at: << pipeline.parameters.workingdir >>
+      - run: |
+          cat bash.env >> $BASH_ENV
+      - run:
           name: Tag Artifacts
           command: |
             echo "Tag Latest Artifacts to vLatest"
@@ -174,7 +220,7 @@ jobs:
       - artifacts-sync:
           s3-artifact-store: << parameters.artifact-store >>
 
-  release:
+  release-wip:
     machine:
       enabled: true
     steps:
@@ -217,12 +263,21 @@ workflows:
           artifact-store: << pipeline.parameters.artifactstore >>
           requires:
             - build
+          filters:
+            branches:
+              only: /(dpr|DPR)-[0-9]+(-|$).*/            
+      - release:
+          context:
+            - digital-prison-reporting-dev
+          artifact-store: << pipeline.parameters.artifactstore >>
+          requires:
+            - build
             - build-tags
           filters:
             branches:
               only:
                 - master
-      - release:
+      - release-wip:
           context:
             - digital-prison-reporting-release
           requires:
