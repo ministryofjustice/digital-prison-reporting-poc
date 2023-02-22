@@ -14,7 +14,7 @@ import org.apache.spark.sql.streaming.Trigger
  *          Kinesis
  *         / (load)
  *  Kinesis (DMS events)
- *         \ (create, insert, update, delete)
+ *         \ (insert, update, delete)
  *          Kinesis
  *
  * This implementation runs into issues with protobuf dependencies. AWS Glue adds 4 different versions to the class
