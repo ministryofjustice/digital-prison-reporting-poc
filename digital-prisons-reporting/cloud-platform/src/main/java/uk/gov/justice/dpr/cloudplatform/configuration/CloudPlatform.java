@@ -23,17 +23,19 @@ public class CloudPlatform extends BaseApplicationConfiguration {
 
 	/**
 	 * Entrypoint
-	 * @param spark
-	 * @param params
-	 * @return
+	 * @param spark - spark connection
+	 * @param params - command line arguments
+	 * @return - stream reader job instance
 	 */
 	public static BaseReportingHubJob initialise(final SparkSession spark, final Map<String,String> params ) {
-		return initialiseQueueReaderJob(spark, null, params);
+//		return initialiseQueueReaderJob(spark, null, params);
+		return initialiseStreamReaderJob(spark, params);
 	}
 	
-	public static BaseReportingHubJob initialise(final SparkSession spark, final AmazonSQS sqs, final Map<String,String> params ) {
+/*	public static BaseReportingHubJob initialise(final SparkSession spark, final AmazonSQS sqs, final Map<String,String> params ) {
 		return initialiseQueueReaderJob(spark, sqs, params);
-	}
+		return initialiseStreamReaderJob(spark, params);
+	}*/
 	
 	public static ManagementJob management(final SparkSession spark, final Map<String,String> params ) {
 		final String path = getRequiredParameter(params, "path");
@@ -79,11 +81,11 @@ public class CloudPlatform extends BaseApplicationConfiguration {
 		final KinesisWriter sink = getKinesisSink(spark, params);
 		final DataStreamReader dsr = getKinesisDataStreamReader(spark, params);
 		
-		// inject them 		
-		final StreamReaderJob job = new StreamReaderJob(dsr, raw, structured, curated, sink);
-		
+		// inject them
+//		final StreamReaderJob job = new StreamReaderJob(dsr, raw, structured, curated, sink);
+
 		// return Job
-		return job;
+		return new StreamReaderJob(dsr, raw, structured, curated, sink);
 	}
 	
 	protected static RawZone getRawZone(final Map<String,String> params) {
