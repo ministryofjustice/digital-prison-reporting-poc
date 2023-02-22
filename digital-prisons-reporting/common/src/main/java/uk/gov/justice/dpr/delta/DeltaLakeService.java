@@ -124,8 +124,8 @@ public class DeltaLakeService {
 		payload.write().format("delta")
 			.mode("overwrite")
 			.option("delta.compatibility.symlinkFormatManifest.enabled", true)
-			.option("delta.autoOptimize.optimizeWrite", true)
-			.option("delta.autoOptimize.autoCompact", true)
+			.option("spark.databricks.delta.optimizeWrite.enabled", true)
+		 	.option("spark.databricks.delta.autoCompact.enabled", true)
 			.save(getTablePath(prefix, schema, table));
 		// create symlink
 		final DeltaTable dt = getTable(prefix, schema, table);

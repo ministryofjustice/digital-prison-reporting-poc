@@ -16,11 +16,12 @@
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spark.version>3.1.1</spark.version>
+		<spark.version>3.3.1</spark.version>
 		<!-- see https://docs.delta.io/latest/releases.html -->
-		<delta-lake.version>1.0.1</delta-lake.version>
+		<delta-lake.version>2.2.0</delta-lake.version>
 		<org.mockito.version>2.1.0</org.mockito.version>
         <aws.sdk.version>1.12.128</aws.sdk.version>
+		<nimbusds.version>5.0</nimbusds.version>
 	</properties>
 
 	<repositories>
@@ -196,6 +197,7 @@
 		    <version>2.1.0</version>
 		    <scope>test</scope>
 		</dependency>
+
 				
 		
 		<!-- https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito -->
@@ -237,4 +239,37 @@
 		</dependency>
 		
 	</dependencies>
+
+	<build>
+		<plugins>
+			<!--  build the domain platform into a single jar (shade) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.4.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<minimizeJar>false</minimizeJar>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<dependencyReducedPomLocation>
+								${java.io.tmpdir}/dependency-reduced-pom.xml
+							</dependencyReducedPomLocation>
+							<relocations>
+							</relocations>
+							<!--  see https://maven.apache.org/plugins/maven-shade-plugin/examples/includes-excludes.html -->
+							<artifactSet>
+								<excludes>
+								</excludes>
+							</artifactSet>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 </project>

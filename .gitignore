@@ -71,3 +71,4 @@ dependency-reduced-pom.xml
 .project
 .settings/
 .vscode
+/component.iml

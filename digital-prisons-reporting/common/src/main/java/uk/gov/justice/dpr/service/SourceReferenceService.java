@@ -11,10 +11,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+
+import org.apache.hadoop.shaded.com.nimbusds.jose.util.IOUtils;
 import org.apache.spark.sql.types.DataType;
 
 import com.google.common.base.Charsets;
-import com.nimbusds.jose.util.IOUtils;
+
 
 public class SourceReferenceService {
 
