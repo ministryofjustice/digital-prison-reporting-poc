@@ -1,5 +1,3 @@
-package gluejob
-
 import com.amazonaws.auth.InstanceProfileCredentialsProvider
 import com.amazonaws.services.glue.util.Job
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder

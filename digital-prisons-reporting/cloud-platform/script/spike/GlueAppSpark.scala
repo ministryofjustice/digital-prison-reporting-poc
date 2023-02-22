@@ -1,5 +1,3 @@
-package gluejob
-
 import com.amazonaws.services.glue.GlueContext
 import com.amazonaws.services.glue.util.{GlueArgParser, Job, JsonOptions}
 import org.apache.spark.SparkContext
