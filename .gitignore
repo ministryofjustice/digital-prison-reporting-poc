@@ -31,6 +31,7 @@ dist/
 
 # JetBrains IDE
 .idea/
+.iml
 
 # Unit test reports
 TEST*.xml
@@ -71,3 +72,4 @@ dependency-reduced-pom.xml
 .project
 .settings/
 .vscode
+.sw*
