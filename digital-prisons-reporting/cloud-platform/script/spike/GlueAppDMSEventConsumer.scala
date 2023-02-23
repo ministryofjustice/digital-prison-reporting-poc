@@ -24,8 +24,6 @@ object GlueApp {
 
     val args = GlueArgParser.getResolvedOptions(sysArgs, Seq("JOB_NAME").toArray)
 
-    println(s"Got args: ${args}")
-
     Job.init(args("JOB_NAME"), glueContext, args.asJava)
 
     val kinesisConsumerOptions =
