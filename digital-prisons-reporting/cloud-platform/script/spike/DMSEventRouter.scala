@@ -81,14 +81,15 @@ object GlueApp {
           val partitionKey = metadata.flatMap(_.get("partitionKey")).getOrElse(UUID.randomUUID().toString)
 
           metadata.flatMap(_.get("operation")) match {
-            case Some("load") => (loadEventStream, putRequestEntry(partitionKey, data))
-            case _ => (cdcEventStream, putRequestEntry(partitionKey, data))
+            case Some("load") => (loadEventStream, Some(putRequestEntry(partitionKey, data)))
+            case Some("create-table") => (loadEventStream, None)
+            case _ => (cdcEventStream, Some(putRequestEntry(partitionKey, data)))
           }
         }
 
         // TODO - consider factoring this out
-        val loadRequests = putRequests.filter(_._1 == loadEventStream).map(_._2)
-        val cdcRequests = putRequests.filter(_._1 == cdcEventStream).map(_._2)
+        val loadRequests = putRequests.filter(_._1 == loadEventStream).flatMap(_._2)
+        val cdcRequests = putRequests.filter(_._1 == cdcEventStream).flatMap(_._2)
 
         val maxBatchSize = 500
 
