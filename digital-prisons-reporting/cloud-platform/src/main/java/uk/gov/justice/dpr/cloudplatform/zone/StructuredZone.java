@@ -39,8 +39,7 @@ public class StructuredZone extends DeltaZone implements Zone {
 					cols.add(col(name));
 				}
 			}
-			Dataset<Row> df_cast = changes.select(cols.toArray(new Column[] {}));
-			return df_cast;
+			return changes.select(cols.toArray(new Column[] {}));
 		}
 		return changes;
 	}

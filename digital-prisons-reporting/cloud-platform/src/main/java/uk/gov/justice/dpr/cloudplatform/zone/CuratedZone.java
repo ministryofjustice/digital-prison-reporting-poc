@@ -3,7 +3,7 @@ package uk.gov.justice.dpr.cloudplatform.zone;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 
-public class CuratedZone extends DeltaZone implements Zone {
+public class CuratedZone extends HudiZone implements Zone {
 
 	public CuratedZone(String prefix) {
 		super(prefix);

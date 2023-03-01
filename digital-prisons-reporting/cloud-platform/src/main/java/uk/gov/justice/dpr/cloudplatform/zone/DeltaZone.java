@@ -28,7 +28,8 @@ public abstract class DeltaZone {
 		final List<Row> tables = batch.filter("recordType='data'").select("schemaName", "tableName").distinct().collectAsList();
 		
 		System.out.println(this.getClass().getSimpleName() + "::processing " + (tables == null ? 0 : tables.size()) + " tables...");
-		
+
+		assert tables != null;
 		for(final Row t : tables) {
 
 			final String schema = t.getAs("schemaName");
