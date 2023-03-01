@@ -24,7 +24,71 @@ public abstract class HudiZone  {
 	}
 	
 	protected Dataset<Row> process(Dataset<Row> batch) {
-		//TODO: implementation here
+		// determine the tables in 	the batch
+		final List<Row> tables = batch.filter("recordType='data'")
+				.select("schemaName", "tableName")
+				.distinct()
+				.collectAsList();
+
+		System.out.println(this.getClass().getSimpleName() + "::processing "
+				+ (tables == null ? 0 : tables.size()) + " tables...");
+
+		assert tables != null;
+		for(final Row t : tables) {
+
+			final String schema = t.getAs("schemaName");
+			final String table = t.getAs("tableName");
+			try {
+
+				System.out.println(this.getClass().getSimpleName()
+						+ "::process(" + schema + "," + table + ") started");
+
+				// preprocessing is needed to ensure that we do not apply changes in the wrong order
+				// for example, an insert followed by a delete of the same record results in no change
+				// but a delete followed by an insert causes a record to be created.
+
+				// it is best that the batch is processed into a series of sub-batches that ensure changes
+				// made are applied appropriately
+
+				Dataset<Row> changes = batch.filter("(recordType == 'data' and schemaName == '"
+								+ schema +"' and tableName == '"
+								+ table + "' and (operation == 'load' or operation == " +
+								"'insert' or operation == 'update' or operation == 'delete'))")
+						.orderBy(col("timestamp"));
+
+				final DataType payloadSchema = SourceReferenceService.getSchema(schema +"."+ table);
+
+				// GET PAYLOAD AND RETAIN _operation and _timestamp
+				Dataset<Row> df_payload = EventConverter.getPayload(changes, payloadSchema);
+
+				// THIS IS THE POINT AT WHICH STRUCTURE IS APPLIED TO THE DATA
+				Dataset<Row> df_applied = transform(df_payload, schema, table);
+
+
+
+				final String source = SourceReferenceService.getSource(schema +"." + table);
+				final String tableName = SourceReferenceService.getTable(schema +"." + table);
+				final String primaryKey = SourceReferenceService.getPrimaryKey(schema +"." + table);
+
+				// THIS IS THE POINT WHERE WE DROP DUPLICATES
+				// DUPLICATED WILL BE THE SAME ACTION (_operation) AND SAME PRIMARY KEY
+				final Dataset<Row> df_merge = removeDuplicates(df_applied, primaryKey);
+
+//				hudi.merge(prefix, source, tableName, primaryKey, df_merge);
+//
+//				hudi.endTableUpdates(prefix, source, tableName);
+
+				System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") completed");
+
+				// return df_merge;
+
+			} catch(Exception e) {
+
+				System.out.println(this.getClass().getSimpleName() + "::process(" + schema + "," + table + ") failed : " + e.getMessage());
+				handleError(e);
+			}
+		}
+
 		return batch;
 	}
 
