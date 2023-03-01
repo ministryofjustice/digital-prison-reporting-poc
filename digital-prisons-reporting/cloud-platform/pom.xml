@@ -108,14 +108,22 @@
 		</dependency>
 		
 		<!-- https://mvnrepository.com/artifact/com.qubole.spark/spark-sql-kinesis -->
+<!--		<dependency>-->
+<!--		    <groupId>com.qubole.spark</groupId>-->
+<!--		    <artifactId>spark-sql-kinesis_2.12</artifactId>-->
+<!--		    <version>1.2.0_spark-3.0</version>-->
+<!--		    <scope>provided</scope>-->
+<!--		</dependency>-->
+
+		<!-- https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kinesis-asl -->
 		<dependency>
-		    <groupId>com.qubole.spark</groupId>
-		    <artifactId>spark-sql-kinesis_2.12</artifactId>
-		    <version>1.2.0_spark-3.0</version>
-		    <scope>provided</scope>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-streaming-kinesis-asl_2.12</artifactId>
+			<version>3.3.1</version>
 		</dependency>
-				
-        <!--  GUAVA 21 is a dependency for the kinesis
+
+
+		<!--  GUAVA 21 is a dependency for the kinesis
               Futures.addCallback was deprecated after 25.1 -->
         <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
         <dependency>
