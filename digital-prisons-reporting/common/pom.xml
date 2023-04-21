@@ -16,7 +16,7 @@
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spark.version>3.1.1</spark.version>
+		<spark.version>3.4.0</spark.version>
 		<!-- see https://docs.delta.io/latest/releases.html -->
 		<delta-lake.version>1.0.1</delta-lake.version>
 		<org.mockito.version>2.1.0</org.mockito.version>
