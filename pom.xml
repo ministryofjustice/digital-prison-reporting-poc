@@ -110,7 +110,7 @@
 		<egeria.version>1.8</egeria.version>
 		<jna.version>5.3.0</jna.version>
 		<protobuf.version>3.8.0</protobuf.version>
-		<guava.version>27.0-jre</guava.version>
+		<guava.version>32.0.0-jre</guava.version>
 		<groovy.version>2.4.3</groovy.version>
 		<aws.version>1.11.994</aws.version>
 	</properties>
